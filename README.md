@@ -1,5 +1,8 @@
-bare_minimum_plotter
+BareMinimumPlotter
 ====================
+Emerick Bosch || 
+May 2014
 
-prototype plotter
+
+prototype inequality plotter || 
 wip
