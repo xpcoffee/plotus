@@ -3,6 +3,7 @@
 #include "deplot/include/inequality.h"
 #include <qvalidator.h>
 #include <qlocale.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 
@@ -69,7 +70,6 @@ void BareMinimumPlotter::plot()
     mVariable2.resetPosition();
         // iterate through boolean results, only copy matches
     for(unsigned int i = 0; i < space.size(); i++){
-        cout << "space[" << i <<  "] : " << space[i] << endl;
         if (space[i]){
             x.push_back(mVariable1.getCurrentValue());
             y.push_back(mVariable2.getCurrentValue());

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <vector>
+#include <stdlib.h>
 #include "deplot/include/variable.h"
 #include "deplot/include/inequality.h"
 #include "deplot/include/expression.h"

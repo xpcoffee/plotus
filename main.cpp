@@ -1,6 +1,7 @@
 #include "bareminimumplotter.h"
 #include <QApplication>
 #include <iostream>
+#include <stdlib.h>
 
 
 int main (int argc, char *argv[]){
