@@ -41,7 +41,17 @@ void BareMinimumPlotter::plot()
         return;
     }
 
-    // create variables
+    // create inequality
+    cout << "combo box string: " << ui->comboBox->currentText().toStdString() << endl;
+    mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
+                             ui->comboBox->currentText().toStdString()[0],
+                             ui->lineEditInequalityRight->text().toStdString());
+
+    // check expressions
+    vector<int> vInputErrorsLHS = mInequality.getProblemTerms1();
+    vector<int> vInputErrorsRHS = mInequality.getProblemTerms2(); // [LUNCH] expression not checking
+
+    // create and add variables
     mVariable1 = Variable(ui->lineEditName1->text().toStdString(),
                           ui->lineEditMin1->text().toDouble(),
                           ui->lineEditMax1->text().toDouble(),
@@ -51,13 +61,6 @@ void BareMinimumPlotter::plot()
                           ui->lineEditMin2->text().toDouble(),
                           ui->lineEditMax2->text().toDouble(),
                           ui->lineEditElement2->text().toInt());
-
-    // create inequality
-    cout << "combo box string: " << ui->comboBox->currentText().toStdString() << endl;
-    mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
-                             ui->comboBox->currentText().toStdString()[0],
-                             ui->lineEditInequalityRight->text().toStdString());
-
     mInequality.addVariable(mVariable1);
     mInequality.addVariable(mVariable2);
 

@@ -165,6 +165,20 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineEditInequalityLeft</tabstop>
+  <tabstop>comboBox</tabstop>
+  <tabstop>lineEditInequalityRight</tabstop>
+  <tabstop>lineEditName1</tabstop>
+  <tabstop>lineEditMin1</tabstop>
+  <tabstop>lineEditMax1</tabstop>
+  <tabstop>lineEditElement1</tabstop>
+  <tabstop>lineEditName2</tabstop>
+  <tabstop>lineEditMin2</tabstop>
+  <tabstop>lineEditMax2</tabstop>
+  <tabstop>lineEditElement2</tabstop>
+  <tabstop>buttonPlot</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
