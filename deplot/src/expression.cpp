@@ -67,6 +67,7 @@
 
 void Expression::setExpression(string sInput){
 	vOriginalExpression = parseExpressionArray(sInput);
+    vProblemTerms = checkExpressionArray(vOriginalExpression);
 	resetExpression();
 }
 
@@ -296,7 +297,7 @@ bool Expression::doDivision (vector<string>& vExpression) {
 				//do the math
 				string termBeforeOperator = vExpression[i-1];
 				string termAfterOperator  = vExpression[i+1];
-				assert(atof(termAfterOperator.c_str()) != 0);
+                //assert(atof(termAfterOperator.c_str()) != 0);
                 double result = atof(termBeforeOperator.c_str()) / atof(termAfterOperator.c_str());
 				// update expression - operator and second value filled with special character 
 				ostringstream buffer;
@@ -351,6 +352,7 @@ bool Expression::doSubtraction (vector<string>& vExpression) {
 		// if operation found and it is the correct operation
 		if (charIsOperator(sTerm[0]) && sTerm[0] == '-' && !charIsDigit(sTerm[1])){
 				//do the math
+                // [BREAK] 27/05/2014 | 0/0 division results in "nan" that can't be processed later on
 				string termBeforeOperator = vExpression[i-1];
 				string termAfterOperator  = vExpression[i+1];
                 double result = atof(termBeforeOperator.c_str()) - atof(termAfterOperator.c_str());
@@ -542,7 +544,14 @@ void Expression::recEval(){
             if (nCurrentVariable == static_cast<int>(vVariables.size()) - 1){
                     // do math
 					subVariableValues();
-                    double dResult = evaluateExpression();
+                    double dResult;
+                    try{
+                        dResult = evaluateExpression();
+                    }
+                    catch(...){
+                        vProblemSpace.push_back(vResult.size());
+                        dResult = 0;
+                    }
                     vResult.push_back(dResult);
 
                     cout << "[BEGIN INFO BLOCK] recEval() |" << endl;
@@ -593,22 +602,40 @@ string Expression::getExpression(){
     return getStringArray(vExpression);
 }
 
+string Expression::getTerm(int nTerm){
+    // [DOCUMENTATION] getTerm() | 0th terms are a thing in DePlot
+    assert(nTerm >= 0 && nTerm < vExpression.size());
+    return vExpression[nTerm];
+}
+
 vector<int> Expression::getProblemTerms(){
     return vProblemTerms;
 }
 
+vector<int> Expression::getProblemSpace(){
+    return vProblemSpace;
+}
+
 //	Evaluation
 //	-----------
-
+// [BREAK] combined operator -+ breaking
 void Expression::subVariableValues(){
 	nTerms = vExpression.size();
     for (int j = 0; j < nTerms; j++){
         for (int i = 0; i < static_cast<int>(vVariables.size()); i++){
-			if (vVariables[i].getName() == vExpression[j]){
+            cout << "[DEBUG] subVariableValues | " << "variabe name: " << vVariables[i].getName() << endl;
+            cout << "[DEBUG] subVariableValues | " << "with - to appended vExpression term: " <<
+                    std::string("-") + vExpression[j] << endl;
+            if (vVariables[i].getName() == vExpression[j]){
 				ostringstream buffer;
 				buffer << vVariables[i].getCurrentValue();
 				vExpression[j] = buffer.str();
 			}
+            else if (("-" + vVariables[i].getName()) == vExpression[j]){
+                ostringstream buffer;
+                buffer << -1 * vVariables[i].getCurrentValue();
+                vExpression[j] = buffer.str();
+            }
 		}
 	}
 }

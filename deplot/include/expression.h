@@ -49,8 +49,9 @@ class Expression
     int nCurrentVariable;
 	vector<string> vExpression;
 	vector<string> vOriginalExpression;
-	vector<Variable> vVariables;	// TODO: figure out variable interaction
+    vector<Variable> vVariables;
     vector<double> vResult;
+    vector<int> vProblemSpace;
     vector<int> vProblemTerms;
     bool flag_EmptyParenth;
 
@@ -101,7 +102,9 @@ public:
 	void subVariableValues();
     vector<double> evaluateAll();
 	string getExpression();
+    string getTerm(int);
     vector<int> getProblemTerms();
+    vector<int> getProblemSpace();
 
 
 	// experimental

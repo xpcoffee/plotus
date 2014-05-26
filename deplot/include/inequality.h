@@ -99,11 +99,48 @@ public:
         return mExpression2.getProblemTerms();
     }
 
+    vector<int> getProblemSpace(){
+        vector <int> vReturnProblemSpace;
+        vector <int> vProblemSpace1 = mExpression1.getProblemSpace();
+        vector <int> vProblemSpace2 = mExpression2.getProblemSpace();
+        //combine both problem spaces
+        vector<int>::iterator it = vProblemSpace1.begin();
+        vector<int>::iterator jit = vProblemSpace2.begin();
+
+        while (it != vProblemSpace1.end() && jit != vProblemSpace2.end()){
+            if (it == vProblemSpace1.end())	{
+                    vReturnProblemSpace.push_back(*jit);
+                    jit++;
+            }
+            else if (jit == vProblemSpace2.end())	{
+                    vReturnProblemSpace.push_back(*it);
+                    it++;
+            }
+            else if (*it > *jit)	{
+                    vReturnProblemSpace.push_back(*jit);
+                    jit++;
+            }
+            else if (*it == *jit)	{
+                    vReturnProblemSpace.push_back(*jit);
+                    vReturnProblemSpace.push_back(*it);
+                    it++;
+                    jit++;
+            }
+            else if (*it < *jit)	{
+                    vReturnProblemSpace.push_back(*it);
+                    it++;
+            }
+        }
+
+        return vReturnProblemSpace;
+    }
+
     vector<bool> evaluate(){
 		vector<bool> vResult;
 		vEvalArray1 = mExpression1.evaluateAll();	
 		vEvalArray2 = mExpression2.evaluateAll();	
-        cout << "symbol: " << cSymbol << endl;
+        cout << "[INFO] evaluate() |" << " symbol: " << cSymbol << endl;
+        cout << "[BEGIN INFO BLOCK] evaluate() |" << " check inequality" << endl;
         for (unsigned int i = 0; i < vEvalArray1.size(); i++){
 			switch(cSymbol){
 				case '<':
@@ -116,7 +153,8 @@ public:
                     break;
 			}
 		}
-		return vResult;
+        cout << "[END INFO BLOCK] evaluate() |" << endl;
+        return vResult;
 	}
 
 }; // Inequality

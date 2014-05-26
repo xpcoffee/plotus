@@ -49,9 +49,12 @@ void BareMinimumPlotter::plot()
 
     // check expressions
     vector<int> vInputErrorsLHS = mInequality.getProblemTerms1();
-    vector<int> vInputErrorsRHS = mInequality.getProblemTerms2(); // [LUNCH] expression not checking
+    vector<int> vInputErrorsRHS = mInequality.getProblemTerms2();
 
     // create and add variables
+    ui->lineEditName1->setText(ui->lineEditName1->text().replace(QString(" "), QString("")));
+    ui->lineEditName2->setText(ui->lineEditName2->text().replace(QString(" "), QString("")));
+
     mVariable1 = Variable(ui->lineEditName1->text().toStdString(),
                           ui->lineEditMin1->text().toDouble(),
                           ui->lineEditMax1->text().toDouble(),
@@ -61,22 +64,38 @@ void BareMinimumPlotter::plot()
                           ui->lineEditMin2->text().toDouble(),
                           ui->lineEditMax2->text().toDouble(),
                           ui->lineEditElement2->text().toInt());
+
     mInequality.addVariable(mVariable1);
     mInequality.addVariable(mVariable2);
 
     // do maths
-    vector<bool> space = mInequality.evaluate();
+    vector<bool> vPlotSpace = mInequality.evaluate();
+    vector<int> vProblemSpace = mInequality.getProblemSpace();
+    vector<int>::iterator it = vProblemSpace.begin();
 
     // create plotting vectors
-    QVector<double> x, y;
+    QVector<double> x, y, x_problem, y_problem;
     mVariable1.resetPosition(); // reset iterators
     mVariable2.resetPosition();
         // iterate through boolean results, only copy matches
-    for(unsigned int i = 0; i < space.size(); i++){
-        if (space[i]){
-            x.push_back(mVariable1.getCurrentValue());
-            y.push_back(mVariable2.getCurrentValue());
-            cout << "QVector[" << (x.size()) << "]" <<
+    for(int i = 0; i < static_cast<int>(vPlotSpace.size()); i++){
+        if (vPlotSpace[i]){
+            // if this is a problem point, add to problem vectors
+            // otherwise add to the normal graph vectors
+            // (the logic assumes that the problem points are added in order)
+            if(!vProblemSpace.empty() && i == *it){
+                cout << "[DEBUG] plot() | " << "adding problem point" << endl;
+                x_problem.push_back(mVariable1.getCurrentValue());
+                y_problem.push_back(mVariable2.getCurrentValue());
+                it++;
+            }
+            else {
+                cout << "[DEBUG] plot() | " << "adding normal point" << endl;
+                x.push_back(mVariable1.getCurrentValue());
+                y.push_back(mVariable2.getCurrentValue());
+            }
+
+            cout << "[INFO] plot() | " << "QVector[" << (x.size()) << "]" <<
                     "\t| x: " << mVariable1.getCurrentValue() << // *x.end() <<
                     "\t| y: " << mVariable2.getCurrentValue() << //*y.end() <<
                     endl;
@@ -87,16 +106,26 @@ void BareMinimumPlotter::plot()
         mVariable2.nextPosition();
     }
 
-    // plot
+    // add normal graph
     ui->plotter->clearGraphs();
     ui->plotter->addGraph();
     ui->plotter->graph(0)->setData(x,y);
+    ui->plotter->graph(0)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+    ui->plotter->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, 5));
+
+    // add problem graph (if needed)
+//    if (!x_problem.isEmpty()){
+//        ui->plotter->addGraph();
+//        ui->plotter->graph(1)->setData(x_problem,y_problem);
+//        ui->plotter->graph(1)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+//        ui->plotter->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, 5));
+//    }
+
+    // set general options, plot
     ui->plotter->xAxis->setLabel(QString::fromStdString(mVariable1.getName()));
     ui->plotter->yAxis->setLabel(QString::fromStdString(mVariable2.getName()));
     ui->plotter->xAxis->setRange(mVariable1.getMin(), mVariable1.getMax());
     ui->plotter->yAxis->setRange(mVariable2.getMin(), mVariable2.getMax());
-    ui->plotter->graph(0)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-    ui->plotter->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, 5));
     ui->plotter->replot();
 }
 
