@@ -48,8 +48,8 @@ void BareMinimumPlotter::plot()
                              ui->lineEditInequalityRight->text().toStdString());
 
     // check expressions
-    vector<int> vInputErrorsLHS = mInequality.getProblemTerms1();
-    vector<int> vInputErrorsRHS = mInequality.getProblemTerms2();
+    vector<int> vInputErrorsLHS = mInequality.getProblemElements_Expression1();
+    vector<int> vInputErrorsRHS = mInequality.getProblemElements_Expression2();
 
     // create and add variables
     ui->lineEditName1->setText(ui->lineEditName1->text().replace(QString(" "), QString("")));
@@ -70,36 +70,37 @@ void BareMinimumPlotter::plot()
 
     // do maths
     vector<bool> vPlotSpace = mInequality.evaluate();
-    vector<int> vProblemSpace = mInequality.getProblemSpace();
-    vector<int>::iterator it = vProblemSpace.begin();
+    vector<int> vProblemSpace = mInequality.getProblemElements_Result();
+    vector<int>::iterator it_ProblemSpace = vProblemSpace.begin();
 
     // create plotting vectors
     QVector<double> x, y, x_problem, y_problem;
     mVariable1.resetPosition(); // reset iterators
     mVariable2.resetPosition();
-        // iterate through boolean results, only copy matches
+        // it_ProblemSpaceerate through boolean results, only copy matches
     for(int i = 0; i < static_cast<int>(vPlotSpace.size()); i++){
-        if (vPlotSpace[i]){
-            // if this is a problem point, add to problem vectors
-            // otherwise add to the normal graph vectors
-            // (the logic assumes that the problem points are added in order)
-            if(!vProblemSpace.empty() && i == *it){
-                cout << "[DEBUG] plot() | " << "adding problem point" << endl;
-                x_problem.push_back(mVariable1.getCurrentValue());
-                y_problem.push_back(mVariable2.getCurrentValue());
-                it++;
-            }
-            else {
-                cout << "[DEBUG] plot() | " << "adding normal point" << endl;
-                x.push_back(mVariable1.getCurrentValue());
-                y.push_back(mVariable2.getCurrentValue());
-            }
-
-            cout << "[INFO] plot() | " << "QVector[" << (x.size()) << "]" <<
-                    "\t| x: " << mVariable1.getCurrentValue() << // *x.end() <<
-                    "\t| y: " << mVariable2.getCurrentValue() << //*y.end() <<
-                    endl;
+        // if this is a problem point, add to problem vectors
+        // otherwise add to the normal graph vectors
+        // (the logic assumes that the problem points are added in order)
+//        cout << "i = " << i << ", *it = " << *it_ProblemSpace << " | ";
+        if(!vProblemSpace.empty() && i == *it_ProblemSpace){
+            cout << endl;
+            cout << "[DEBUG] plot() | " << "adding problem point" << endl;
+            x_problem.push_back(mVariable1.getCurrentValue());
+            y_problem.push_back(mVariable2.getCurrentValue());
+            it_ProblemSpace++;
         }
+        else if (vPlotSpace[i]) {
+//                cout << "[DEBUG] plot() | " << "adding normal point" << endl;
+            x.push_back(mVariable1.getCurrentValue());
+            y.push_back(mVariable2.getCurrentValue());
+        }
+
+//            cout << "[INFO] plot() | " << "QVector[" << (x.size()) << "]" <<
+//                    "\t| x: " << mVariable1.getCurrentValue() << // *x.end() <<
+//                    "\t| y: " << mVariable2.getCurrentValue() << //*y.end() <<
+//                    endl;
+
         if ((i+1) % mVariable2.getGrid() == 0){
             mVariable1.nextPosition();
         }
@@ -111,15 +112,23 @@ void BareMinimumPlotter::plot()
     ui->plotter->addGraph();
     ui->plotter->graph(0)->setData(x,y);
     ui->plotter->graph(0)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-    ui->plotter->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, 5));
+    QCPScatterStyle style1;
+    style1.setShape(QCPScatterStyle::ssCross);
+    style1.setSize(5);
+    style1.setPen(QPen(Qt::blue));
+    ui->plotter->graph(0)->setScatterStyle(style1);
 
     // add problem graph (if needed)
-//    if (!x_problem.isEmpty()){
-//        ui->plotter->addGraph();
-//        ui->plotter->graph(1)->setData(x_problem,y_problem);
-//        ui->plotter->graph(1)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-//        ui->plotter->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, 5));
-//    }
+    if (!x_problem.isEmpty()){
+        ui->plotter->addGraph();
+        ui->plotter->graph(1)->setData(x_problem,y_problem);
+        ui->plotter->graph(1)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+        QCPScatterStyle style2;
+        style2.setShape(QCPScatterStyle::ssCross);
+        style2.setSize(5);
+        style2.setPen(QPen(Qt::red));
+        ui->plotter->graph(1)->setScatterStyle(style2);
+    }
 
     // set general options, plot
     ui->plotter->xAxis->setLabel(QString::fromStdString(mVariable1.getName()));

@@ -67,8 +67,8 @@
 
 void Expression::setExpression(string sInput){
 	vOriginalExpression = parseExpressionArray(sInput);
-    vProblemTerms = checkExpressionArray(vOriginalExpression);
-	resetExpression();
+    resetExpression();
+    vExpression_ProblemElements = checkExpressionArray(vOriginalExpression);
 }
 
 
@@ -297,7 +297,8 @@ bool Expression::doDivision (vector<string>& vExpression) {
 				//do the math
 				string termBeforeOperator = vExpression[i-1];
 				string termAfterOperator  = vExpression[i+1];
-                //assert(atof(termAfterOperator.c_str()) != 0);
+                if (atof(termAfterOperator.c_str()) == 0)
+                    throw 101;
                 double result = atof(termBeforeOperator.c_str()) / atof(termAfterOperator.c_str());
 				// update expression - operator and second value filled with special character 
 				ostringstream buffer;
@@ -309,12 +310,10 @@ bool Expression::doDivision (vector<string>& vExpression) {
 				while(compressExpression(vExpression)){
 					// loop will auto-terminate	
 				}
-				// if an operation was done:
-				return true;	
-		}
+                return true; // if an operation was done:
+        }
 	}
-	// if no operation found
-	return false;
+    return false; // if no operation found
 }
 
 bool Expression::doAddition (vector<string>& vExpression) {
@@ -412,6 +411,7 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
     int nOpen = 0;
     int nRange = 0;
     string sTerm;
+    bool flag_EmptyParenth;
 	for (int i = 0; i < nTerms; i++){
         sTerm = vExpression[i];
 		// if operation found and it is the correct operation
@@ -446,14 +446,14 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
 			}
             // do special operations
             cout << "[INFO] doParenthesis() | Expression before special: " << getExpression() << endl;
-            doSpecial(vExpression, nOpen);
+            doSpecial(vExpression, nOpen, flag_EmptyParenth);
 			return true;
 		}
 	}
 	return false;
 }
 
-void Expression::doSpecial(vector<string> & vExpression, int nEvalPos){
+void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag_EmptyParenth){
     // if the brackets were right at the beginning, nothing before them
     // therefore no trig to do
     if (nEvalPos < 1) { return; }
@@ -548,8 +548,10 @@ void Expression::recEval(){
                     try{
                         dResult = evaluateExpression();
                     }
-                    catch(...){
-                        vProblemSpace.push_back(vResult.size());
+                    catch(int e){
+                        handleException(e);
+                        resetExpression();
+                        vResult_ProblemElements.push_back(vResult.size());
                         dResult = 0;
                     }
                     vResult.push_back(dResult);
@@ -583,6 +585,18 @@ string Expression::getStringArray(vector<string> vExpression){
 	return sExpression;
 }
 
+void Expression::handleException(int e){
+    cout << "[EXCEPTION] " << e << " | ";
+
+    switch(e){
+    case 101:
+        cout << "Divide by 0" << endl;
+        break;
+    default:
+        cout << "Unhandled exception." << endl;
+        break;
+    }
+}
 
 //	"""""""""""""""""""""""""""""""""	
 //	"		Public Functions		"
@@ -604,16 +618,16 @@ string Expression::getExpression(){
 
 string Expression::getTerm(int nTerm){
     // [DOCUMENTATION] getTerm() | 0th terms are a thing in DePlot
-    assert(nTerm >= 0 && nTerm < vExpression.size());
+    assert(nTerm >= 0 && nTerm < static_cast<int>(vExpression.size()));
     return vExpression[nTerm];
 }
 
-vector<int> Expression::getProblemTerms(){
-    return vProblemTerms;
+vector<int> Expression::getProblemElements_Expression(){
+    return vExpression_ProblemElements;
 }
 
-vector<int> Expression::getProblemSpace(){
-    return vProblemSpace;
+vector<int> Expression::getProblemElements_Result(){
+    return vResult_ProblemElements;
 }
 
 //	Evaluation
@@ -623,9 +637,9 @@ void Expression::subVariableValues(){
 	nTerms = vExpression.size();
     for (int j = 0; j < nTerms; j++){
         for (int i = 0; i < static_cast<int>(vVariables.size()); i++){
-            cout << "[DEBUG] subVariableValues | " << "variabe name: " << vVariables[i].getName() << endl;
-            cout << "[DEBUG] subVariableValues | " << "with - to appended vExpression term: " <<
-                    std::string("-") + vExpression[j] << endl;
+//            cout << "[DEBUG] subVariableValues | " << "variabe name: " << vVariables[i].getName() << endl;
+//            cout << "[DEBUG] subVariableValues | " << "with - to appended vExpression term: " <<
+//                    std::string("-") + vExpression[j] << endl;
             if (vVariables[i].getName() == vExpression[j]){
 				ostringstream buffer;
 				buffer << vVariables[i].getCurrentValue();

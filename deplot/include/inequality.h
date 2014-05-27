@@ -91,46 +91,72 @@ public:
 	}
 
     // # feature functions #
-    vector<int> getProblemTerms1(){
-        return mExpression1.getProblemTerms();
+    vector<int> getProblemElements_Expression1(){
+        return mExpression1.getProblemElements_Expression();
     }
 
-    vector<int> getProblemTerms2(){
-        return mExpression2.getProblemTerms();
+    vector<int> getProblemElements_Expression2(){
+        return mExpression2.getProblemElements_Expression();
     }
 
-    vector<int> getProblemSpace(){
+    vector<int> getProblemElements_Result(){
         vector <int> vReturnProblemSpace;
-        vector <int> vProblemSpace1 = mExpression1.getProblemSpace();
-        vector <int> vProblemSpace2 = mExpression2.getProblemSpace();
+        vector <int> vProblemSpace1 = mExpression1.getProblemElements_Result();
+        vector <int> vProblemSpace2 = mExpression2.getProblemElements_Result();
+
+        cout << "[INFO] getProblemElements_Result() | " << "vProblemSpace1: ";
+        for (vector<int>::iterator it = vProblemSpace1.begin(); it!=vProblemSpace1.end(); it++){
+            cout << *it << ", ";
+        }
+        cout << endl;
+
+        cout << "[INFO] getProblemElements_Result() | " << "vProblemSpace2: ";
+        for (vector<int>::iterator it = vProblemSpace2.begin(); it!=vProblemSpace2.end(); it++){
+            cout << *it << ", ";
+        }
+        cout << endl;
+
         //combine both problem spaces
         vector<int>::iterator it = vProblemSpace1.begin();
         vector<int>::iterator jit = vProblemSpace2.begin();
 
-        while (it != vProblemSpace1.end() && jit != vProblemSpace2.end()){
-            if (it == vProblemSpace1.end())	{
-                    vReturnProblemSpace.push_back(*jit);
-                    jit++;
-            }
-            else if (jit == vProblemSpace2.end())	{
-                    vReturnProblemSpace.push_back(*it);
-                    it++;
-            }
-            else if (*it > *jit)	{
-                    vReturnProblemSpace.push_back(*jit);
-                    jit++;
-            }
-            else if (*it == *jit)	{
-                    vReturnProblemSpace.push_back(*jit);
-                    vReturnProblemSpace.push_back(*it);
-                    it++;
-                    jit++;
-            }
-            else if (*it < *jit)	{
-                    vReturnProblemSpace.push_back(*it);
-                    it++;
+        if(vProblemSpace1.empty()){
+            vReturnProblemSpace = vProblemSpace2;
+        } else if (vProblemSpace2.empty()){
+                vReturnProblemSpace = vProblemSpace1;
+        } else {
+            while (it != vProblemSpace1.end() && jit != vProblemSpace2.end()){
+                if (it == vProblemSpace1.end())	{
+                        vReturnProblemSpace.push_back(*jit);
+                        jit++;
+                }
+                else if (jit == vProblemSpace2.end())	{
+                        vReturnProblemSpace.push_back(*it);
+                        it++;
+                }
+                else if (*it > *jit)	{
+                        vReturnProblemSpace.push_back(*jit);
+                        jit++;
+                }
+                else if (*it == *jit)	{
+                        vReturnProblemSpace.push_back(*jit);
+                        vReturnProblemSpace.push_back(*it);
+                        it++;
+                        jit++;
+                }
+                else if (*it < *jit)	{
+                        vReturnProblemSpace.push_back(*it);
+                        it++;
+                }
             }
         }
+
+
+        cout << "[INFO] getProblemElements_Result() | " << "Combined space: ";
+        for (vector<int>::iterator it = vReturnProblemSpace.begin(); it!=vReturnProblemSpace.end(); it++){
+            cout << *it << ", ";
+        }
+        cout << endl;
 
         return vReturnProblemSpace;
     }
@@ -139,21 +165,21 @@ public:
 		vector<bool> vResult;
 		vEvalArray1 = mExpression1.evaluateAll();	
 		vEvalArray2 = mExpression2.evaluateAll();	
-        cout << "[INFO] evaluate() |" << " symbol: " << cSymbol << endl;
-        cout << "[BEGIN INFO BLOCK] evaluate() |" << " check inequality" << endl;
+//        cout << "[INFO] evaluate() |" << " symbol: " << cSymbol << endl;
+//        cout << "[BEGIN INFO BLOCK] evaluate() |" << " check inequality" << endl;
         for (unsigned int i = 0; i < vEvalArray1.size(); i++){
 			switch(cSymbol){
 				case '<':
 					vResult.push_back(vEvalArray1[i] < vEvalArray2[i]);
-                    cout << vEvalArray1[i] << "\t<\t" << vEvalArray2[i] << "\t:" << (vEvalArray1[i] < vEvalArray2[i]) << endl;
+//                    cout << vEvalArray1[i] << "\t<\t" << vEvalArray2[i] << "\t:" << (vEvalArray1[i] < vEvalArray2[i]) << endl;
 					break;
 				case '>':
 					vResult.push_back(vEvalArray1[i] > vEvalArray2[i]);
-                    cout << vEvalArray1[i] << "\t>\t" << vEvalArray2[i] << "\t:" << (vEvalArray1[i] > vEvalArray2[i]) << endl;
+//                    cout << vEvalArray1[i] << "\t>\t" << vEvalArray2[i] << "\t:" << (vEvalArray1[i] > vEvalArray2[i]) << endl;
                     break;
 			}
 		}
-        cout << "[END INFO BLOCK] evaluate() |" << endl;
+//        cout << "[END INFO BLOCK] evaluate() |" << endl;
         return vResult;
 	}
 

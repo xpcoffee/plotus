@@ -51,20 +51,22 @@ class Expression
 	vector<string> vOriginalExpression;
     vector<Variable> vVariables;
     vector<double> vResult;
-    vector<int> vProblemSpace;
-    vector<int> vProblemTerms;
-    bool flag_EmptyParenth;
+    vector<int> vResult_ProblemElements;
+    vector<int> vExpression_ProblemElements;
 
 	// functions
+    // - parsing
 	bool charIsDigit(char);
 	bool charIsParenthesis(char);
 	bool charIsOperator(char);
     bool charIsAlpha(char);
 	bool charIsWhitespace(char);
+    // - validation
     bool checkDecimalPoint(string);
     bool checkIllegalChars(string);
     bool checkIllegalVar(string);
     bool checkOperators(string);
+    // - recursive evaluation functions
     bool compressExpression(vector<string>&);
     bool doPowers(vector<string>&);
 	bool doMultiplication(vector<string>&);
@@ -72,42 +74,46 @@ class Expression
 	bool doSubtraction(vector<string>&);
 	bool doAddition(vector<string>&);
 	bool doParenthesis(vector<string>&);
-    void doSpecial(vector<string>&, int);
+    // - evaluation functions
+    void doSpecial(vector<string>&, int, bool);
 	void doBasic(vector<string>&);
-	void resetExpression();
-	void recEval();
-	string getStringArray(vector<string>);
-	
+    void recEval();
+    void resetExpression();
+    double evaluateExpression();
+    // - internal getters
+    string getStringArray(vector<string>);
+    // - exceptions and error handling
+    void handleException(int);
+
 public:
 	// constructor
 	Expression(string sExpressionString = "")
 	{
 		vOriginalExpression = parseExpressionArray(sExpressionString);
-        vProblemTerms = checkExpressionArray(vOriginalExpression);
-		vExpression         = vOriginalExpression;
+        resetExpression();
+        vExpression_ProblemElements = checkExpressionArray(vExpression);
 		nCurrentVariable = 0;
-        std::cout << std::setprecision(6) << "";
-        setlocale(LC_NUMERIC,"C");
-        flag_EmptyParenth = false;
+        setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
     }
 
 	// functions
+    // - parsing
 	vector<string> parseExpressionArray(string);
     vector<int> checkExpressionArray(vector<string>&);
-    double evaluateExpression();
-	void printExpression();
+    // - evaluation
+    void subVariableValues();
+    vector<double> evaluateAll();
+    // - setters
 	void setExpression(string);
 	void addVariable(Variable);
 	void clearVariables();
-	void subVariableValues();
-    vector<double> evaluateAll();
+    // - getters
 	string getExpression();
     string getTerm(int);
-    vector<int> getProblemTerms();
-    vector<int> getProblemSpace();
-
-
-	// experimental
+    vector<int> getProblemElements_Expression();
+    vector<int> getProblemElements_Result();
+    // - experimental
+    void printExpression();
 
 };
 
