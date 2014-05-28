@@ -2,11 +2,14 @@
 #define BAREMINIMUMPLOTTER_H
 
 #include <QMainWindow>
+#include <QtWidgets>
 #include <vector>
 #include <stdlib.h>
 #include "deplot/include/variable.h"
 #include "deplot/include/inequality.h"
 #include "deplot/include/expression.h"
+
+using namespace std;
 
 namespace Ui {
 class BareMinimumPlotter;
@@ -21,10 +24,13 @@ public:
     ~BareMinimumPlotter();
 
     void plot();
+    bool checkExpressions(Inequality, QLineEdit*, QLineEdit*);
     bool isEmpty_InputFields();
 
 private slots:
     void on_buttonPlot_clicked();
+    void on_lineEditInequalityLeft_textChanged(const QString &arg1);
+    void on_lineEditInequalityRight_textChanged(const QString &arg1);
 
 private:
     Ui::BareMinimumPlotter *ui;

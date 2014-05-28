@@ -43,6 +43,7 @@ using namespace std;
 
 class Expression
 {
+private:
 	// member variables
     int nTerms;
     int nVariables;
@@ -51,8 +52,9 @@ class Expression
 	vector<string> vOriginalExpression;
     vector<Variable> vVariables;
     vector<double> vResult;
-    vector<int> vResult_ProblemElements;
-    vector<int> vExpression_ProblemElements;
+    vector<int> vProblemElements_Result;
+    vector<int> vProblemElements_Expression;
+    bool flag_invalid;
 
 	// functions
     // - parsing
@@ -65,7 +67,8 @@ class Expression
     bool checkDecimalPoint(string);
     bool checkIllegalChars(string);
     bool checkIllegalVar(string);
-    bool checkOperators(string);
+    bool checkOperators(string, int, int, bool&);
+    bool variableIsUnique(Variable&);
     // - recursive evaluation functions
     bool compressExpression(vector<string>&);
     bool doPowers(vector<string>&);
@@ -91,7 +94,7 @@ public:
 	{
 		vOriginalExpression = parseExpressionArray(sExpressionString);
         resetExpression();
-        vExpression_ProblemElements = checkExpressionArray(vExpression);
+        vProblemElements_Expression = checkExpressionArray(vExpression);
 		nCurrentVariable = 0;
         setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
     }
@@ -110,8 +113,12 @@ public:
     // - getters
 	string getExpression();
     string getTerm(int);
+    int getNumTerms();
     vector<int> getProblemElements_Expression();
     vector<int> getProblemElements_Result();
+    // - validation
+    bool isInvalid();
+    bool variableNameValid(Variable&);
     // - experimental
     void printExpression();
 

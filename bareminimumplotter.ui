@@ -99,6 +99,16 @@
           <string>&gt;</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>&lt;=</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>&gt;=</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>

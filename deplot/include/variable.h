@@ -39,11 +39,8 @@ using namespace std;
 
 class Variable
 {
-    //	"""""""""""""""""""""""""""""""""
-    //	"			Private				"
-    //	"""""""""""""""""""""""""""""""""
 private:
-    // # variables #
+    // variables
 	string sName;
     vector<double> vValues;
     double dMin, dMax, dResolution;
@@ -51,7 +48,7 @@ private:
     int nCurrentPosition;
 	bool flag_populated;
 
-    // # functions #
+    // functions
 	void populateValues(){
         for (double i = 0; i < nElements; i++){
             double result = dMin + i*dResolution;
@@ -61,12 +58,8 @@ private:
 		flag_populated   = true;
 	}
 
-    //	"""""""""""""""""""""""""""""""""
-    //	"			Public				"
-    //	"""""""""""""""""""""""""""""""""
 public:
-
-    // # constructor #
+    // constructor
     Variable(string name = "", double num1 = 0, double num2 = 0, int elements = 1){
 		//	TODO: assert input is correct
 		setName(name);
@@ -77,7 +70,8 @@ public:
 		populateValues();
 	}
 
-    // # functions #
+    // functions
+    // - iteration
 	void nextPosition(){
 		assert(flag_populated);
 		if (isEnd()){ nCurrentPosition = 0; }
@@ -89,12 +83,12 @@ public:
 		else { return false; }
 	}
 
-    // # setters #
+    void resetPosition () { nCurrentPosition = 0; }
+
+    // - setters
 	void setName(string name){
 		sName = name;
 	}
-
-    void resetPosition () { nCurrentPosition = 0; }
 
     void setMinMax(double num1, double num2){
 		if (num1 > num2){
@@ -113,15 +107,15 @@ public:
 		flag_populated = false;
 	}
 
-    // # getters #
-	string getName()         { return sName; }
+    // - getters
+    string getName() { return sName; }
     int getCurrentPosition(){ return nCurrentPosition; }
     int getGrid() { return nElements; }
     int  size() { return vValues.size(); }
-    double getMin()           { return dMin; }
-    double getMax()           { return dMax; }
-    double getResolution()    { return dResolution; }
-    double getCurrentValue()	{
+    double getMin() { return dMin; }
+    double getMax() { return dMax; }
+    double getResolution() { return dResolution; }
+    double getCurrentValue() {
 		assert(flag_populated);
 		return vValues[nCurrentPosition];
 	}

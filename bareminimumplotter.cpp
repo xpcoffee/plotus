@@ -9,6 +9,7 @@
 
 using namespace std;
 
+// constructor
 BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::BareMinimumPlotter)
@@ -25,11 +26,43 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui->lineEditElement2->setValidator(iValidator);
 }
 
+// destructor
 BareMinimumPlotter::~BareMinimumPlotter()
 {
     delete ui;
 }
 
+// functions
+// - utility (not written by me)
+// -- Reference:	Vasaka
+// -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
+static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
+{
+    if(!lineEdit)
+        return;
+
+    QList<QInputMethodEvent::Attribute> attributes;
+    foreach(const QTextLayout::FormatRange& fr, formats)
+    {
+        QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
+        int start = fr.start - lineEdit->cursorPosition();
+        int length = fr.length;
+        QVariant value = fr.format;
+        attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
+    }
+    QInputMethodEvent event(QString(), attributes);
+    QCoreApplication::sendEvent(lineEdit, &event);
+}
+
+// -- Reference:	Vasaka
+// -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
+static void clearLineEditTextFormat(QLineEdit* lineEdit)
+{
+    setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
+}
+
+
+// - core functions
 void BareMinimumPlotter::plot()
 {
     // check input not empty
@@ -42,14 +75,14 @@ void BareMinimumPlotter::plot()
     }
 
     // create inequality
-    cout << "combo box string: " << ui->comboBox->currentText().toStdString() << endl;
+//    cout << "combo box string: " << ui->comboBox->currentText().toStdString() << endl;
     mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
-                             ui->comboBox->currentText().toStdString()[0],
+                             ui->comboBox->currentText().toStdString(),
                              ui->lineEditInequalityRight->text().toStdString());
 
     // check expressions
-    vector<int> vInputErrorsLHS = mInequality.getProblemElements_Expression1();
-    vector<int> vInputErrorsRHS = mInequality.getProblemElements_Expression2();
+    if(checkExpressions(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
+        return;
 
     // create and add variables
     ui->lineEditName1->setText(ui->lineEditName1->text().replace(QString(" "), QString("")));
@@ -65,12 +98,14 @@ void BareMinimumPlotter::plot()
                           ui->lineEditMax2->text().toDouble(),
                           ui->lineEditElement2->text().toInt());
 
+    // [BREAK] VALID VARIABLES NOT WORKING
+    mInequality.variablesAreValid()
     mInequality.addVariable(mVariable1);
     mInequality.addVariable(mVariable2);
 
     // do maths
     vector<bool> vPlotSpace = mInequality.evaluate();
-    vector<int> vProblemSpace = mInequality.getProblemElements_Result();
+    vector<int> vProblemSpace = mInequality.getProblemElements_ResultsCombined();
     vector<int>::iterator it_ProblemSpace = vProblemSpace.begin();
 
     // create plotting vectors
@@ -85,7 +120,7 @@ void BareMinimumPlotter::plot()
 //        cout << "i = " << i << ", *it = " << *it_ProblemSpace << " | ";
         if(!vProblemSpace.empty() && i == *it_ProblemSpace){
             cout << endl;
-            cout << "[DEBUG] plot() | " << "adding problem point" << endl;
+//            cout << "[DEBUG] plot() | " << "adding problem point" << endl;
             x_problem.push_back(mVariable1.getCurrentValue());
             y_problem.push_back(mVariable2.getCurrentValue());
             it_ProblemSpace++;
@@ -138,9 +173,71 @@ void BareMinimumPlotter::plot()
     ui->plotter->replot();
 }
 
-void BareMinimumPlotter::on_buttonPlot_clicked()
-{
-    plot();
+bool BareMinimumPlotter::checkExpressions(Inequality mInequality, QLineEdit * qLineEditLHS, QLineEdit * qLineEditRHS){
+    bool flag_invalid = false;
+    if (mInequality.isInvalid()){
+        flag_invalid = true;
+        vector<int> vInputErrorsLHS = mInequality.getProblemElements_ExpressionLHS();
+        int nFormatRangeCounter = 0;
+        QList<QTextLayout::FormatRange> formats;
+        QTextCharFormat f;
+        QTextLayout::FormatRange fr;
+        for (int nTerm = 0; nTerm < mInequality.getNumTermsLHS(); nTerm++){
+            string sTerm = mInequality.getTermLHS(nTerm);
+            f.setFontWeight(QFont::Normal);
+            f.setForeground(QBrush(Qt::black));
+            fr.start = nFormatRangeCounter;
+            fr.length = sTerm.length();
+            fr.format = f;
+            for (int i = 0; i < static_cast<int>(vInputErrorsLHS.size()); i++){
+                if (nTerm == vInputErrorsLHS[i]){
+                    f.setFontWeight(QFont::Bold);
+                    f.setForeground(QBrush(Qt::red));
+                    fr.format = f;
+                }
+            }
+            nFormatRangeCounter += sTerm.length();
+            formats.append(fr);
+        }
+        setLineEditTextFormat(qLineEditLHS, formats);
+
+        cout << "[ERROR] Inequality | checking expressions | " << "inequality is invalid" << endl;
+    }
+
+    if (mInequality.isInvalid()){
+        flag_invalid = true;
+        vector<int> vInputErrorsRHS = mInequality.getProblemElements_ExpressionRHS();
+        int nFormatRangeCounter = 0;
+        QList<QTextLayout::FormatRange> formats;
+        QTextCharFormat f;
+        QTextLayout::FormatRange fr;
+        for (int nTerm = 0; nTerm < mInequality.getNumTermsRHS(); nTerm++){
+            string sTerm = mInequality.getTermRHS(nTerm);
+            f.setFontWeight(QFont::Normal);
+            f.setForeground(QBrush(Qt::black));
+            fr.start = nFormatRangeCounter;
+            fr.length = sTerm.length();
+            fr.format = f;
+            for (int i = 0; i < static_cast<int>(vInputErrorsRHS.size()); i++){
+                if (nTerm == vInputErrorsRHS[i]){
+                    f.setFontWeight(QFont::Bold);
+                    f.setForeground(QBrush(Qt::red));
+                    fr.format = f;
+                }
+            }
+            nFormatRangeCounter += sTerm.length();
+            formats.append(fr);
+        }
+
+        setLineEditTextFormat(qLineEditRHS, formats);
+
+        cout << "[ERROR] Inequality | checking expressions | " << "inequality is invalid" << endl;
+    }
+    return flag_invalid;
+}
+
+bool BareMinimumPlotter::checkVariables(){
+    return mInequality.variablesAreValid();
 }
 
 bool BareMinimumPlotter::isEmpty_InputFields(){
@@ -154,4 +251,20 @@ bool BareMinimumPlotter::isEmpty_InputFields(){
             ui->lineEditMin2->text().isEmpty() ||
             ui->lineEditName1->text().isEmpty() ||
             ui->lineEditName2->text().isEmpty();
+}
+
+// - ui functions
+void BareMinimumPlotter::on_buttonPlot_clicked()
+{
+    plot();
+}
+
+void BareMinimumPlotter::on_lineEditInequalityLeft_textChanged(const QString &arg1)
+{
+   clearLineEditTextFormat(ui->lineEditInequalityLeft);
+}
+
+void BareMinimumPlotter::on_lineEditInequalityRight_textChanged(const QString &arg1)
+{
+   clearLineEditTextFormat(ui->lineEditInequalityRight);
 }
