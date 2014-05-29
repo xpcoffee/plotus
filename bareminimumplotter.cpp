@@ -98,9 +98,12 @@ void BareMinimumPlotter::plot()
                           ui->lineEditMax2->text().toDouble(),
                           ui->lineEditElement2->text().toInt());
 
-    // [BREAK] VALID VARIABLES NOT WORKING
-    mInequality.variablesAreValid()
+    if (!mInequality.variableIsValid(mVariable1))
+        return;
     mInequality.addVariable(mVariable1);
+
+    if (!mInequality.variableIsValid(mVariable2))
+        return;
     mInequality.addVariable(mVariable2);
 
     // do maths
@@ -234,10 +237,6 @@ bool BareMinimumPlotter::checkExpressions(Inequality mInequality, QLineEdit * qL
         cout << "[ERROR] Inequality | checking expressions | " << "inequality is invalid" << endl;
     }
     return flag_invalid;
-}
-
-bool BareMinimumPlotter::checkVariables(){
-    return mInequality.variablesAreValid();
 }
 
 bool BareMinimumPlotter::isEmpty_InputFields(){

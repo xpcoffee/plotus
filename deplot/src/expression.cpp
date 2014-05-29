@@ -71,7 +71,7 @@ void Expression::setExpression(string sInput){
 
 
 void Expression::addVariable(Variable myVar){
-    assert(variableIsUnique(myVar));
+    assert(variableNameIsValid(myVar));
 	vVariables.push_back(myVar);
 }
 
@@ -90,7 +90,7 @@ void Expression::resetExpression(){
 	
 bool Expression::charIsDigit(char c){ return (('0' <= c) && (c <= '9')) || (c == '.'); }
 
-bool Expression::charIsAlpha(char c){ return (('A' <= c) && (c <= 'Z')) || (('a' <= c) && (c <= 'z')); }
+bool Expression::charIsAlpha(char c){ return (('A' <= c) && (c <= 'Z')) || (('a' <= c) && (c <= 'z')) || (c == '_'); }
 
 bool Expression::charIsParenthesis(char c){ return (c == '(') || (c == ')'); }
 
@@ -148,7 +148,10 @@ vector<string> Expression::parseExpressionArray (string sExpression){
 			// if this is an operator, set the prev operator flag
 			if (charIsOperator(*it)) { flag_prevOp = true; } 
 			else { flag_prevOp = false; }
-		} 
+        } else {
+            cerr << "[ERROR] Expression | parseExpressionArray() | " << "Unknown character in expression" << endl;
+            assert(true);
+        }
 		it++;	
 	}
 	// if the last term is a number, push it
@@ -223,7 +226,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
                                         checkDecimalPoint(sTerm);
 
        if(flag_problem_ExpressionArray) {
-           cout <<"[ERROR] checkExpressionArray() | " << "incorrect input in term: " << nTerm << endl;
+           cerr <<"[ERROR] checkExpressionArray() | " << "incorrect input in term: " << nTerm << endl;
            vErrorTerms.push_back(nTerm);
            flag_invalid = true;
        }
@@ -234,7 +237,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
        else if (sTerm[0] == ')'){
            if (vErrorParenth.size() == 0){
                 vErrorTerms.push_back(nTerm);
-                cout <<"[ERROR] checkExpressionArray() | " << " unopened parenthesis, term: " << nTerm << endl;
+                cerr <<"[ERROR] checkExpressionArray() | " << " unopened parenthesis, term: " << nTerm << endl;
            } // no previous open bracket
 
            else { vErrorParenth.pop_back(); }
@@ -245,37 +248,25 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
 
     for (vector<int>::iterator it = vErrorParenth.begin(); it != vErrorParenth.end(); it++){
         vErrorTerms.push_back(*it);
-        cout <<"[ERROR] checkExpressionArray() | " << " unclosed parenthesis, term: " << *it << endl;
+        cerr <<"[ERROR] checkExpressionArray() | " << " unclosed parenthesis, term: " << *it << endl;
     }
 
     return vErrorTerms;
 }
 
-bool Expression::variableIsUnique(Variable& myVar){
+bool Expression::variableNameIsUnique(Variable& myVar){
     for (vector<Variable>::iterator it = vVariables.begin(); it != vVariables.end(); it++){
             if ((*it).getName() == myVar.getName()){ return false; }
     }
     return true;
 }
 
-bool Expression::variableNameValid(Variable & myVar){
-    string name = myVar.getName();
-    char varNameStart = name[0];
-    // check for start with number
-    if (!(('0' <= varNameStart) && (varNameStart  <= '9'))) // name may not start with a number
-        return false;
-    // check for illegal name
-    if (name == "sin" || name == "cos" || name == "tan" ||
-        name == "asin" || name == "acos" || name == "atan" ||
-        name == "exp" || name == "ln" || name == "log")
-        return false;
-   // check for illegal characters
-    for (string::iterator it = name.begin(); it != name.end(); it++){
-        if (charIsOperator(*it) || charIsParenthesis(*it) || charIsWhitespace(*it))
-            return false;
-    }
-    // all checks passed
-    return true;
+bool Expression::variableNameIsValid(Variable & myVar){
+    if (!myVar.nameIsLegal())
+        cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable name illegal" << endl;
+    if (!variableNameIsUnique(myVar))
+        cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable is not unique" << endl;
+    return myVar.nameIsLegal() && variableNameIsUnique(myVar);
 }
 
 //	Evaluation
@@ -400,7 +391,6 @@ bool Expression::doSubtraction (vector<string>& vExpression) {
 		// if operation found and it is the correct operation
 		if (charIsOperator(sTerm[0]) && sTerm[0] == '-' && !charIsDigit(sTerm[1])){
 				//do the math
-                // [BREAK] 27/05/2014 | 0/0 division results in "nan" that can't be processed later on
 				string termBeforeOperator = vExpression[i-1];
 				string termAfterOperator  = vExpression[i+1];
                 double result = atof(termBeforeOperator.c_str()) - atof(termAfterOperator.c_str());

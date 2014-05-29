@@ -51,7 +51,7 @@ private:
     string sSymbol;
 	vector<Variable> vVariables;
     vector<double> vEvalArray1, vEvalArray2;
-    bool flag_set;
+    bool flag_initialized;
 	
     //	"""""""""""""""""""""""""""""""""
     //	"			Public				"
@@ -64,26 +64,26 @@ public:
     // constructor
     Inequality(string sExp1 = "", string symbol = "!", string sExp2 = ""){
         if (symbol == "!"){
-            flag_set = false;
+            flag_initialized = false;
         }
         else{
             mExpression1.setExpression(sExp1);
             mExpression2.setExpression(sExp2);
             sSymbol = symbol;
-            flag_set = true;
+            flag_initialized = true;
         }
 	}
 
     // functions
     // - setters
 	void clearVariables(){
-        assert(flag_set);
+        assert(flag_initialized);
         mExpression1.clearVariables();
         mExpression2.clearVariables();
 	}
 
 	void addVariable(Variable myVar){
-        assert(flag_set);
+        assert(flag_initialized);
         mExpression1.addVariable(myVar);
 		mExpression2.addVariable(myVar);
 	}
@@ -92,11 +92,11 @@ public:
             mExpression1.setExpression(sExp1);
             mExpression2.setExpression(sExp2);
             sSymbol = symbol;
-            flag_set = true;
+            flag_initialized = true;
     }
 
     void changeSymbol(string symbol){
-        assert(flag_set);
+        assert(flag_initialized);
         sSymbol = symbol;
 	}
 
@@ -196,23 +196,10 @@ public:
 	}
 
     // - validation
-    bool variableIsUnique(Variable& myVar){
-        for (vector<Variable>::iterator it = vVariables.begin(); it != vVariables.end(); it++){
-                if ((*it).getName() == myVar.getName()){ return false; }
-        }
-        return true;
-    }
-
-    // [BREAK] 29/05/2014 | variable *is* valid
-    bool variablesAreValid(){
-        int nTerm = 0;
-        bool flag_valid = true;
-        Expression tempExp;
-        for (vector<Variable>::iterator it = vVariables.begin(); it != vVariables.end(); it++){
-            flag_valid = flag_valid && tempExp.variableNameValid(*it) && variableIsUnique(*it);
-            nTerm++;
-        }
-        return flag_valid;
+    bool variableIsValid (Variable & myVar){
+        if (!mExpression1.variableNameIsValid(myVar))
+            cerr << "[ERROR] Inequality | variableIsValid() |" << "Invalid variable name: " << myVar.getName() << endl;
+        return mExpression1.variableNameIsValid(myVar);
     }
 
 }; // Inequality

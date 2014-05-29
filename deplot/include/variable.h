@@ -119,6 +119,45 @@ public:
 		assert(flag_populated);
 		return vValues[nCurrentPosition];
 	}
+
+    // - validation
+    bool nameIsLegal(){
+        // check that name is set
+        if (sName.empty()){
+            cout << "[DEBUG] Variable | nameIsLegal() | " << "name is empty." << endl;
+            return false;
+        }
+        char varNameStart = sName[0];
+        // check for start with number
+        if (('0' <= varNameStart) && (varNameStart  <= '9')){
+            cout << "[DEBUG] Variable | nameIsLegal() | " << "starts with number" << endl;
+            return false;
+        }
+        // check for illegal name
+        if (sName == "sin" || sName == "cos" || sName == "tan" ||
+            sName == "asin" || sName == "acos" || sName == "atan" ||
+            sName == "exp" || sName == "ln" || sName == "log"){
+            cout << "[DEBUG] Variable | nameIsLegal() | " << "is an pre-allocated name" << endl;
+            return false;
+        }
+        // check for illegal characters
+        for (string::iterator it = sName.begin(); it != sName.end(); it++){
+            char c = *it;
+            if (	// operators
+                    (c == '+') || (c == '-') ||(c == '/') ||(c == '*') ||(c == '^') ||
+                    // parentheses
+                    (c == '(') || (c == ')') ||
+                    // whitespace
+                    (c == ' ')  || (c == '\t') || (c == '\n')  || (c == '\r') ||
+                    (c == '\v') || (c == '\b') || (c == '\f')
+                    ){
+                cout << "[DEBUG] Variable | nameIsLegal() | " << "contains an illegal character" << endl;
+                return false;
+            }
+        }
+        // all checks passed
+        return true;
+    }
 };
 
 #endif

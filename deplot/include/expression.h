@@ -68,7 +68,7 @@ private:
     bool checkIllegalChars(string);
     bool checkIllegalVar(string);
     bool checkOperators(string, int, int, bool&);
-    bool variableIsUnique(Variable&);
+    bool variableNameIsUnique(Variable&);
     // - recursive evaluation functions
     bool compressExpression(vector<string>&);
     bool doPowers(vector<string>&);
@@ -118,7 +118,7 @@ public:
     vector<int> getProblemElements_Result();
     // - validation
     bool isInvalid();
-    bool variableNameValid(Variable&);
+    bool variableNameIsValid(Variable&);
     // - experimental
     void printExpression();
 
