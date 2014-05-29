@@ -297,7 +297,7 @@ bool BareMinimumPlotter::charsValid(QLineEdit* qLineEdit){
     string s = qLineEdit->text().toStdString();
     for (string::iterator it = s.begin(); it != s.end(); it ++){
         // if a char is invalid
-        if (!tempExp.isValidChar(*it))
+        if (!tempExp.charIsValid(*it))
             return false;
     }
     // if all chars valid

@@ -201,8 +201,8 @@ bool Expression::checkOperators(string sTerm, int nTerm, int nSize, bool & flag_
         // placement important - after flag check and before the other checks
         flag_prev = true;
 
-        // starting or trailing operator
-        if ((nTerm == 0) || (nTerm == nSize-1)){
+        // starting or trailing operator (unless its a '-' at the beginning)
+        if ((nTerm == 0 && sTerm[0] != '-') || (nTerm == nSize-1)){
             return true;
         }
 
@@ -223,6 +223,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
 
     for (vector<string>::iterator it = vExpression.begin(); it != vExpression.end(); it++){
        sTerm = *it;
+       bool flag_closingParenth; // flag to ensure no digits after a closing bracket
 
        flag_problem_ExpressionArray = 	checkIllegalVar(sTerm)			||
                                         checkOperators(sTerm, nTerm, static_cast<int>(vExpression.size()), flag_prevOperator)	||
@@ -235,6 +236,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
            flag_invalid = true;
        }
 
+       // check for matching parentheses
        if (sTerm[0] == '('){
            vErrorParenth.push_back(nTerm);
        }
@@ -242,9 +244,12 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
            if (vErrorParenth.size() == 0){
                 vErrorTerms.push_back(nTerm);
                 cerr <<"[ERROR] checkExpressionArray() | " << " unopened parenthesis, term: " << nTerm << endl;
-           } // no previous open bracket
+           }
+           else {
+               flag_closingParenth = true;
+               vErrorParenth.pop_back();
+           }
 
-           else { vErrorParenth.pop_back(); }
        }
 
        nTerm++;
@@ -258,6 +263,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
     return vErrorTerms;
 }
 
+// [BREAK] must handle digits after brackets (both GUI and Expression Levels)
 bool Expression::variableNameIsUnique(Variable& myVar){
     for (vector<Variable>::iterator it = vVariables.begin(); it != vVariables.end(); it++){
             if ((*it).getName() == myVar.getName()){ return false; }
@@ -273,8 +279,14 @@ bool Expression::variableNameIsValid(Variable & myVar){
     return myVar.nameIsLegal() && variableNameIsUnique(myVar);
 }
 
-bool Expression::isValidChar(char c){
+bool Expression::charIsValid(char c){
     return charIsAlpha(c) || charIsDigit(c) || charIsOperator(c) || charIsParenthesis(c) || charIsWhitespace(c);
+}
+
+bool Expression::termIsNumeric(string sTerm){
+        if (charIsDigit(sTerm[0])) // reason why variable names may not start with digit
+            return true;
+        return false;
 }
 
 //	Evaluation
@@ -345,6 +357,9 @@ bool Expression::doDivision (vector<string>& vExpression) {
 				//do the math
 				string termBeforeOperator = vExpression[i-1];
 				string termAfterOperator  = vExpression[i+1];
+                // [ERROR] Expression | doDivision() | no consecutive operators allowed
+                assert( !((termAfterOperator.size() == 1) &&
+                        charIsOperator(termAfterOperator[0])) );
                 if (atof(termAfterOperator.c_str()) == 0)
                     throw 101;
                 double result = atof(termBeforeOperator.c_str()) / atof(termAfterOperator.c_str());
@@ -398,23 +413,36 @@ bool Expression::doSubtraction (vector<string>& vExpression) {
 		string sTerm = vExpression[i];
 		// if operation found and it is the correct operation
 		if (charIsOperator(sTerm[0]) && sTerm[0] == '-' && !charIsDigit(sTerm[1])){
-				//do the math
-				string termBeforeOperator = vExpression[i-1];
-				string termAfterOperator  = vExpression[i+1];
-                double result = atof(termBeforeOperator.c_str()) - atof(termAfterOperator.c_str());
-				// update expression - operator and second value filled with special character 
-				ostringstream buffer;
-				buffer << result;
-				vExpression[i-1] = buffer.str();
-				vExpression[i]   = COMPRESSION_CHAR;
-				vExpression[i+1] = COMPRESSION_CHAR;
-				// shift rest of expression into whitespace
-				while(compressExpression(vExpression)){
-					// loop will auto-terminate	
-				}
-				// if an operation was done:
-				return true;	
-		}
+            // if '-' is at the beginning of expression , it signifies a negative number
+            double result;
+            if (i == 0){
+                // multiply the term after the minus by -1
+                string termAfterOperator  = vExpression[i+1];
+                result = -1*atof(termAfterOperator.c_str());
+                // update expression - operator and second value filled with special character
+                ostringstream buffer;
+                buffer << result;
+                vExpression[i] = buffer.str();
+                vExpression[i+1] = COMPRESSION_CHAR;
+            } else {
+                // do the math
+                string termBeforeOperator = vExpression[i-1];
+                string termAfterOperator  = vExpression[i+1];
+                result = atof(termBeforeOperator.c_str()) - atof(termAfterOperator.c_str());
+                // update expression - operator and second value filled with special character
+                ostringstream buffer;
+                buffer << result;
+                vExpression[i-1] = buffer.str();
+                vExpression[i]   = COMPRESSION_CHAR;
+                vExpression[i+1] = COMPRESSION_CHAR;
+            }
+            // shift rest of expression into whitespace
+            while(compressExpression(vExpression)){
+                // loop will auto-terminate
+            }
+            // if an operation was done:
+            return true;
+        }
 	}
 	// if no operation found
 	return false;
@@ -434,7 +462,7 @@ bool Expression::compressExpression(vector<string>& vExpression) {
         string sTerm = vExpression[i];
         // if compression character is found
         if (COMPRESSION_CHAR == sTerm[0]){
-            // shift everything after the compression character  up
+            // shift everything after the compression character left by 1
             for (int j = i; j < nTerms-1; j++){
                 vExpression[j] = vExpression[j+1];
             }
@@ -449,44 +477,37 @@ bool Expression::compressExpression(vector<string>& vExpression) {
 
 bool Expression::doParenthesis (vector<string>& vExpression) {
     nTerms = vExpression.size();
-
     int nOpen = 0;
     int nRange = 0;
     string sTerm;
     bool flag_EmptyParenth;
 	for (int i = 0; i < nTerms; i++){
         sTerm = vExpression[i];
-		// if operation found and it is the correct operation
 		if (charIsParenthesis(sTerm[0]) && sTerm[0] == '('){
-			nOpen = i;
+            nOpen = i;	// opening parentheses found, start counting range
 		}
-		// if a closing bracket is found, parenthesis range is known 
-		// do maths in parenthesis
 		else if (charIsParenthesis(sTerm[0]) && sTerm[0] == ')'){
-            nRange = i - nOpen;
-            // if there is something in between the parentheses
+            nRange = i - nOpen;	// closing parentheses found, stop counting range
             if (nRange > 1){
-                flag_EmptyParenth = false;
-                vector<string> sParenthesisArray;
+                flag_EmptyParenth = false;			// parentheses not empty
+                vector<string> sParenthesisArray; 	// create new array from contents
                 for (int j = 0; j < nRange -1; j++){
                     sParenthesisArray.push_back(vExpression[nOpen+1+j]);
                 }
-                doBasic(sParenthesisArray);
-                // insert answer into expression, fill the rest of the processed
-                // terms with compression characters
-                vExpression[nOpen] = sParenthesisArray[0];             }
+                doBasic(sParenthesisArray); 				// perform maths on contents
+                vExpression[nOpen] = sParenthesisArray[0]; 	// substitute back the result
+            }
             else {
-                flag_EmptyParenth = true;
-                vExpression[nOpen] = "0";
+                flag_EmptyParenth = true; 	// parentheses empty
+                vExpression[nOpen] = "0"; 	// substitute parentheses with 0
             }
 			for (int j = nOpen+1; j < i+1; j++){
-				vExpression[j] = COMPRESSION_CHAR;
+                vExpression[j] = COMPRESSION_CHAR;	// compress expression
 			}
-			// compress expression
 			while(compressExpression(vExpression)){
 				// loop will auto-terminate	
 			}
-            // do special operations
+            // do special operations (sin, log, etc)
             doSpecial(vExpression, nOpen, flag_EmptyParenth);
 			return true;
 		}
@@ -496,13 +517,16 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
 
 void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag_EmptyParenth){
     // if the brackets were right at the beginning, nothing before them
-    // therefore no trig to do
+    // so no special function to be done
     if (nEvalPos < 1) { return; }
     string termBeforeParenthesis = vExpression[nEvalPos-1];
     string sEvalTerm = vExpression[nEvalPos];
     double result;
     //trig functions
-    if (termBeforeParenthesis == "sin"){ result = sin(atof(sEvalTerm.c_str())); }
+    if (termBeforeParenthesis == "sin"){
+        assert(!flag_EmptyParenth);
+        result = sin(atof(sEvalTerm.c_str()));
+    }
     else if(termBeforeParenthesis == "cos"){
         assert(!flag_EmptyParenth);
         result = cos(atof(sEvalTerm.c_str()));
@@ -523,12 +547,40 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
         assert(!flag_EmptyParenth);
         result = atan(atof(sEvalTerm.c_str()));
     }
+    else if (termBeforeParenthesis == "-sin"){
+        assert(!flag_EmptyParenth);
+        result = -sin(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-cos"){
+        assert(!flag_EmptyParenth);
+        result = -cos(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-tan"){
+        assert(!flag_EmptyParenth);
+        result = -tan(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-arcsin"){
+        assert(!flag_EmptyParenth);
+        result = -asin(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-arccos"){
+        assert(!flag_EmptyParenth);
+        result = -acos(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-arctan"){
+        assert(!flag_EmptyParenth);
+        result = -atan(atof(sEvalTerm.c_str()));
+    }
     // exponential
     else if(termBeforeParenthesis == "exp"){
         assert(!flag_EmptyParenth);
         result = exp(atof(sEvalTerm.c_str()));
     }
-    // logarythmic functions
+    else if(termBeforeParenthesis == "-exp"){
+        assert(!flag_EmptyParenth);
+        result = -exp(atof(sEvalTerm.c_str()));
+    }
+    // logarithmic functions
     else if(termBeforeParenthesis == "log"){
         assert(!flag_EmptyParenth);
         result = log10(atof(sEvalTerm.c_str()));
@@ -537,10 +589,27 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
         assert(!flag_EmptyParenth);
         result = log(atof(sEvalTerm.c_str()));
     }
+    else if(termBeforeParenthesis == "-log"){
+        assert(!flag_EmptyParenth);
+        result = -log10(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-ln"){
+        assert(!flag_EmptyParenth);
+        result = -log(atof(sEvalTerm.c_str()));
+    }
     // values
     else if(termBeforeParenthesis == "pi"){
         assert(flag_EmptyParenth);
         result = PI;
+    }
+    else if(termBeforeParenthesis == "-pi"){
+        assert(flag_EmptyParenth);
+        result = -1*PI;
+    }
+    // bracket multiplication
+    else if(termIsNumeric(termBeforeParenthesis)){
+        assert(!flag_EmptyParenth);
+        result = atof(termBeforeParenthesis.c_str())*atof(sEvalTerm.c_str());
     }
         //no matching function
     else { return; }
