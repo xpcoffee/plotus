@@ -24,7 +24,8 @@ public:
     ~BareMinimumPlotter();
 
     void plot();
-    bool checkExpressions(Inequality, QLineEdit*, QLineEdit*);
+    bool expressionsInvalid(Inequality, QLineEdit*, QLineEdit*);
+    bool charsValid(QLineEdit*);
     bool isEmpty_InputFields();
 
 private slots:

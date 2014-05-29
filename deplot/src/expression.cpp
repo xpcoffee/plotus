@@ -17,13 +17,17 @@
 */
 
 /*
- * TODO: check for illegal characters
- * TODO: check for undefined variables
- * TODO: check for illegal variables (sin, cos, etc)
- * TODO: check for unique variables
+ * VALIDATION
+ * TODO: Expression	| check for undefined variables
+ * TODO: Expression	| handle error when parsing unknown symbol
+ * TODO: GUI 		| check for stuff in function brackets: sin(stuff)
  * 
- * TODO: bracket multiplication: 4(3+7)2
- * TODO: holding variables
+ * MATHS
+ * TODO: Expression | bracket multiplication: 4(3+7)2
+ * TODO: Expression | handle inf
+ *
+ * FEATURES
+ * TODO:
 */
 
 //	"""""""""""""""""""""""""""""""""	
@@ -150,7 +154,7 @@ vector<string> Expression::parseExpressionArray (string sExpression){
 			else { flag_prevOp = false; }
         } else {
             cerr << "[ERROR] Expression | parseExpressionArray() | " << "Unknown character in expression" << endl;
-            assert(true);
+            assert(false);
         }
 		it++;	
 	}
@@ -267,6 +271,10 @@ bool Expression::variableNameIsValid(Variable & myVar){
     if (!variableNameIsUnique(myVar))
         cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable is not unique" << endl;
     return myVar.nameIsLegal() && variableNameIsUnique(myVar);
+}
+
+bool Expression::isValidChar(char c){
+    return charIsAlpha(c) || charIsDigit(c) || charIsOperator(c) || charIsParenthesis(c) || charIsWhitespace(c);
 }
 
 //	Evaluation
@@ -414,15 +422,10 @@ bool Expression::doSubtraction (vector<string>& vExpression) {
 
 void Expression::doBasic(vector<string>& vExpression) {
     while (doPowers(vExpression)) {}
-//    cout << "[INFO] doBasic() | " << "doPowers(): " << getExpression() << endl;
     while (doDivision(vExpression)) {}
-//    cout << "[INFO] doBasic() | " << "doDivision(): " << getExpression() << endl;
     while (doMultiplication(vExpression)) {}
-//    cout << "[INFO] doBasic() | " << "doMultiplication(): " << getExpression() << endl;
     while (doSubtraction(vExpression)) {}
-//    cout << "[INFO] doBasic() | " << "doSubtraction(): " << getExpression() << endl;
     while (doAddition(vExpression)) {}
-//    cout << "[INFO] doBasic() | " << "doAddition(): " << getExpression() << endl;
 }
 
 bool Expression::compressExpression(vector<string>& vExpression) {
@@ -484,7 +487,6 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
 				// loop will auto-terminate	
 			}
             // do special operations
-//            cout << "[INFO] doParenthesis() | Expression before special: " << getExpression() << endl;
             doSpecial(vExpression, nOpen, flag_EmptyParenth);
 			return true;
 		}
@@ -537,7 +539,6 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     }
     // values
     else if(termBeforeParenthesis == "pi"){
-        //assert(sEvalTerm.empty());
         assert(flag_EmptyParenth);
         result = PI;
     }
@@ -562,17 +563,11 @@ double Expression::evaluateExpression(){
     }
     assert(!flag_invalid);
 
-//    cout << "[INFO] evaluateExpression | " << "vExpression before doing maths - getExpression(): " << getExpression() << endl;
     while (doParenthesis(vExpression)) {}
     // evaluate reduced expression
     doBasic(vExpression);
-//    cout << "[INFO] evaluateExpression | " << "vExpression[0] after maths: " << vExpression[0] << endl;
-//    cout << "[INFO] evaluateExpression | " << "vExpression[0].c_str: " << vExpression[0].c_str() << endl;
     string tmpString = vExpression[0];
-//    cout << "[INFO] evaluateExpression | " << "tmpString = vExpression[0]: " << tmpString.c_str() << endl;
-//    cout << "[INFO] evaluateExpression | " << "tmpString.c_str(): " << tmpString.c_str() << endl;
     double result = atof(tmpString.c_str());
-//    cout << "[INFO] evaluateExpression | " << "atof(tmpString.c_str()): " << result << endl;
     resetExpression();
     return result;
 }
@@ -597,18 +592,12 @@ void Expression::recEval(){
                         dResult = 0;
                     }
                     vResult.push_back(dResult);
-
-//                    cout << "[INFO] recEval | ";
-//                    for (unsigned int k = 0; k < vVariables.size(); k++){
-//							cout << "\t" << vVariables[k].getName() << ": " << vVariables[k].getCurrentValue();
-//					}
-//                    cout << "\tResult: " << dResult << endl;
 			}
             // ...otherwise move on to the next nested variable level
             else {
-					nCurrentVariable++;
-					recEval();
-					nCurrentVariable--;
+                    nCurrentVariable++; 	// go to the next variable
+                    recEval(); 				// recurse through it
+                    nCurrentVariable--;		// come back to this variable to carry on with it
 			}
 			vVariables[j].nextPosition();
 	}
@@ -626,15 +615,19 @@ string Expression::getStringArray(vector<string> vExpression){
 	return sExpression;
 }
 
+// 	Exception Handling and Validation
+//	---------------------------------
+
 void Expression::handleException(int e){
-    cout << "[EXCEPTION] " << e << " | ";
+    cout << "[EXCEPTION] Math Exception | " << e << " | ";
 
     switch(e){
+    // [DOCUMENTATION] 100 series errors are math-based
     case 101:
         cout << "Divide by 0" << endl;
         break;
     default:
-        cout << "Unhandled exception." << endl;
+        cerr << "Unhandled exception." << endl;
         break;
     }
 }
@@ -686,9 +679,6 @@ void Expression::subVariableValues(){
 	nTerms = vExpression.size();
     for (int j = 0; j < nTerms; j++){
         for (int i = 0; i < static_cast<int>(vVariables.size()); i++){
-//            cout << "[DEBUG] subVariableValues | " << "variabe name: " << vVariables[i].getName() << endl;
-//            cout << "[DEBUG] subVariableValues | " << "with - to appended vExpression term: " <<
-//                    std::string("-") + vExpression[j] << endl;
             if (vVariables[i].getName() == vExpression[j]){
 				ostringstream buffer;
 				buffer << vVariables[i].getCurrentValue();
@@ -706,8 +696,6 @@ void Expression::subVariableValues(){
 vector<double> Expression::evaluateAll(){
 	nCurrentVariable = 0;
 	vResult.clear();
-//    cout << "[INFO] evaluateAll() | " << "Evaluating expression: " << getExpression() << endl;
-
 	recEval();
 	return vResult;
 }

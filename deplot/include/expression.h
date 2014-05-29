@@ -118,6 +118,7 @@ public:
     vector<int> getProblemElements_Result();
     // - validation
     bool isInvalid();
+    bool isValidChar(char);
     bool variableNameIsValid(Variable&);
     // - experimental
     void printExpression();

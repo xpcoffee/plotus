@@ -1,3 +1,7 @@
+//	"""""""""""""""""""""""""""""""""
+//	"		Private Functions		"
+//	"""""""""""""""""""""""""""""""""
+
 #include "bareminimumplotter.h"
 #include "ui_bareminimumplotter.h"
 #include "deplot/include/inequality.h"
@@ -7,33 +11,16 @@
 #include <string>
 #include <vector>
 
+//	"""""""""""""""""""""""""""""""""
+//	"		Private Functions		"
+//	"""""""""""""""""""""""""""""""""
+
 using namespace std;
 
-// constructor
-BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::BareMinimumPlotter)
-{
-    ui->setupUi(this);
-    QDoubleValidator *dValidator = new QDoubleValidator;
-    QIntValidator *iValidator = new QIntValidator;
-    dValidator->setLocale(QLocale(QStringLiteral("de")));
-    ui->lineEditMax1->setValidator(dValidator);
-    ui->lineEditMin1->setValidator(dValidator);
-    ui->lineEditMax2->setValidator(dValidator);
-    ui->lineEditMin2->setValidator(dValidator);
-    ui->lineEditElement1->setValidator(iValidator);
-    ui->lineEditElement2->setValidator(iValidator);
-}
+//	"""""""""""""""""""""""""""""""""
+//	"		3rd Party Functions		"
+//	"""""""""""""""""""""""""""""""""
 
-// destructor
-BareMinimumPlotter::~BareMinimumPlotter()
-{
-    delete ui;
-}
-
-// functions
-// - utility (not written by me)
 // -- Reference:	Vasaka
 // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
 static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
@@ -61,12 +48,46 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
     setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
 }
 
+//	"""""""""""""""""""""""""""""""""
+//	"		Public Functions		"
+//	"""""""""""""""""""""""""""""""""
 
-// - core functions
+//	Constructor
+//	-----------
+
+BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::BareMinimumPlotter)
+{
+    ui->setupUi(this);
+    QDoubleValidator *dValidator = new QDoubleValidator;
+    QIntValidator *iValidator = new QIntValidator;
+    dValidator->setLocale(QLocale(QStringLiteral("de")));
+    ui->lineEditMax1->setValidator(dValidator);
+    ui->lineEditMin1->setValidator(dValidator);
+    ui->lineEditMax2->setValidator(dValidator);
+    ui->lineEditMin2->setValidator(dValidator);
+    ui->lineEditElement1->setValidator(iValidator);
+    ui->lineEditElement2->setValidator(iValidator);
+}
+
+//	Destructor
+//	----------
+
+BareMinimumPlotter::~BareMinimumPlotter()
+{
+    delete ui;
+}
+
+
+//	Core Functions
+//	---------------
+
 void BareMinimumPlotter::plot()
 {
-    // check input not empty
+    // check input - GUI
     if (isEmpty_InputFields()){
+        cerr << "[ERROR] BareMinimumPlotter | create expressions| " << "Empty input field(s)." << endl;
         QMessageBox *msg = new QMessageBox(ui->centralWidget);
         msg->setText("Please fill in all input fields.");
         msg->setWindowTitle("Input error.");
@@ -74,19 +95,37 @@ void BareMinimumPlotter::plot()
         return;
     }
 
+    if (!charsValid(ui->lineEditInequalityLeft)){
+        cerr << "[ERROR] BareMinimumPlotter | create expressions| " << "Left expression has invalid char(s)." << endl;
+        QMessageBox *msg = new QMessageBox(ui->centralWidget);
+        msg->setText("Left expression has invalid char(s).");
+        msg->setWindowTitle("Input error.");
+        msg->show();
+        return;
+    }
+
+    if (!charsValid(ui->lineEditInequalityRight)){
+        cerr << "[ERROR] BareMinimumPlotter | create expressions| " << "Right expression has invalid char(s)." << endl;
+        QMessageBox *msg = new QMessageBox(ui->centralWidget);
+        msg->setText("Right expression has invalid char(s).");
+        msg->setWindowTitle("Input error.");
+        msg->show();
+        return;
+    }
+
     // create inequality
-//    cout << "combo box string: " << ui->comboBox->currentText().toStdString() << endl;
     mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
                              ui->comboBox->currentText().toStdString(),
                              ui->lineEditInequalityRight->text().toStdString());
 
     // check expressions
-    if(checkExpressions(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
+    if(expressionsInvalid(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
         return;
 
     // create and add variables
     ui->lineEditName1->setText(ui->lineEditName1->text().replace(QString(" "), QString("")));
     ui->lineEditName2->setText(ui->lineEditName2->text().replace(QString(" "), QString("")));
+
 
     mVariable1 = Variable(ui->lineEditName1->text().toStdString(),
                           ui->lineEditMin1->text().toDouble(),
@@ -120,24 +159,15 @@ void BareMinimumPlotter::plot()
         // if this is a problem point, add to problem vectors
         // otherwise add to the normal graph vectors
         // (the logic assumes that the problem points are added in order)
-//        cout << "i = " << i << ", *it = " << *it_ProblemSpace << " | ";
         if(!vProblemSpace.empty() && i == *it_ProblemSpace){
-            cout << endl;
-//            cout << "[DEBUG] plot() | " << "adding problem point" << endl;
             x_problem.push_back(mVariable1.getCurrentValue());
             y_problem.push_back(mVariable2.getCurrentValue());
             it_ProblemSpace++;
         }
         else if (vPlotSpace[i]) {
-//                cout << "[DEBUG] plot() | " << "adding normal point" << endl;
             x.push_back(mVariable1.getCurrentValue());
             y.push_back(mVariable2.getCurrentValue());
         }
-
-//            cout << "[INFO] plot() | " << "QVector[" << (x.size()) << "]" <<
-//                    "\t| x: " << mVariable1.getCurrentValue() << // *x.end() <<
-//                    "\t| y: " << mVariable2.getCurrentValue() << //*y.end() <<
-//                    endl;
 
         if ((i+1) % mVariable2.getGrid() == 0){
             mVariable1.nextPosition();
@@ -176,8 +206,12 @@ void BareMinimumPlotter::plot()
     ui->plotter->replot();
 }
 
-bool BareMinimumPlotter::checkExpressions(Inequality mInequality, QLineEdit * qLineEditLHS, QLineEdit * qLineEditRHS){
+//	Validation
+//	----------
+
+bool BareMinimumPlotter::expressionsInvalid(Inequality mInequality, QLineEdit * qLineEditLHS, QLineEdit * qLineEditRHS){
     bool flag_invalid = false;
+    // check LHS
     if (mInequality.isInvalid()){
         flag_invalid = true;
         vector<int> vInputErrorsLHS = mInequality.getProblemElements_ExpressionLHS();
@@ -207,6 +241,7 @@ bool BareMinimumPlotter::checkExpressions(Inequality mInequality, QLineEdit * qL
         cout << "[ERROR] Inequality | checking expressions | " << "inequality is invalid" << endl;
     }
 
+    // check RHS
     if (mInequality.isInvalid()){
         flag_invalid = true;
         vector<int> vInputErrorsRHS = mInequality.getProblemElements_ExpressionRHS();
@@ -252,7 +287,27 @@ bool BareMinimumPlotter::isEmpty_InputFields(){
             ui->lineEditName2->text().isEmpty();
 }
 
-// - ui functions
+//	"""""""""""""""""""""""""""""""""
+//	"		Private Functions		"
+//	"""""""""""""""""""""""""""""""""
+
+
+bool BareMinimumPlotter::charsValid(QLineEdit* qLineEdit){
+    Expression tempExp;
+    string s = qLineEdit->text().toStdString();
+    for (string::iterator it = s.begin(); it != s.end(); it ++){
+        // if a char is invalid
+        if (!tempExp.isValidChar(*it))
+            return false;
+    }
+    // if all chars valid
+    return true;
+}
+
+//	"""""""""""""""""""""""""""""""""
+//	"	Private Slot Functions		"
+//	"""""""""""""""""""""""""""""""""
+
 void BareMinimumPlotter::on_buttonPlot_clicked()
 {
     plot();
