@@ -43,17 +43,6 @@
     #include<math.h>
 	#include"../include/expression.h"
 
-//	"""""""""""""""""""""""""""""""""	
-//	"	Preprocessor Definitions	"
-//	"""""""""""""""""""""""""""""""""	
-
-	#ifndef COMPRESSION_CHAR
-	#define COMPRESSION_CHAR '$'
-	#endif
-
-    #ifndef PI
-    #define PI 3.141592653589793238462643383279502884
-    #endif
 
 //	"""""""""""""""""""""""""""""""""	
 //	"			Namespaces			"
@@ -152,9 +141,21 @@ vector<string> Expression::parseExpressionArray (string sExpression){
 			// if this is an operator, set the prev operator flag
 			if (charIsOperator(*it)) { flag_prevOp = true; } 
 			else { flag_prevOp = false; }
+        } else if (charIsWhitespace(*it)){
+            // do nothing, char is still recognized
         } else {
-            cerr << "[ERROR] Expression | parseExpressionArray() | " << "Unknown character in expression" << endl;
-            assert(false);
+            cerr << "[ERROR] Expression | parseExpressionArray() | " << "Unknown character in expression: " << *it << endl;
+            cerr << "Ascii value: " << (int)*it << endl;
+//            throw 302;	// [DOCUMENTATION] Illegal character in expression
+            // add it to expression, it will be highlighted in checkExpressionArray
+            if (!flag_newNum){
+                vTermArray.push_back(sTerm);
+            }
+            sTerm = "";
+            sTerm += *it;
+            vTermArray.push_back(sTerm);
+            flag_newNum = true;
+            flag_prevOp = false;
         }
 		it++;	
 	}
@@ -169,32 +170,46 @@ vector<string> Expression::parseExpressionArray (string sExpression){
 //	Checking and Error Handling
 //	---------------------------
 
-bool Expression::checkDecimalPoint(string sTerm){
+bool Expression::check_DecimalPointOK(string sTerm){
    int nDecimalPoints = 0;
    bool flag_IsVar = false;
    for(string::iterator it = sTerm.begin(); it != sTerm.end(); it++) {
        flag_IsVar = flag_IsVar || charIsAlpha(*it);
        if (*it == '.' || *it == ',') { nDecimalPoints++; }
-       if (nDecimalPoints > 1) { return true; }
-       else if (nDecimalPoints > 0 && flag_IsVar) { return true;} // decimal points not allowed in vars
+       if (nDecimalPoints > 1) { return false; }
+       else if (nDecimalPoints > 0 && flag_IsVar) { return false;} // decimal points not allowed in vars
    }
-   return false; // if no problem
+   return true; // if no problem
 }
 
-bool Expression::checkIllegalChars(string){
-   return false; // if no problem
+bool Expression::check_NumbersOK(string sTerm){
+    if (charIsDigit(sTerm[0])){
+        for (string::iterator it = sTerm.begin(); it != sTerm.end(); it++){
+            if (!charIsDigit(*it)){
+                return false; // numbers must only be made out of digits
+            }
+        }
+    }
+    return true;
 }
 
-bool Expression::checkIllegalVar(string){
-   return false; // if no problem
+bool Expression::check_CharsOK(string sTerm){
+    for (string::iterator it = sTerm.begin(); it != sTerm.end(); it++){
+        if (!charIsValid(*it))
+        {
+            cout << "incorrect character: " << sTerm << endl;
+            return false;	// illegal character
+        }
+    }
+    return true; // if no problem
 }
 
-bool Expression::checkOperators(string sTerm, int nTerm, int nSize, bool & flag_prev){
+bool Expression::check_OperatorsOK(string sTerm, int nTerm, int nSize, bool & flag_prev){
 
     if (charIsOperator(sTerm[0]) && (sTerm.size() == 1)){
         // consecutive operators
         if (flag_prev){
-            return true;
+            return false;
         }
 
         // operator found, set flag
@@ -203,14 +218,14 @@ bool Expression::checkOperators(string sTerm, int nTerm, int nSize, bool & flag_
 
         // starting or trailing operator (unless its a '-' at the beginning)
         if ((nTerm == 0 && sTerm[0] != '-') || (nTerm == nSize-1)){
-            return true;
+            return false;
         }
 
     } else {
         flag_prev = false;
     }
 
-   return false; // if no problem
+   return true; // if no problem
 }
 
 vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
@@ -218,52 +233,48 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
     string sTerm;
     int nTerm = 0;
     bool flag_prevOperator = false;
-    bool flag_problem_ExpressionArray;
-    flag_invalid = false;
+    bool flag_checksPassed;
+    flag_isValid = true;
 
     for (vector<string>::iterator it = vExpression.begin(); it != vExpression.end(); it++){
        sTerm = *it;
-       bool flag_closingParenth; // flag to ensure no digits after a closing bracket
+       // input checks
+       flag_checksPassed = 	check_CharsOK(sTerm)		&&
+                            check_NumbersOK(sTerm)		&&
+                            check_OperatorsOK(sTerm, nTerm, static_cast<int>(vExpression.size()), flag_prevOperator)	&&
+                            check_DecimalPointOK(sTerm);
 
-       flag_problem_ExpressionArray = 	checkIllegalVar(sTerm)			||
-                                        checkOperators(sTerm, nTerm, static_cast<int>(vExpression.size()), flag_prevOperator)	||
-                                        checkIllegalChars(sTerm) 		||
-                                        checkDecimalPoint(sTerm);
-
-       if(flag_problem_ExpressionArray) {
+       if(!flag_checksPassed) {
            cerr <<"[ERROR] checkExpressionArray() | " << "incorrect input in term: " << nTerm << endl;
            vErrorTerms.push_back(nTerm);
-           flag_invalid = true;
+           flag_isValid = false;
        }
-
        // check for matching parentheses
        if (sTerm[0] == '('){
            vErrorParenth.push_back(nTerm);
        }
        else if (sTerm[0] == ')'){
            if (vErrorParenth.size() == 0){
-                vErrorTerms.push_back(nTerm);
-                cerr <<"[ERROR] checkExpressionArray() | " << " unopened parenthesis, term: " << nTerm << endl;
+               flag_isValid = false;
+               vErrorTerms.push_back(nTerm);
+               cerr <<"[ERROR] checkExpressionArray() | " << " unopened parenthesis, term: " << nTerm << endl;
            }
            else {
-               flag_closingParenth = true;
                vErrorParenth.pop_back();
            }
-
        }
-
        nTerm++;
     }
-
     for (vector<int>::iterator it = vErrorParenth.begin(); it != vErrorParenth.end(); it++){
         vErrorTerms.push_back(*it);
         cerr <<"[ERROR] checkExpressionArray() | " << " unclosed parenthesis, term: " << *it << endl;
+        flag_isValid = false;
     }
 
+    // return
     return vErrorTerms;
 }
 
-// [BREAK] must handle digits after brackets (both GUI and Expression Levels)
 bool Expression::variableNameIsUnique(Variable& myVar){
     for (vector<Variable>::iterator it = vVariables.begin(); it != vVariables.end(); it++){
             if ((*it).getName() == myVar.getName()){ return false; }
@@ -272,11 +283,12 @@ bool Expression::variableNameIsUnique(Variable& myVar){
 }
 
 bool Expression::variableNameIsValid(Variable & myVar){
-    if (!myVar.nameIsLegal())
+    string sName = myVar.getName();
+    if (!Variable::nameIsLegal(sName))
         cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable name illegal" << endl;
     if (!variableNameIsUnique(myVar))
         cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable is not unique" << endl;
-    return myVar.nameIsLegal() && variableNameIsUnique(myVar);
+    return Variable::nameIsLegal(sName) && variableNameIsUnique(myVar);
 }
 
 bool Expression::charIsValid(char c){
@@ -285,6 +297,12 @@ bool Expression::charIsValid(char c){
 
 bool Expression::termIsNumeric(string sTerm){
         if (charIsDigit(sTerm[0])) // reason why variable names may not start with digit
+            return true;
+        return false;
+}
+
+bool Expression::termIsAlpha(string sTerm){
+        if (charIsAlpha(sTerm[0]))
             return true;
         return false;
 }
@@ -361,7 +379,7 @@ bool Expression::doDivision (vector<string>& vExpression) {
                 assert( !((termAfterOperator.size() == 1) &&
                         charIsOperator(termAfterOperator[0])) );
                 if (atof(termAfterOperator.c_str()) == 0)
-                    throw 101;
+                    throw MATH_DIVIDE_BY_ZERO;
                 double result = atof(termBeforeOperator.c_str()) / atof(termAfterOperator.c_str());
 				// update expression - operator and second value filled with special character 
 				ostringstream buffer;
@@ -477,16 +495,23 @@ bool Expression::compressExpression(vector<string>& vExpression) {
 
 bool Expression::doParenthesis (vector<string>& vExpression) {
     nTerms = vExpression.size();
-    int nOpen = 0;
-    int nRange = 0;
+    int nOpen = UNINITIALIZED_COUNTER;
+    int nRange = UNINITIALIZED_COUNTER;
     string sTerm;
+    string sTermBefore, sTermAfter;
     bool flag_EmptyParenth;
+    // find parenth
 	for (int i = 0; i < nTerms; i++){
         sTerm = vExpression[i];
 		if (charIsParenthesis(sTerm[0]) && sTerm[0] == '('){
             nOpen = i;	// opening parentheses found, start counting range
+            if (i > 0)
+                sTermBefore = vExpression[i-1];
 		}
 		else if (charIsParenthesis(sTerm[0]) && sTerm[0] == ')'){
+            assert(nOpen != UNINITIALIZED_COUNTER); // check for unopened bracket
+            if (i+1 < nTerms)
+                sTermAfter = vExpression[i+1];
             nRange = i - nOpen;	// closing parentheses found, stop counting range
             if (nRange > 1){
                 flag_EmptyParenth = false;			// parentheses not empty
@@ -504,7 +529,30 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
 			for (int j = nOpen+1; j < i+1; j++){
                 vExpression[j] = COMPRESSION_CHAR;	// compress expression
 			}
-			while(compressExpression(vExpression)){
+            // parenthesis multiplication
+            bool flag_doneBefore = false;
+            if (!sTermBefore.empty()){				// there is term before parenth
+                if (termIsNumeric(sTermBefore)){ 	// term before parenth is number
+                    vExpression[nOpen+1] = vExpression[nOpen];	// shift answer up by 1
+                    vExpression[nOpen] = "*"; 					// convert to multiplication
+                    flag_doneBefore = true;
+                }
+            }
+            if (!sTermAfter.empty()){				// there is term before parenth
+                if (termIsNumeric(sTermAfter)){ 	// term before parenth is number
+                    if (flag_EmptyParenth){			// if parenth were empty (need to deal with differently)
+                        if (flag_doneBefore){
+                                vExpression[nOpen+2] = COMPRESSION_CHAR;
+                        } else {
+                                vExpression[nOpen+1] = "*";
+                        }
+                    } else {
+                        vExpression[nOpen+2] = "*"; 	// convert to multiplication
+                    }
+                }
+            }
+            // compress expression
+            while(compressExpression(vExpression)){
 				// loop will auto-terminate	
 			}
             // do special operations (sin, log, etc)
@@ -512,6 +560,8 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
 			return true;
 		}
 	}
+    assert((nOpen == UNINITIALIZED_COUNTER) && (nRange == UNINITIALIZED_COUNTER)); // check for unclosed bracket
+    // no parenthesis was found
 	return false;
 }
 
@@ -524,113 +574,128 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     double result;
     //trig functions
     if (termBeforeParenthesis == "sin"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = sin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "cos"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = cos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "tan"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = tan(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arcsin"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = asin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arccos"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = acos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arctan"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = atan(atof(sEvalTerm.c_str()));
     }
     else if (termBeforeParenthesis == "-sin"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = -sin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-cos"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = -cos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-tan"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = -tan(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arcsin"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = -asin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arccos"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = -acos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arctan"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
         result = -atan(atof(sEvalTerm.c_str()));
     }
     // exponential
     else if(termBeforeParenthesis == "exp"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = exp(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-exp"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -exp(atof(sEvalTerm.c_str()));
     }
     // logarithmic functions
     else if(termBeforeParenthesis == "log"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = log10(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "ln"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = log(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-log"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -log10(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-ln"){
-        assert(!flag_EmptyParenth);
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -log(atof(sEvalTerm.c_str()));
     }
     // values
     else if(termBeforeParenthesis == "pi"){
-        assert(flag_EmptyParenth);
+        if (!flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_NOT_EMPTY;
         result = PI;
     }
     else if(termBeforeParenthesis == "-pi"){
-        assert(flag_EmptyParenth);
+        if (!flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_NOT_EMPTY;
         result = -1*PI;
     }
-    // bracket multiplication
-    else if(termIsNumeric(termBeforeParenthesis)){
-        assert(!flag_EmptyParenth);
-        result = atof(termBeforeParenthesis.c_str())*atof(sEvalTerm.c_str());
-    }
-        //no matching function
+    // no matching function
     else { return; }
-    // can only get here if 'break' out of switch
-    // update expression - operator and second value filled with special character
+
+    // return evaluated value
+    // - can only get here if 'break' out of switch
     ostringstream buffer;
     buffer << result;
+    if ((buffer.str() == "nan") || (buffer.str() == "-nan"))
+        throw MATH_NAN;
     vExpression[nEvalPos-1] = buffer.str();
     vExpression[nEvalPos] = COMPRESSION_CHAR;
-    // shift rest of expression into hitespace
+
     while(compressExpression(vExpression)){
         // loop will auto-terminate
     }
 }
 
 double Expression::evaluateExpression(){
-    if (flag_invalid){
-        // [DOCUMENTATION] 200 series = input checking
-        throw 201; // [DOCUMENTATION] 201 | problem with expression array, still trying to do maths
-    }
-    assert(!flag_invalid);
+    if (!flag_isValid)
+        throw INPUT_ERROR_INVALID_EXPRESSION; // [DOCUMENTATION] invalid expression
 
     while (doParenthesis(vExpression)) {}
     // evaluate reduced expression
@@ -642,6 +707,8 @@ double Expression::evaluateExpression(){
 }
 
 void Expression::recEval(){
+    if (!flag_isValid)
+        throw INPUT_ERROR_INVALID_EXPRESSION;
     // for all values of the current variable (current variable is global)
 	for (int i = 0; i < vVariables[nCurrentVariable].size(); i++){
 			int j = nCurrentVariable;
@@ -649,13 +716,15 @@ void Expression::recEval(){
             // substitute current values and evaluate...
             if (nCurrentVariable == static_cast<int>(vVariables.size()) - 1){
                     // do math
-					subVariableValues();
+                    subVariableValues();
                     double dResult;
                     try{
                         dResult = evaluateExpression();
                     }
-                    catch(int e){
-                        handleException(e);
+                    catch(MATH_ERROR_CODES e){
+                        // MATH ERRORS HANDLED HERE
+                        // does not stop the evaluation, only logs a problem point
+                        handleMathException(e);
                         resetExpression();
                         vProblemElements_Result.push_back(vResult.size());
                         dResult = 0;
@@ -687,13 +756,12 @@ string Expression::getStringArray(vector<string> vExpression){
 // 	Exception Handling and Validation
 //	---------------------------------
 
-void Expression::handleException(int e){
-    cout << "[EXCEPTION] Math Exception | " << e << " | ";
+void Expression::handleMathException(MATH_ERROR_CODES e){
 
     switch(e){
-    // [DOCUMENTATION] 100 series errors are math-based
-    case 101:
-        cout << "Divide by 0" << endl;
+    case MATH_DIVIDE_BY_ZERO:
+        break;
+    case MATH_NAN:
         break;
     default:
         cerr << "Unhandled exception." << endl;
@@ -705,13 +773,6 @@ void Expression::handleException(int e){
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""	
 
-//	Output
-//	------
-
-void Expression::printExpression(){
-	cout << getStringArray(vExpression) << endl;
-}
-
 //	Getters
 //	-------
 
@@ -721,7 +782,9 @@ string Expression::getExpression(){
 
 string Expression::getTerm(int nTerm){
     // [DOCUMENTATION] getTerm() | 0th terms are a thing in DePlot
-    assert(nTerm >= 0 && nTerm < static_cast<int>(vExpression.size()));
+    if(nTerm < 0 || nTerm >= static_cast<int>(vExpression.size()))
+        throw 303; // [DOCUMENTATION] term out of bounds
+
     return vExpression[nTerm];
 }
 
@@ -729,8 +792,8 @@ int Expression::getNumTerms(){
     return static_cast<int> (vExpression.size());
 }
 
-bool Expression::isInvalid(){
-    return flag_invalid;
+bool Expression::isValid(){
+    return flag_isValid;
 }
 
 vector<int> Expression::getProblemElements_Expression(){
@@ -743,26 +806,34 @@ vector<int> Expression::getProblemElements_Result(){
 
 //	Evaluation
 //	-----------
-// [BREAK] combined operator -+ breaking
 void Expression::subVariableValues(){
 	nTerms = vExpression.size();
-    for (int j = 0; j < nTerms; j++){
-        for (int i = 0; i < static_cast<int>(vVariables.size()); i++){
-            if (vVariables[i].getName() == vExpression[j]){
-				ostringstream buffer;
-				buffer << vVariables[i].getCurrentValue();
-				vExpression[j] = buffer.str();
-			}
-            else if (("-" + vVariables[i].getName()) == vExpression[j]){
+    for (int j = 0; j < nTerms; j++){	// for all terms
+        string sTerm = vExpression[j];
+        bool flag_initialized = false;
+        for (int i = 0; i < static_cast<int>(vVariables.size()); i++){ // for all variables
+            if (vVariables[i].getName() == sTerm){
+                ostringstream buffer;
+                buffer << vVariables[i].getCurrentValue();
+                vExpression[j] = buffer.str();
+                flag_initialized = true;
+            } else if (("-" + vVariables[i].getName()) == sTerm){
                 ostringstream buffer;
                 buffer << -1 * vVariables[i].getCurrentValue();
                 vExpression[j] = buffer.str();
+                flag_initialized = true;
             }
 		}
-	}
+        if (!flag_initialized && Variable::nameIsLegal(sTerm)){
+            throw INPUT_ERROR_UNINITIALIZED_VARIABLE; // [DOCUMENTATION] unitialized variable
+        }
+    }
 }
 
 vector<double> Expression::evaluateAll(){
+    if (!flag_isValid)
+        throw INPUT_ERROR_INVALID_EXPRESSION; // [DOCUMENTATION] invalid expression
+
 	nCurrentVariable = 0;
 	vResult.clear();
 	recEval();

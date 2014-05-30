@@ -126,8 +126,8 @@ public:
     }
 
     // - getters
-    bool isInvalid(){
-        return (mExpression1.isInvalid() || mExpression2.isInvalid());
+    bool isValid(){
+        return (mExpression1.isValid() && mExpression2.isValid());
     }
 
     vector<int> getProblemElements_ResultsCombined(){
@@ -180,8 +180,10 @@ public:
 		vEvalArray2 = mExpression2.evaluateAll();	
         for (unsigned int i = 0; i < vEvalArray1.size(); i++){
             if(sSymbol == "<"){
+                cout << vEvalArray1[i] << " < " << vEvalArray2[i] << ": " << (vEvalArray1[i] < vEvalArray2[i]) << endl;
                 vResult.push_back(vEvalArray1[i] < vEvalArray2[i]);
             } else if (sSymbol == ">"){
+                cout << vEvalArray1[i] << " > " << vEvalArray2[i] << ": " << (vEvalArray1[i] > vEvalArray2[i]) << endl;
                 vResult.push_back(vEvalArray1[i] > vEvalArray2[i]);
             } else if (sSymbol == "<="){
                 vResult.push_back(vEvalArray1[i] <= vEvalArray2[i]);

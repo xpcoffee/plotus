@@ -87,7 +87,7 @@ void BareMinimumPlotter::plot()
 {
     // check input - GUI
     if (isEmpty_InputFields()){
-        cerr << "[ERROR] BareMinimumPlotter | create expressions| " << "Empty input field(s)." << endl;
+        cerr << "[ERROR] BareMinimumPlotter | create expressions | " << "Empty input field(s)." << endl;
         QMessageBox *msg = new QMessageBox(ui->centralWidget);
         msg->setText("Please fill in all input fields.");
         msg->setWindowTitle("Input error.");
@@ -95,14 +95,14 @@ void BareMinimumPlotter::plot()
         return;
     }
 
-    if (!charsValid(ui->lineEditInequalityLeft)){
-        cerr << "[ERROR] BareMinimumPlotter | create expressions| " << "Left expression has invalid char(s)." << endl;
-        QMessageBox *msg = new QMessageBox(ui->centralWidget);
-        msg->setText("Left expression has invalid char(s).");
-        msg->setWindowTitle("Input error.");
-        msg->show();
-        return;
-    }
+//    if (!charsValid(ui->lineEditInequalityLeft)){
+//        cerr << "[ERROR] BareMinimumPlotter | create expressions | " << "Left expression has invalid char(s)." << endl;
+//        QMessageBox *msg = new QMessageBox(ui->centralWidget);
+//        msg->setText("Left expression has invalid char(s).");
+//        msg->setWindowTitle("Input error.");
+//        msg->show();
+//        return;
+//    }
 
     if (!charsValid(ui->lineEditInequalityRight)){
         cerr << "[ERROR] BareMinimumPlotter | create expressions| " << "Right expression has invalid char(s)." << endl;
@@ -119,7 +119,7 @@ void BareMinimumPlotter::plot()
                              ui->lineEditInequalityRight->text().toStdString());
 
     // check expressions
-    if(expressionsInvalid(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
+    if(!expressionsValid(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
         return;
 
     // create and add variables
@@ -209,11 +209,11 @@ void BareMinimumPlotter::plot()
 //	Validation
 //	----------
 
-bool BareMinimumPlotter::expressionsInvalid(Inequality mInequality, QLineEdit * qLineEditLHS, QLineEdit * qLineEditRHS){
-    bool flag_invalid = false;
+bool BareMinimumPlotter::expressionsValid(Inequality mInequality, QLineEdit * qLineEditLHS, QLineEdit * qLineEditRHS){
+    bool flag_isValid = true;
     // check LHS
-    if (mInequality.isInvalid()){
-        flag_invalid = true;
+    if (!mInequality.isValid()){
+        flag_isValid = false;
         vector<int> vInputErrorsLHS = mInequality.getProblemElements_ExpressionLHS();
         int nFormatRangeCounter = 0;
         QList<QTextLayout::FormatRange> formats;
@@ -238,12 +238,12 @@ bool BareMinimumPlotter::expressionsInvalid(Inequality mInequality, QLineEdit * 
         }
         setLineEditTextFormat(qLineEditLHS, formats);
 
-        cout << "[ERROR] Inequality | checking expressions | " << "inequality is invalid" << endl;
+        cout << "[ERROR] BareMinimumPlotter | expressionsValid | " << "inequality is invalid" << endl;
     }
 
     // check RHS
-    if (mInequality.isInvalid()){
-        flag_invalid = true;
+    if (!mInequality.isValid()){
+        flag_isValid = false;
         vector<int> vInputErrorsRHS = mInequality.getProblemElements_ExpressionRHS();
         int nFormatRangeCounter = 0;
         QList<QTextLayout::FormatRange> formats;
@@ -269,9 +269,9 @@ bool BareMinimumPlotter::expressionsInvalid(Inequality mInequality, QLineEdit * 
 
         setLineEditTextFormat(qLineEditRHS, formats);
 
-        cout << "[ERROR] Inequality | checking expressions | " << "inequality is invalid" << endl;
+        cout << "[ERROR] BareMinimumPlotter | expressionsValid | " << "inequality is invalid" << endl;
     }
-    return flag_invalid;
+    return flag_isValid;
 }
 
 bool BareMinimumPlotter::isEmpty_InputFields(){

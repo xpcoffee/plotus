@@ -31,7 +31,42 @@
 #include<iomanip>
 #include"variable.h"
 
-//	"""""""""""""""""""""""""""""""""	
+//	"""""""""""""""""""""""""""""""""
+//	"	Preprocessor Definitions	"
+//	"""""""""""""""""""""""""""""""""
+
+    #ifndef COMPRESSION_CHAR
+    #define COMPRESSION_CHAR '$'
+    #endif
+
+    #ifndef PI
+    #define PI 3.141592653589793238462643383279502884
+    #endif
+
+//	"""""""""""""""""""""""""""""""""
+//	"		Enumerated Types		"
+//	"""""""""""""""""""""""""""""""""
+    enum READABLILITY_CODES
+    {
+        UNINITIALIZED_COUNTER = -1,
+    };
+
+    enum INPUT_ERROR_CODES
+    {
+        INPUT_ERROR_UNINITIALIZED_VARIABLE = 300,
+        INPUT_ERROR_INVALID_EXPRESSION = 301,
+        INPUT_ERROR_PARENTH_EMPTY = 302,
+        INPUT_ERROR_PARENTH_NOT_EMPTY = 303,
+    };
+
+    enum MATH_ERROR_CODES
+    {
+        MATH_DIVIDE_BY_ZERO = 200,
+        MATH_NAN = 201,
+    };
+
+
+//	"""""""""""""""""""""""""""""""""
 //	"			Namespaces			"
 //	"""""""""""""""""""""""""""""""""	
 using namespace std;
@@ -54,7 +89,7 @@ private:
     vector<double> vResult;
     vector<int> vProblemElements_Result;
     vector<int> vProblemElements_Expression;
-    bool flag_invalid;
+    bool flag_isValid;
 
 	// functions
     // - parsing
@@ -64,11 +99,14 @@ private:
     bool charIsAlpha(char);
 	bool charIsWhitespace(char);
     // - validation
-    bool checkDecimalPoint(string);
+    bool check_DecimalPointOK(string);
     bool checkIllegalChars(string);
-    bool checkIllegalVar(string);
-    bool checkOperators(string, int, int, bool&);
+    bool check_CharsOK(string);
+    bool check_NumbersOK(string);
+    bool check_OperatorsOK(string, int, int, bool&);
     bool variableNameIsUnique(Variable&);
+    bool termIsNumeric(string);
+    bool termIsAlpha(string);
     // - recursive evaluation functions
     bool compressExpression(vector<string>&);
     bool doPowers(vector<string>&);
@@ -86,7 +124,7 @@ private:
     // - internal getters
     string getStringArray(vector<string>);
     // - exceptions and error handling
-    void handleException(int);
+    void handleMathException(MATH_ERROR_CODES);
 
 public:
 	// constructor
@@ -117,12 +155,10 @@ public:
     vector<int> getProblemElements_Expression();
     vector<int> getProblemElements_Result();
     // - validation
-    bool isInvalid();
+    bool isValid();
     bool charIsValid(char);
-    bool termIsNumeric(string);
     bool variableNameIsValid(Variable&);
     // - experimental
-    void printExpression();
 
 };
 
