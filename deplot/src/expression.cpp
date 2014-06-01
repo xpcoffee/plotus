@@ -197,7 +197,6 @@ bool Expression::check_CharsOK(string sTerm){
     for (string::iterator it = sTerm.begin(); it != sTerm.end(); it++){
         if (!charIsValid(*it))
         {
-            cout << "incorrect character: " << sTerm << endl;
             return false;	// illegal character
         }
     }
@@ -231,7 +230,9 @@ bool Expression::check_OperatorsOK(string sTerm, int nTerm, int nSize, bool & fl
 vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
     vector<int> vErrorTerms, vErrorParenth;
     string sTerm;
+    vector<string> vTermsBeforeParenth;
     int nTerm = 0;
+    vector<int> vParenthRangeStart;
     bool flag_prevOperator = false;
     bool flag_checksPassed;
     flag_isValid = true;
@@ -252,6 +253,9 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
        // check for matching parentheses
        if (sTerm[0] == '('){
            vErrorParenth.push_back(nTerm);
+           vParenthRangeStart.push_back(nTerm);
+           if (nTerm > 0)
+               vTermsBeforeParenth.push_back(vExpression[nTerm-1]);
        }
        else if (sTerm[0] == ')'){
            if (vErrorParenth.size() == 0){
@@ -261,6 +265,21 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
            }
            else {
                vErrorParenth.pop_back();
+           }
+           if (!vTermsBeforeParenth.empty() && termIsFunction(vTermsBeforeParenth.back())
+                   && (nTerm - vParenthRangeStart.back()) == 1){ 		// function with empty parenth
+               flag_isValid = false;
+               vErrorTerms.push_back(vParenthRangeStart.back()-1);
+               cerr <<"[ERROR] checkExpressionArray() | " << " function with empty parenth: " << vParenthRangeStart.back()<< endl;
+           } else if (!vTermsBeforeParenth.empty() && termIsStandardValue(vTermsBeforeParenth.back())
+                      && (nTerm - vParenthRangeStart.back()) > 1){ 	// value with non-empty parenth
+               flag_isValid = false;
+               vErrorTerms.push_back(vParenthRangeStart.back()-1);
+               cerr <<"[ERROR] checkExpressionArray() | " << " value with non-empty parenth: " << vParenthRangeStart.back() << endl;
+           }
+           if(!vTermsBeforeParenth.empty()){
+                vTermsBeforeParenth.pop_back();
+                vParenthRangeStart.pop_back();
            }
        }
        nTerm++;
@@ -296,15 +315,19 @@ bool Expression::charIsValid(char c){
 }
 
 bool Expression::termIsNumeric(string sTerm){
-        if (charIsDigit(sTerm[0])) // reason why variable names may not start with digit
-            return true;
-        return false;
+        return charIsDigit(sTerm[0]); // reason why variable names may not start with digit
 }
 
 bool Expression::termIsAlpha(string sTerm){
-        if (charIsAlpha(sTerm[0]))
-            return true;
-        return false;
+        return charIsAlpha(sTerm[0]);
+}
+
+bool Expression::termIsStandardValue(string sTerm){
+    return Variable::isStandardValue(sTerm);
+}
+
+bool Expression::termIsFunction(string sTerm){
+     return Variable::isFunction(sTerm);
 }
 
 //	Evaluation
@@ -571,6 +594,7 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     if (nEvalPos < 1) { return; }
     string termBeforeParenthesis = vExpression[nEvalPos-1];
     string sEvalTerm = vExpression[nEvalPos];
+    nProblemTerm = nEvalPos;
     double result;
     //trig functions
     if (termBeforeParenthesis == "sin"){
@@ -667,8 +691,9 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     }
     // values
     else if(termBeforeParenthesis == "pi"){
-        if (!flag_EmptyParenth)
+        if (!flag_EmptyParenth){
             throw INPUT_ERROR_PARENTH_NOT_EMPTY;
+        }
         result = PI;
     }
     else if(termBeforeParenthesis == "-pi"){
@@ -729,6 +754,11 @@ void Expression::recEval(){
                         vProblemElements_Result.push_back(vResult.size());
                         dResult = 0;
                     }
+                    catch(INPUT_ERROR_CODES e){
+                        vProblemElements_Expression.push_back(nProblemTerm);
+                        flag_isValid = false;
+                    }
+
                     vResult.push_back(dResult);
 			}
             // ...otherwise move on to the next nested variable level
@@ -764,7 +794,7 @@ void Expression::handleMathException(MATH_ERROR_CODES e){
     case MATH_NAN:
         break;
     default:
-        cerr << "Unhandled exception." << endl;
+        cerr << "Unhandled MATH_ERROR_CODE exception." << endl;
         break;
     }
 }

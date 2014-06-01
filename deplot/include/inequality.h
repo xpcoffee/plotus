@@ -117,6 +117,14 @@ public:
         return mExpression2.getTerm(nTerm);
     }
 
+    string getExpressionLHS(){
+        return mExpression1.getExpression();
+    }
+
+    string getExpressionRHS(){
+        return mExpression2.getExpression();
+    }
+
     int getNumTermsLHS(){
         return mExpression1.getNumTerms();
     }
@@ -126,8 +134,12 @@ public:
     }
 
     // - getters
-    bool isValid(){
-        return (mExpression1.isValid() && mExpression2.isValid());
+    bool isValidLHS(){
+        return mExpression1.isValid();
+    }
+
+    bool isValidRHS(){
+        return mExpression2.isValid();
     }
 
     vector<int> getProblemElements_ResultsCombined(){
@@ -176,14 +188,16 @@ public:
     // - evaluation
     vector<bool> evaluate(){
 		vector<bool> vResult;
-		vEvalArray1 = mExpression1.evaluateAll();	
-		vEvalArray2 = mExpression2.evaluateAll();	
+
+        vEvalArray1 = mExpression1.evaluateAll();
+        vEvalArray2 = mExpression2.evaluateAll();
+
         for (unsigned int i = 0; i < vEvalArray1.size(); i++){
             if(sSymbol == "<"){
-                cout << vEvalArray1[i] << " < " << vEvalArray2[i] << ": " << (vEvalArray1[i] < vEvalArray2[i]) << endl;
+//                cout << vEvalArray1[i] << " < " << vEvalArray2[i] << ": " << (vEvalArray1[i] < vEvalArray2[i]) << endl;
                 vResult.push_back(vEvalArray1[i] < vEvalArray2[i]);
             } else if (sSymbol == ">"){
-                cout << vEvalArray1[i] << " > " << vEvalArray2[i] << ": " << (vEvalArray1[i] > vEvalArray2[i]) << endl;
+//                cout << vEvalArray1[i] << " > " << vEvalArray2[i] << ": " << (vEvalArray1[i] > vEvalArray2[i]) << endl;
                 vResult.push_back(vEvalArray1[i] > vEvalArray2[i]);
             } else if (sSymbol == "<="){
                 vResult.push_back(vEvalArray1[i] <= vEvalArray2[i]);

@@ -123,20 +123,15 @@ public:
     // - validation
     static bool nameIsLegal(string sName){
         // check that name is set
-        if (sName.empty()){
+        if (sName.empty())
             return false;
-        }
-        char varNameStart = sName[0];
         // check for start with number
-        if (('0' <= varNameStart) && (varNameStart  <= '9')){
+        char varNameStart = sName[0];
+        if (('0' <= varNameStart) && (varNameStart  <= '9'))
             return false;
-        }
         // check for illegal name
-        if (sName == "sin" || sName == "cos" || sName == "tan" ||
-            sName == "arcsin" || sName == "arccos" || sName == "arctan" ||
-            sName == "exp" || sName == "ln" || sName == "log"){
+        if (isFunction(sName) || isStandardValue(sName))
             return false;
-        }
         // check for illegal characters
         for (string::iterator it = sName.begin(); it != sName.end(); it++){
             char c = *it;
@@ -153,6 +148,16 @@ public:
         }
         // all checks passed
         return true;
+    }
+
+    static bool isFunction(string sName){
+         return (sName == "sin") 		|| (sName == "cos") 	|| (sName == "tan") 	||
+                (sName == "arcsin") 	|| (sName == "arccos") 	|| (sName == "arctan") 	||
+                (sName == "exp") 		|| (sName == "ln") 		|| (sName == "log");
+    }
+
+    static bool isStandardValue(string sName){
+        return 	(sName == "pi");
     }
 };
 

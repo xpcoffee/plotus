@@ -83,6 +83,7 @@ private:
     int nTerms;
     int nVariables;
     int nCurrentVariable;
+    int nProblemTerm;
 	vector<string> vExpression;
 	vector<string> vOriginalExpression;
     vector<Variable> vVariables;
@@ -107,6 +108,8 @@ private:
     bool variableNameIsUnique(Variable&);
     bool termIsNumeric(string);
     bool termIsAlpha(string);
+    bool termIsFunction(string);
+    bool termIsStandardValue(string);
     // - recursive evaluation functions
     bool compressExpression(vector<string>&);
     bool doPowers(vector<string>&);
