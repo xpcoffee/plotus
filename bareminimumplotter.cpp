@@ -87,7 +87,6 @@ void BareMinimumPlotter::plot()
 {
     // check fields not empty
     if (isEmpty_InputFields()){
-        cerr << "[ERROR] BareMinimumPlotter | create expressions | " << "Empty input field(s)." << endl;
         QMessageBox *msg = new QMessageBox(ui->centralWidget);
         msg->setText("Please fill in all input fields.");
         msg->setWindowTitle("Input error.");
@@ -138,12 +137,14 @@ void BareMinimumPlotter::plot()
     catch(INPUT_ERROR_CODES e){ // catch errors that happen during evaluation
         switch(e){
         case INPUT_ERROR_INVALID_EXPRESSION:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Caught evalation input error." << endl;
+            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Invalid expression." << endl;
             if(highlightInvalidExpressionTerms(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
                 return;
             break;
         case INPUT_ERROR_UNINITIALIZED_VARIABLE:
             cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Uninitialized variable." << endl;
+            if(highlightInvalidExpressionTerms(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
+                return;
             break;
         default:
             cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Unhandled INPUT_ERROR_CODE exception caught: ";
@@ -246,7 +247,7 @@ bool BareMinimumPlotter::highlightInvalidExpressionTerms(Inequality mInequality,
         }
         setLineEditTextFormat(qLineEditLHS, formats);
 
-        cout << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "LHS inequality is invalid" << endl;
+        cerr << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "LHS inequality is invalid" << endl;
     }
 
     // check RHS
@@ -277,7 +278,7 @@ bool BareMinimumPlotter::highlightInvalidExpressionTerms(Inequality mInequality,
 
         setLineEditTextFormat(qLineEditRHS, formats);
 
-        cout << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "RHS inequality is invalid" << endl;
+        cerr << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "RHS inequality is invalid" << endl;
     }
     return flag_highlight;
 }

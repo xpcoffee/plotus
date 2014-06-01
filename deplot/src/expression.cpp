@@ -18,16 +18,25 @@
 
 /*
  * VALIDATION
- * TODO: Expression	| check for undefined variables
- * TODO: Expression	| handle error when parsing unknown symbol
- * TODO: GUI 		| check for stuff in function brackets: sin(stuff)
- * 
+ * TODO: pi without brackets must be able to be used as a variable
+ * TODO: uninitialized variables not highlighting properly when followed by powers
+ *
  * MATHS
- * TODO: Expression | bracket multiplication: 4(3+7)2
  * TODO: Expression | handle inf
  *
- * FEATURES
- * TODO:
+ * FEATURES / GUI
+ * TODO: remove lineedit formatting when "plot" is cleared
+ * TODO: clear button
+ * TODO: highlight wrong input fields
+ * 			- elements negative or zero
+ * 			- min and max the same
+ * 			- illegal variable namespace name
+ * TODO: error display
+ *
+ * LONG TERM
+ * TODO: combine inequality results
+ * TODO: create report of plot
+}
 */
 
 //	"""""""""""""""""""""""""""""""""	
@@ -62,7 +71,6 @@ void Expression::setExpression(string sInput){
     vProblemElements_Expression = checkExpressionArray(vOriginalExpression);
 }
 
-
 void Expression::addVariable(Variable myVar){
     assert(variableNameIsValid(myVar));
 	vVariables.push_back(myVar);
@@ -75,8 +83,6 @@ void Expression::clearVariables(){
 void Expression::resetExpression(){
 	vExpression = vOriginalExpression;
 }
-
-
 
 //	Parsing
 //	-------
@@ -204,37 +210,28 @@ bool Expression::check_CharsOK(string sTerm){
 }
 
 bool Expression::check_OperatorsOK(string sTerm, int nTerm, int nSize, bool & flag_prev){
-
     if (charIsOperator(sTerm[0]) && (sTerm.size() == 1)){
         // consecutive operators
-        if (flag_prev){
+        if (flag_prev)
             return false;
-        }
 
-        // operator found, set flag
-        // placement important - after flag check and before the other checks
-        flag_prev = true;
+        flag_prev = true; 	// set flag | placement important - after flag check and before the other checks
 
-        // starting or trailing operator (unless its a '-' at the beginning)
-        if ((nTerm == 0 && sTerm[0] != '-') || (nTerm == nSize-1)){
+        if ((nTerm == 0 && sTerm[0] != '-') || (nTerm == nSize-1))
             return false;
-        }
-
-    } else {
-        flag_prev = false;
-    }
-
+    } else { flag_prev = false; }
    return true; // if no problem
 }
 
 vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
     vector<int> vErrorTerms, vErrorParenth;
-    string sTerm;
     vector<string> vTermsBeforeParenth;
-    int nTerm = 0;
     vector<int> vParenthRangeStart;
+    string sTerm;
+    int nTerm = 0;
     bool flag_prevOperator = false;
     bool flag_checksPassed;
+
     flag_isValid = true;
 
     for (vector<string>::iterator it = vExpression.begin(); it != vExpression.end(); it++){
@@ -250,14 +247,16 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
            vErrorTerms.push_back(nTerm);
            flag_isValid = false;
        }
-       // check for matching parentheses
+       // parentheses checks
        if (sTerm[0] == '('){
            vErrorParenth.push_back(nTerm);
            vParenthRangeStart.push_back(nTerm);
-           if (nTerm > 0)
+
+           if (nTerm > 0)	// keep track of term before parenth - in case of function
                vTermsBeforeParenth.push_back(vExpression[nTerm-1]);
        }
        else if (sTerm[0] == ')'){
+           // unopened parentheses
            if (vErrorParenth.size() == 0){
                flag_isValid = false;
                vErrorTerms.push_back(nTerm);
@@ -266,8 +265,10 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
            else {
                vErrorParenth.pop_back();
            }
-           if (!vTermsBeforeParenth.empty() && termIsFunction(vTermsBeforeParenth.back())
-                   && (nTerm - vParenthRangeStart.back()) == 1){ 		// function with empty parenth
+
+           // check if contents of parenth match what is needed by function/standard value
+           if (!vTermsBeforeParenth.empty() && termIsFunction(vTermsBeforeParenth.back())	// functions need non-empty parenth
+                   && (nTerm - vParenthRangeStart.back()) == 1){
                flag_isValid = false;
                vErrorTerms.push_back(vParenthRangeStart.back()-1);
                cerr <<"[ERROR] checkExpressionArray() | " << " function with empty parenth: " << vParenthRangeStart.back()<< endl;
@@ -284,6 +285,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
        }
        nTerm++;
     }
+    // unclosed parentheses
     for (vector<int>::iterator it = vErrorParenth.begin(); it != vErrorParenth.end(); it++){
         vErrorTerms.push_back(*it);
         cerr <<"[ERROR] checkExpressionArray() | " << " unclosed parenthesis, term: " << *it << endl;
@@ -855,6 +857,9 @@ void Expression::subVariableValues(){
             }
 		}
         if (!flag_initialized && Variable::nameIsLegal(sTerm)){
+            cout << "j: " << j << endl;
+            vProblemElements_Expression.push_back(j);
+            flag_isValid = false;
             throw INPUT_ERROR_UNINITIALIZED_VARIABLE; // [DOCUMENTATION] unitialized variable
         }
     }
