@@ -24,9 +24,12 @@ public:
     ~BareMinimumPlotter();
 
     void plot();
+    void checkFields();
+    void clearFormatting();
     bool highlightInvalidExpressionTerms(Inequality, QLineEdit*, QLineEdit*);
     bool charsValid(QLineEdit*);
     bool isEmpty_InputFields();
+
 
 private slots:
     void on_buttonPlot_clicked();

@@ -114,6 +114,12 @@
       <item>
        <widget class="QLineEdit" name="lineEditInequalityRight"/>
       </item>
+      <item>
+       <widget class="QComboBox" name="comboBoxShape"/>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBoxColor"/>
+      </item>
      </layout>
     </item>
     <item row="4" column="0">

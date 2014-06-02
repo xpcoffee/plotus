@@ -17,26 +17,22 @@
 */
 
 /*
- * VALIDATION
- * TODO: pi without brackets must be able to be used as a variable
- * TODO: uninitialized variables not highlighting properly when followed by powers
- *
- * MATHS
- * TODO: Expression | handle inf
- *
- * FEATURES / GUI
- * TODO: remove lineedit formatting when "plot" is cleared
- * TODO: clear button
- * TODO: highlight wrong input fields
- * 			- elements negative or zero
- * 			- min and max the same
- * 			- illegal variable namespace name
- * TODO: error display
- *
- * LONG TERM
- * TODO: combine inequality results
- * TODO: create report of plot
-}
+    BREAK
+        ln(x) breaking when x = 0
+    VALIDATION
+        TODO: pi without brackets must be able to be used as a variable
+        TODO: uninitialized variables not highlighting properly when followed by powers
+
+    MATHS
+        TODO: Expression | handle inf
+
+    FEATURES / GUI
+        TODO: clear button
+        TODO: error display
+
+    LONG TERM
+        TODO: combine inequality results
+        TODO: create report of plot
 */
 
 //	"""""""""""""""""""""""""""""""""	

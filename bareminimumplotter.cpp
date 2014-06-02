@@ -1,3 +1,9 @@
+/*	TASK LIST
+    ---------
+    BREAK: 2 June 2014 | adding color and shape selection to inequality
+*/
+
+
 //	"""""""""""""""""""""""""""""""""
 //	"		Private Functions		"
 //	"""""""""""""""""""""""""""""""""
@@ -48,6 +54,16 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
     setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
 }
 
+
+//	"""""""""""""""""""""""""""""""""
+//	"		Static Functions		"
+//	"""""""""""""""""""""""""""""""""
+
+static void setQLineEditBackground(QLineEdit* lineEdit, string fg, string bg){
+    string str = 	"QLineEdit{ color: " + fg + "; background: " + bg + ";}";
+    lineEdit->setStyleSheet(QString::fromStdString(str));
+}
+
 //	"""""""""""""""""""""""""""""""""
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""
@@ -63,12 +79,12 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QDoubleValidator *dValidator = new QDoubleValidator;
     QIntValidator *iValidator = new QIntValidator;
     dValidator->setLocale(QLocale(QStringLiteral("de")));
+    ui->lineEditElement1->setValidator(iValidator);
     ui->lineEditMax1->setValidator(dValidator);
     ui->lineEditMin1->setValidator(dValidator);
+    ui->lineEditElement2->setValidator(iValidator);
     ui->lineEditMax2->setValidator(dValidator);
     ui->lineEditMin2->setValidator(dValidator);
-    ui->lineEditElement1->setValidator(iValidator);
-    ui->lineEditElement2->setValidator(iValidator);
 }
 
 //	Destructor
@@ -83,9 +99,9 @@ BareMinimumPlotter::~BareMinimumPlotter()
 //	Core Functions
 //	---------------
 
-void BareMinimumPlotter::plot()
-{
-    // check fields not empty
+void BareMinimumPlotter::checkFields(){
+
+    // check not empty
     if (isEmpty_InputFields()){
         QMessageBox *msg = new QMessageBox(ui->centralWidget);
         msg->setText("Please fill in all input fields.");
@@ -93,6 +109,41 @@ void BareMinimumPlotter::plot()
         msg->show();
         return;
     }
+
+    // check values ok
+    if 	(ui->lineEditElement1->text().toInt() < 1)
+        setQLineEditBackground(ui->lineEditElement1, "white", "red");
+    if  (ui->lineEditMax1->text().toDouble() == ui->lineEditMin1->text().toDouble())
+    {
+        setQLineEditBackground(ui->lineEditMax1, "white", "red");
+        setQLineEditBackground(ui->lineEditMin1, "white", "red");
+    }
+
+    if 	(ui->lineEditElement2->text().toInt() < 1)
+        setQLineEditBackground(ui->lineEditElement2, "white", "red");
+    if  (ui->lineEditMax2->text().toDouble() == ui->lineEditMin2->text().toDouble())
+    {
+        setQLineEditBackground(ui->lineEditMax2, "white", "red");
+        setQLineEditBackground(ui->lineEditMin2, "white", "red");
+    }
+}
+
+
+void BareMinimumPlotter::clearFormatting(){
+    clearLineEditTextFormat(ui->lineEditInequalityLeft);
+    clearLineEditTextFormat(ui->lineEditInequalityRight);
+    setQLineEditBackground(ui->lineEditElement1, "black", "white");
+    setQLineEditBackground(ui->lineEditMax1, "black", "white");
+    setQLineEditBackground(ui->lineEditMin1, "black", "white");
+    setQLineEditBackground(ui->lineEditElement2, "black", "white");
+    setQLineEditBackground(ui->lineEditMax2, "black", "white");
+    setQLineEditBackground(ui->lineEditMin2, "black", "white");
+}
+
+void BareMinimumPlotter::plot()
+{
+    clearFormatting();
+    checkFields();
 
     // create inequality
     mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
