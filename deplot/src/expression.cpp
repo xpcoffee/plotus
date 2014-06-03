@@ -670,22 +670,34 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     else if(termBeforeParenthesis == "log"){
         if (flag_EmptyParenth)
             throw INPUT_ERROR_PARENTH_EMPTY;
-        result = log10(atof(sEvalTerm.c_str()));
+        double dEval = atof(sEvalTerm.c_str());
+        if (dEval == 0)
+            throw MATH_POLE;
+        result = log10(dEval);
     }
     else if(termBeforeParenthesis == "ln"){
         if (flag_EmptyParenth)
             throw INPUT_ERROR_PARENTH_EMPTY;
-        result = log(atof(sEvalTerm.c_str()));
+        double dEval = atof(sEvalTerm.c_str());
+        if (dEval == 0)
+            throw MATH_POLE;
+        result = log(dEval);
     }
     else if(termBeforeParenthesis == "-log"){
         if (flag_EmptyParenth)
             throw INPUT_ERROR_PARENTH_EMPTY;
-        result = -log10(atof(sEvalTerm.c_str()));
+        double dEval = atof(sEvalTerm.c_str());
+        if (dEval == 0)
+            throw MATH_POLE;
+        result = -log10(dEval);
     }
     else if(termBeforeParenthesis == "-ln"){
         if (flag_EmptyParenth)
             throw INPUT_ERROR_PARENTH_EMPTY;
-        result = -log(atof(sEvalTerm.c_str()));
+        double dEval = atof(sEvalTerm.c_str());
+        if (dEval == 0)
+            throw MATH_POLE;
+        result = -log(dEval);
     }
     // values
     else if(termBeforeParenthesis == "pi"){
@@ -790,6 +802,9 @@ void Expression::handleMathException(MATH_ERROR_CODES e){
     case MATH_DIVIDE_BY_ZERO:
         break;
     case MATH_NAN:
+        break;
+    case MATH_POLE:
+        cout << "pole" << endl;
         break;
     default:
         cerr << "Unhandled MATH_ERROR_CODE exception." << endl;

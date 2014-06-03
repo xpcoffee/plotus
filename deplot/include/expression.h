@@ -63,6 +63,7 @@
     {
         MATH_DIVIDE_BY_ZERO = 200,
         MATH_NAN = 201,
+        MATH_POLE = 202,
     };
 
 

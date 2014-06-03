@@ -22,44 +22,16 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="10" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLineEdit" name="lineEditName1"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Min</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="lineEditMin1"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Max</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLineEdit" name="lineEditMax1"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Elements</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="lineEditElement1"/>
@@ -82,13 +54,13 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="4" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLineEdit" name="lineEditInequalityLeft"/>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="comboBoxInequality">
         <item>
          <property name="text">
           <string>&lt;</string>
@@ -115,59 +87,177 @@
        <widget class="QLineEdit" name="lineEditInequalityRight"/>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBoxShape"/>
+       <widget class="QComboBox" name="comboBoxShape">
+        <item>
+         <property name="text">
+          <string>star</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>circle</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>triangle</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>square</string>
+         </property>
+        </item>
+       </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBoxColor"/>
+       <widget class="QComboBox" name="comboBoxColor">
+        <item>
+         <property name="text">
+          <string>blue</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>green</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>red</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>dark blue</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>dark green</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>dark red</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>grey</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>black</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </item>
-    <item row="4" column="0">
+    <item row="11" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="bottomMargin">
-       <number>9</number>
+       <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLineEdit" name="lineEditName2"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Min</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="lineEditMin2"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Max</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLineEdit" name="lineEditMax2"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Elements</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="lineEditElement2"/>
       </item>
      </layout>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_Inequalities">
+      <property name="text">
+       <string>Inequalities</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_Variables">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Variables</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_VariableName">
+        <property name="text">
+         <string>Name</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_VariableMin">
+        <property name="text">
+         <string>Min</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_VariableMx">
+        <property name="text">
+         <string>Max</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_VariableElements">
+        <property name="text">
+         <string>Elements</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="0">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -183,7 +273,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>lineEditInequalityLeft</tabstop>
-  <tabstop>comboBox</tabstop>
+  <tabstop>comboBoxInequality</tabstop>
   <tabstop>lineEditInequalityRight</tabstop>
   <tabstop>lineEditName1</tabstop>
   <tabstop>lineEditMin1</tabstop>

@@ -18,6 +18,28 @@
 #include <vector>
 
 //	"""""""""""""""""""""""""""""""""
+//	"		Enumerated Types		"
+//	"""""""""""""""""""""""""""""""""
+enum COLOR {
+    BLUE 		= 0,
+    GREEN 		= 1,
+    RED 		= 2,
+    DARK_BLUE 	= 3,
+    DARK_GREEN 	= 4,
+    DARK_RED 	= 5,
+    GREY 		= 6,
+    BLACK 		= 7,
+    WHITE 		= 8,
+};
+
+enum SHAPE {
+    CROSS 		= 0,
+    CIRCLE 		= 1,
+    TRIANGLE 	= 2,
+    SQUARE 		= 3,
+};
+
+//	"""""""""""""""""""""""""""""""""
 //	"		Private Functions		"
 //	"""""""""""""""""""""""""""""""""
 
@@ -70,7 +92,6 @@ static void setQLineEditBackground(QLineEdit* lineEdit, string fg, string bg){
 
 //	Constructor
 //	-----------
-
 BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::BareMinimumPlotter)
@@ -89,7 +110,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
 
 //	Destructor
 //	----------
-
 BareMinimumPlotter::~BareMinimumPlotter()
 {
     delete ui;
@@ -98,7 +118,6 @@ BareMinimumPlotter::~BareMinimumPlotter()
 
 //	Core Functions
 //	---------------
-
 void BareMinimumPlotter::checkFields(){
 
     // check not empty
@@ -147,7 +166,7 @@ void BareMinimumPlotter::plot()
 
     // create inequality
     mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
-                             ui->comboBox->currentText().toStdString(),
+                             ui->comboBoxInequality->currentText().toStdString(),
                              ui->lineEditInequalityRight->text().toStdString());
 
     ui->lineEditInequalityLeft->setText(QString::fromStdString(mInequality.getExpressionLHS()));
@@ -240,9 +259,52 @@ void BareMinimumPlotter::plot()
     ui->plotter->graph(0)->setData(x,y);
     ui->plotter->graph(0)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
     QCPScatterStyle style1;
-    style1.setShape(QCPScatterStyle::ssCross);
+    //	- set marker
+    switch(ui->comboBoxShape->currentIndex()){
+    case CROSS:
+        style1.setShape(QCPScatterStyle::ssCross);
+        break;
+    case CIRCLE:
+        style1.setShape(QCPScatterStyle::ssCircle);
+        break;
+    case TRIANGLE:
+        style1.setShape(QCPScatterStyle::ssTriangle);
+        break;
+    case SQUARE:
+        style1.setShape(QCPScatterStyle::ssSquare);
+        break;
+    }
+
+    //	- set size
     style1.setSize(5);
-    style1.setPen(QPen(Qt::blue));
+    //	- set color
+    switch(ui->comboBoxColor->currentIndex()){
+    case RED:
+        style1.setPen(QPen(Qt::red));
+        break;
+    case GREEN:
+        style1.setPen(QPen(Qt::green));
+        break;
+    case BLUE:
+        style1.setPen(QPen(Qt::blue));
+        break;
+    case DARK_RED:
+        style1.setPen(QPen(Qt::darkRed));
+        break;
+    case DARK_GREEN:
+        style1.setPen(QPen(Qt::darkGreen));
+        break;
+    case DARK_BLUE:
+        style1.setPen(QPen(Qt::darkBlue));
+        break;
+    case GREY:
+        style1.setPen(QPen(Qt::lightGray));
+        break;
+    case BLACK:
+        style1.setPen(QPen(Qt::black));
+        break;
+    }
+
     ui->plotter->graph(0)->setScatterStyle(style1);
 
     // add problem graph (if needed)
