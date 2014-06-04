@@ -15,6 +15,52 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="7" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonAddVariable">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Add Variable</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
     <item row="0" column="0">
      <widget class="QCustomPlot" name="plotter" native="true">
       <property name="sizePolicy">
@@ -170,7 +216,7 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="0">
+    <item row="10" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="bottomMargin">
        <number>0</number>
@@ -282,51 +328,6 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLineEdit" name="lineEditName1"/>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditMin1"/>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditMax1"/>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditElement1"/>
-      </item>
-     </layout>
-    </item>
-    <item row="12" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QLineEdit" name="lineEditName2"/>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditMin2"/>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditMax2"/>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditElement2"/>
-      </item>
-     </layout>
-    </item>
-    <item row="10" column="0">
-     <widget class="VariableInput" name="widget" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
  </widget>
@@ -338,25 +339,11 @@
    <header>qcustomplot.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>VariableInput</class>
-   <extends>QWidget</extends>
-   <header>variable_input/variableinput.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>lineEditInequalityLeft</tabstop>
   <tabstop>comboBoxInequality</tabstop>
   <tabstop>lineEditInequalityRight</tabstop>
-  <tabstop>lineEditName1</tabstop>
-  <tabstop>lineEditMin1</tabstop>
-  <tabstop>lineEditMax1</tabstop>
-  <tabstop>lineEditElement1</tabstop>
-  <tabstop>lineEditName2</tabstop>
-  <tabstop>lineEditMin2</tabstop>
-  <tabstop>lineEditMax2</tabstop>
-  <tabstop>lineEditElement2</tabstop>
   <tabstop>buttonPlot</tabstop>
  </tabstops>
  <resources/>

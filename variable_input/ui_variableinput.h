@@ -43,7 +43,7 @@ public:
         VariableInput->resize(705, 47);
         horizontalLayout = new QHBoxLayout(VariableInput);
         horizontalLayout->setSpacing(6);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout->setContentsMargins(11, 0, 11, 0);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         lineEditName = new QLineEdit(VariableInput);
         lineEditName->setObjectName(QStringLiteral("lineEditName"));

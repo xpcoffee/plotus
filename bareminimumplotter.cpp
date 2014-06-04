@@ -78,15 +78,6 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
 
 
 //	"""""""""""""""""""""""""""""""""
-//	"		Static Functions		"
-//	"""""""""""""""""""""""""""""""""
-
-static void setQLineEditBackground(QLineEdit* lineEdit, string fg, string bg){
-    string str = 	"QLineEdit{ color: " + fg + "; background: " + bg + ";}";
-    lineEdit->setStyleSheet(QString::fromStdString(str));
-}
-
-//	"""""""""""""""""""""""""""""""""
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""
 
@@ -97,15 +88,12 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui(new Ui::BareMinimumPlotter)
 {
     ui->setupUi(this);
-    QDoubleValidator *dValidator = new QDoubleValidator;
-    QIntValidator *iValidator = new QIntValidator;
-    dValidator->setLocale(QLocale(QStringLiteral("de")));
-    ui->lineEditElement1->setValidator(iValidator);
-    ui->lineEditMax1->setValidator(dValidator);
-    ui->lineEditMin1->setValidator(dValidator);
-    ui->lineEditElement2->setValidator(iValidator);
-    ui->lineEditMax2->setValidator(dValidator);
-    ui->lineEditMin2->setValidator(dValidator);
+
+    // add original x & y variable inputs
+    addVariableInput();
+    addVariableInput();
+    vVariableInputs[0]->setAxisMode(MODE_X_AXIS);
+    vVariableInputs[1]->setAxisMode(MODE_Y_AXIS);
 }
 
 //	Destructor
@@ -128,41 +116,21 @@ void BareMinimumPlotter::checkFields(){
         msg->show();
         return;
     }
-
-    // check values ok
-    if 	(ui->lineEditElement1->text().toInt() < 1)
-        setQLineEditBackground(ui->lineEditElement1, "white", "red");
-    if  (ui->lineEditMax1->text().toDouble() == ui->lineEditMin1->text().toDouble())
-    {
-        setQLineEditBackground(ui->lineEditMax1, "white", "red");
-        setQLineEditBackground(ui->lineEditMin1, "white", "red");
-    }
-
-    if 	(ui->lineEditElement2->text().toInt() < 1)
-        setQLineEditBackground(ui->lineEditElement2, "white", "red");
-    if  (ui->lineEditMax2->text().toDouble() == ui->lineEditMin2->text().toDouble())
-    {
-        setQLineEditBackground(ui->lineEditMax2, "white", "red");
-        setQLineEditBackground(ui->lineEditMin2, "white", "red");
-    }
 }
 
 
 void BareMinimumPlotter::clearFormatting(){
     clearLineEditTextFormat(ui->lineEditInequalityLeft);
     clearLineEditTextFormat(ui->lineEditInequalityRight);
-    setQLineEditBackground(ui->lineEditElement1, "black", "white");
-    setQLineEditBackground(ui->lineEditMax1, "black", "white");
-    setQLineEditBackground(ui->lineEditMin1, "black", "white");
-    setQLineEditBackground(ui->lineEditElement2, "black", "white");
-    setQLineEditBackground(ui->lineEditMax2, "black", "white");
-    setQLineEditBackground(ui->lineEditMin2, "black", "white");
+    for (vector<VariableInput*>::iterator it = vVariableInputs.begin(); it != vVariableInputs.end(); it++){
+        (*it)->clearFormatting();
+    }
 }
 
 void BareMinimumPlotter::plot()
 {
     clearFormatting();
-    checkFields();
+//    checkFields();
 
     // create inequality
     mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
@@ -177,27 +145,33 @@ void BareMinimumPlotter::plot()
         return;
 
     // create and add variables
-    ui->lineEditName1->setText(ui->lineEditName1->text().replace(QString(" "), QString("")));
-    ui->lineEditName2->setText(ui->lineEditName2->text().replace(QString(" "), QString("")));
+    for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
+        if (!vVariableInputs[i]->checkInput()) // check legal
+            return;
+        Variable tmpVariable = vVariableInputs[i]->getVariable();
+        if (!mInequality.variableIsValid(tmpVariable)) // check for uniqueness
+            return;
+        mInequality.addVariable(tmpVariable);
+    }
+    cout << "==== ADDING COMPLETE ====" << endl;
 
+//    mVariableX = Variable(ui->lineEditName1->text().toStdString(),
+//                          ui->lineEditMin1->text().toDouble(),
+//                          ui->lineEditMax1->text().toDouble(),
+//                          ui->lineEditElement1->text().toInt());
 
-    mVariable1 = Variable(ui->lineEditName1->text().toStdString(),
-                          ui->lineEditMin1->text().toDouble(),
-                          ui->lineEditMax1->text().toDouble(),
-                          ui->lineEditElement1->text().toInt());
+//    mVariableY = Variable(ui->lineEditName2->text().toStdString(),
+//                          ui->lineEditMin2->text().toDouble(),
+//                          ui->lineEditMax2->text().toDouble(),
+//                          ui->lineEditElement2->text().toInt());
 
-    mVariable2 = Variable(ui->lineEditName2->text().toStdString(),
-                          ui->lineEditMin2->text().toDouble(),
-                          ui->lineEditMax2->text().toDouble(),
-                          ui->lineEditElement2->text().toInt());
+//    if (!mInequality.variableIsValid(mVariableX))
+//        return;
+//    mInequality.addVariable(mVariableX);
 
-    if (!mInequality.variableIsValid(mVariable1))
-        return;
-    mInequality.addVariable(mVariable1);
-
-    if (!mInequality.variableIsValid(mVariable2))
-        return;
-    mInequality.addVariable(mVariable2);
+//    if (!mInequality.variableIsValid(mVariableY))
+//        return;
+//    mInequality.addVariable(mVariableY);
 
     // do maths
     vector<bool> vPlotSpace;
@@ -229,28 +203,44 @@ void BareMinimumPlotter::plot()
 
     // create plotting vectors
     QVector<double> x, y, x_problem, y_problem;
-    mVariable1.resetPosition(); // reset iterators
-    mVariable2.resetPosition();
+    int tmpCheck = 0;
+    for (int i = 0; i < vVariableInputs.size(); i++){
+        if (vVariableInputs[i]->getAxisMode() == MODE_X_AXIS){
+            mVariableX = vVariableInputs[i]->getVariable();
+            tmpCheck++;
+        } else if (vVariableInputs[i]->getAxisMode() == MODE_Y_AXIS){
+            mVariableY = vVariableInputs[i]->getVariable();
+            tmpCheck++;
+        }
+    }
+
+    if (tmpCheck != 2){
+        cerr << "problem getting x and y plotting vector variables" << endl;
+        return;
+    }
+
+    mVariableX.resetPosition(); // reset iterators
+    mVariableY.resetPosition();
     // 	iterate through boolean results,
     // 	create plotting vectors at points where results are 1
     for(int i = 0; i < static_cast<int>(vPlotSpace.size()); i++){
         // problem point - add to problem vectors
         // (the logic assumes that the problem points are added in order)
         if(!vProblemSpace.empty() && i == *it_ProblemSpace){
-            x_problem.push_back(mVariable1.getCurrentValue());
-            y_problem.push_back(mVariable2.getCurrentValue());
+            x_problem.push_back(mVariableX.getCurrentValue());
+            y_problem.push_back(mVariableY.getCurrentValue());
             it_ProblemSpace++;
         }
         else if (vPlotSpace[i]) {
             // not a problem point - add to the normal graph vectors
-            x.push_back(mVariable1.getCurrentValue());
-            y.push_back(mVariable2.getCurrentValue());
+            x.push_back(mVariableX.getCurrentValue());
+            y.push_back(mVariableY.getCurrentValue());
         }
 
-        if ((i+1) % mVariable2.getElements() == 0){
-            mVariable1.nextPosition();
+        if ((i+1) % mVariableY.getElements() == 0){
+            mVariableX.nextPosition();
         }
-        mVariable2.nextPosition();
+        mVariableY.nextPosition();
     }
 
     // add normal graph
@@ -320,10 +310,10 @@ void BareMinimumPlotter::plot()
     }
 
     // set general options, plot
-    ui->plotter->xAxis->setLabel(QString::fromStdString(mVariable1.getName()));
-    ui->plotter->yAxis->setLabel(QString::fromStdString(mVariable2.getName()));
-    ui->plotter->xAxis->setRange(mVariable1.getMin(), mVariable1.getMax());
-    ui->plotter->yAxis->setRange(mVariable2.getMin(), mVariable2.getMax());
+    ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName()));
+    ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName()));
+    ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
+    ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
     ui->plotter->replot();
 }
 
@@ -396,17 +386,18 @@ bool BareMinimumPlotter::highlightInvalidExpressionTerms(Inequality mInequality,
     return flag_highlight;
 }
 
+
+//	GUI
+//	---
+
 bool BareMinimumPlotter::isEmpty_InputFields(){
-    return 	ui->lineEditElement1->text().isEmpty() ||
-            ui->lineEditElement2->text().isEmpty() ||
-            ui->lineEditInequalityLeft->text().isEmpty() ||
-            ui->lineEditInequalityRight->text().isEmpty() ||
-            ui->lineEditMax1->text().isEmpty() ||
-            ui->lineEditMax2->text().isEmpty() ||
-            ui->lineEditMin1->text().isEmpty() ||
-            ui->lineEditMin2->text().isEmpty() ||
-            ui->lineEditName1->text().isEmpty() ||
-            ui->lineEditName2->text().isEmpty();
+    return 	ui->lineEditInequalityLeft->text().isEmpty() ||
+            ui->lineEditInequalityRight->text().isEmpty();
+}
+
+void BareMinimumPlotter::addVariableInput(){
+    vVariableInputs.push_back(new VariableInput());
+    ui->gridLayout->addWidget(vVariableInputs.back());
 }
 
 //	"""""""""""""""""""""""""""""""""
@@ -443,4 +434,9 @@ void BareMinimumPlotter::on_lineEditInequalityLeft_textChanged(const QString &ar
 void BareMinimumPlotter::on_lineEditInequalityRight_textChanged(const QString &arg1)
 {
    clearLineEditTextFormat(ui->lineEditInequalityRight);
+}
+
+void BareMinimumPlotter::on_pushButtonAddVariable_clicked()
+{
+    addVariableInput();
 }

@@ -30,16 +30,19 @@ public:
     bool highlightInvalidExpressionTerms(Inequality, QLineEdit*, QLineEdit*);
     bool charsValid(QLineEdit*);
     bool isEmpty_InputFields();
+    void addVariableInput();
 
 
 private slots:
     void on_buttonPlot_clicked();
     void on_lineEditInequalityLeft_textChanged(const QString &arg1);
     void on_lineEditInequalityRight_textChanged(const QString &arg1);
+    void on_pushButtonAddVariable_clicked();
 
 private:
     Ui::BareMinimumPlotter *ui;
-    Variable mVariable1, mVariable2;
+    vector<VariableInput*> vVariableInputs;
+    Variable mVariableX, mVariableY;
     Expression mExpression1, mExpression2;
     Inequality mInequality;
 

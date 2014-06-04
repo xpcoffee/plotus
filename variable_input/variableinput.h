@@ -54,6 +54,7 @@ public:
     void clearFormatting();
     void highlightName();
     void setAxisMode(int);
+    int getAxisMode();
     Variable getVariable();
 
 private slots:
@@ -78,6 +79,7 @@ private:
     int nPrevIndex;
     int nAxisMode;
     // functions
+    void sliderCheck();
     void createVariable();
     void createPoint();
     void resetSlider();

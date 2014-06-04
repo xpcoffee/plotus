@@ -103,6 +103,42 @@ bool VariableInput::checkInput(){
     return flag_isOK;
 }
 
+void VariableInput::setAxisMode(int nMode){
+    switch(nMode){
+    case 0:
+        nAxisMode = MODE_X_AXIS;
+        ui->comboBoxAxes->setCurrentIndex(MODE_X_AXIS);
+        break;
+    case 1:
+        nAxisMode = MODE_Y_AXIS;
+        ui->comboBoxAxes->setCurrentIndex(MODE_Y_AXIS);
+        break;
+    case 2:
+        nAxisMode = MODE_POINT;
+        ui->comboBoxAxes->setCurrentIndex(MODE_POINT);
+        break;
+    default:
+        cerr << "[ERROR] VariableInput | setAxisMode | " << "Unknown axis mode: " << nMode << endl;
+        break;
+    }
+}
+
+void VariableInput::sliderCheck(){
+    resetSlider();
+    ui->horizontalSliderPoint->setEnabled(false);
+    if (ui->lineEditMin->text().isEmpty() || ui->lineEditMax->text().isEmpty() || ui->lineEditElements->text().isEmpty())
+        return;
+    if (!checkInput())
+        return;
+    createVariable();
+    if (ui->comboBoxAxes->currentIndex() == MODE_POINT){
+       ui->horizontalSliderPoint->setEnabled(true);
+       ui->horizontalSliderPoint->setTickInterval(1);
+       ui->labelPoint->setNum(mVariable.getMin());
+       ui->horizontalSliderPoint->setMaximum(mVariable.getElements());
+    }
+}
+
 // output
 void VariableInput::createVariable(){
     mVariable = Variable(	ui->lineEditName->text().toStdString(),
@@ -131,6 +167,10 @@ Variable VariableInput::getVariable(){
     return mVariable;
 }
 
+int VariableInput::getAxisMode(){
+    return nAxisMode;
+}
+
 // gui
 // - own functions
 void VariableInput::resetSlider(){
@@ -142,28 +182,22 @@ void VariableInput::resetSlider(){
 void VariableInput::on_comboBoxAxes_currentIndexChanged(int index)
 {
    clearFormatting();
-   if(!checkInput()) {
-       ui->comboBoxAxes->setCurrentIndex(nPrevIndex);
-       return;
-   }
    nPrevIndex = index;
    switch(index) {
    case 0:
-       resetSlider();
-       ui->horizontalSliderPoint->setEnabled(false);
-       break;
+        nAxisMode = MODE_X_AXIS;
+        resetSlider();
+        ui->horizontalSliderPoint->setEnabled(false);
+        break;
    case 1:
-       resetSlider();
-       ui->horizontalSliderPoint->setEnabled(false);
-       break;
+        nAxisMode = MODE_Y_AXIS;
+        resetSlider();
+        ui->horizontalSliderPoint->setEnabled(false);
+        break;
    case 2:
-       resetSlider();
-       ui->horizontalSliderPoint->setEnabled(true);
-       ui->horizontalSliderPoint->setTickInterval(1);
-       createVariable();
-       ui->labelPoint->setNum(mVariable.getMin());
-       ui->horizontalSliderPoint->setMaximum(mVariable.getElements());
-       break;
+        nAxisMode = MODE_POINT;
+        sliderCheck();
+        break;
    }
 }
 
@@ -175,41 +209,20 @@ void VariableInput::on_horizontalSliderPoint_sliderMoved(int position)
 
 void VariableInput::on_lineEditElements_editingFinished()
 {
-    resetSlider();
     clearFormatting();
-    if (!flag_initialized || !checkInput())
-        return;
-    createVariable();
-    if (ui->comboBoxAxes->currentIndex() == MODE_POINT){
-       ui->labelPoint->setNum(mVariable.getMin());
-       ui->horizontalSliderPoint->setMaximum(mVariable.getElements());
-    }
+    sliderCheck();
 }
 
 void VariableInput::on_lineEditMax_editingFinished()
 {
-    resetSlider();
     clearFormatting();
-    if (!flag_initialized || !checkInput())
-        return;
-    createVariable();
-    if (ui->comboBoxAxes->currentIndex() == MODE_POINT){
-       ui->labelPoint->setNum(mVariable.getMin());
-       ui->horizontalSliderPoint->setMaximum(mVariable.getElements());
-    }
+    sliderCheck();
 }
 
 void VariableInput::on_lineEditMin_editingFinished()
 {
-    resetSlider();
     clearFormatting();
-    if (!flag_initialized || !checkInput())
-        return;
-    createVariable();
-    if (ui->comboBoxAxes->currentIndex() == MODE_POINT){
-       ui->labelPoint->setNum(mVariable.getMin());
-       ui->horizontalSliderPoint->setMaximum(mVariable.getElements());
-    }
+    sliderCheck();
 }
 
 void VariableInput::on_lineEditName_editingFinished()
