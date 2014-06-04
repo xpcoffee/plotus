@@ -107,7 +107,6 @@ BareMinimumPlotter::~BareMinimumPlotter()
 //	Core Functions
 //	---------------
 void BareMinimumPlotter::checkFields(){
-
     // check not empty
     if (isEmpty_InputFields()){
         QMessageBox *msg = new QMessageBox(ui->centralWidget);
@@ -130,7 +129,6 @@ void BareMinimumPlotter::clearFormatting(){
 void BareMinimumPlotter::plot()
 {
     clearFormatting();
-//    checkFields();
 
     // create inequality
     mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
@@ -153,25 +151,6 @@ void BareMinimumPlotter::plot()
             return;
         mInequality.addVariable(tmpVariable);
     }
-    cout << "==== ADDING COMPLETE ====" << endl;
-
-//    mVariableX = Variable(ui->lineEditName1->text().toStdString(),
-//                          ui->lineEditMin1->text().toDouble(),
-//                          ui->lineEditMax1->text().toDouble(),
-//                          ui->lineEditElement1->text().toInt());
-
-//    mVariableY = Variable(ui->lineEditName2->text().toStdString(),
-//                          ui->lineEditMin2->text().toDouble(),
-//                          ui->lineEditMax2->text().toDouble(),
-//                          ui->lineEditElement2->text().toInt());
-
-//    if (!mInequality.variableIsValid(mVariableX))
-//        return;
-//    mInequality.addVariable(mVariableX);
-
-//    if (!mInequality.variableIsValid(mVariableY))
-//        return;
-//    mInequality.addVariable(mVariableY);
 
     // do maths
     vector<bool> vPlotSpace;
@@ -204,13 +183,16 @@ void BareMinimumPlotter::plot()
     // create plotting vectors
     QVector<double> x, y, x_problem, y_problem;
     int tmpCheck = 0;
-    for (int i = 0; i < vVariableInputs.size(); i++){
+    for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
         if (vVariableInputs[i]->getAxisMode() == MODE_X_AXIS){
             mVariableX = vVariableInputs[i]->getVariable();
             tmpCheck++;
         } else if (vVariableInputs[i]->getAxisMode() == MODE_Y_AXIS){
             mVariableY = vVariableInputs[i]->getVariable();
             tmpCheck++;
+        } else {
+            cout << "Point vector size: " << vVariableInputs[i]->getVariable().getElements() << endl;
+            cout << "Point vector current value: " << vVariableInputs[i]->getVariable().getCurrentValue() << endl;
         }
     }
 
@@ -218,21 +200,18 @@ void BareMinimumPlotter::plot()
         cerr << "problem getting x and y plotting vector variables" << endl;
         return;
     }
+    cout << "Result vector size: " << vPlotSpace.size() << endl;
 
     mVariableX.resetPosition(); // reset iterators
     mVariableY.resetPosition();
-    // 	iterate through boolean results,
-    // 	create plotting vectors at points where results are 1
+    // 	create plotting vectors from boolean results
     for(int i = 0; i < static_cast<int>(vPlotSpace.size()); i++){
-        // problem point - add to problem vectors
-        // (the logic assumes that the problem points are added in order)
-        if(!vProblemSpace.empty() && i == *it_ProblemSpace){
+        if(!vProblemSpace.empty() && i == *it_ProblemSpace){ 	// problem point - add to problem vectors
             x_problem.push_back(mVariableX.getCurrentValue());
             y_problem.push_back(mVariableY.getCurrentValue());
             it_ProblemSpace++;
         }
-        else if (vPlotSpace[i]) {
-            // not a problem point - add to the normal graph vectors
+        else if (vPlotSpace[i]) { 	// not a problem point - add to the normal graph vectors
             x.push_back(mVariableX.getCurrentValue());
             y.push_back(mVariableY.getCurrentValue());
         }

@@ -5,6 +5,7 @@
 #include <QtWidgets>
 #include <vector>
 #include <stdlib.h>
+#include <stdio.h>
 #include "deplot/include/variable.h"
 #include "deplot/include/inequality.h"
 #include "deplot/include/expression.h"

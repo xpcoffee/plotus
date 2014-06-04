@@ -66,9 +66,13 @@ public:
 		setMinMax(num1, num2);
 		setGrid(elements);
 		// includes beginning and end
-        dResolution = (dMax - dMin)/static_cast<double>(nElements-1);
-		populateValues();
-	}
+        if(nElements == 1){
+            dResolution = 0;
+        } else {
+            dResolution = (dMax - dMin)/static_cast<double>(nElements-1);
+        }
+        populateValues();
+    }
 
     // functions
     // - iteration

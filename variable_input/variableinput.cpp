@@ -125,7 +125,6 @@ void VariableInput::setAxisMode(int nMode){
 
 void VariableInput::sliderCheck(){
     resetSlider();
-    ui->horizontalSliderPoint->setEnabled(false);
     if (ui->lineEditMin->text().isEmpty() || ui->lineEditMax->text().isEmpty() || ui->lineEditElements->text().isEmpty())
         return;
     if (!checkInput())
@@ -157,12 +156,12 @@ void VariableInput::createPoint(){
 }
 
 Variable VariableInput::getVariable(){
-    if (!flag_initialized){
-        if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
-            createPoint();
-        } else {
-            createVariable();
-        }
+    if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
+        cout << "[INFO] variableinput.cpp | getvariable | " << "creating point variable" << endl;
+        createPoint();
+    } else {
+        cout << "[INFO] variableinput.cpp | getvariable | " << "creating variable" << endl;
+        createVariable();
     }
     return mVariable;
 }
@@ -176,6 +175,7 @@ int VariableInput::getAxisMode(){
 void VariableInput::resetSlider(){
        ui->horizontalSliderPoint->setValue(0);
        ui->labelPoint->setText("-");
+       ui->horizontalSliderPoint->setEnabled(false);
 }
 
 // - private slots
@@ -187,12 +187,10 @@ void VariableInput::on_comboBoxAxes_currentIndexChanged(int index)
    case 0:
         nAxisMode = MODE_X_AXIS;
         resetSlider();
-        ui->horizontalSliderPoint->setEnabled(false);
         break;
    case 1:
         nAxisMode = MODE_Y_AXIS;
         resetSlider();
-        ui->horizontalSliderPoint->setEnabled(false);
         break;
    case 2:
         nAxisMode = MODE_POINT;
@@ -203,6 +201,7 @@ void VariableInput::on_comboBoxAxes_currentIndexChanged(int index)
 
 void VariableInput::on_horizontalSliderPoint_sliderMoved(int position)
 {
+    createVariable();
     double dSelectedValue = mVariable.getMin() + position*(mVariable.getMax()-mVariable.getMin())/mVariable.getElements();
     ui->labelPoint->setNum(dSelectedValue);
 }
