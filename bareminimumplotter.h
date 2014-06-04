@@ -8,6 +8,7 @@
 #include "deplot/include/variable.h"
 #include "deplot/include/inequality.h"
 #include "deplot/include/expression.h"
+#include "variable_input/variableinput.h"
 
 using namespace std;
 

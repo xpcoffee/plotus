@@ -110,7 +110,7 @@ public:
     // - getters
     string getName() { return sName; }
     int getCurrentPosition(){ return nCurrentPosition; }
-    int getGrid() { return nElements; }
+    int getElements() { return nElements; }
     int  size() { return vValues.size(); }
     double getMin() { return dMin; }
     double getMax() { return dMax; }

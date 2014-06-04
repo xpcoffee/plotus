@@ -247,7 +247,7 @@ void BareMinimumPlotter::plot()
             y.push_back(mVariable2.getCurrentValue());
         }
 
-        if ((i+1) % mVariable2.getGrid() == 0){
+        if ((i+1) % mVariable2.getElements() == 0){
             mVariable1.nextPosition();
         }
         mVariable2.nextPosition();
