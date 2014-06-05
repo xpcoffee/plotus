@@ -81,8 +81,10 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""
 
+
 //	Constructor
 //	-----------
+
 BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::BareMinimumPlotter)
@@ -90,22 +92,26 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui->setupUi(this);
 
     // add original x & y variable inputs
+    nLatestVariableInput = 0;
     addVariableInput();
     addVariableInput();
     vVariableInputs[0]->setAxisMode(MODE_X_AXIS);
     vVariableInputs[1]->setAxisMode(MODE_Y_AXIS);
 }
 
+
 //	Destructor
 //	----------
+
 BareMinimumPlotter::~BareMinimumPlotter()
 {
     delete ui;
 }
 
 
-//	Core Functions
-//	---------------
+//	Core
+//	----
+
 void BareMinimumPlotter::checkFields(){
     // check not empty
     if (isEmpty_InputFields()){
@@ -179,6 +185,7 @@ void BareMinimumPlotter::plot()
 
     vector<int> vProblemSpace = mInequality.getProblemElements_ResultsCombined();
     vector<int>::iterator it_ProblemSpace = vProblemSpace.begin();
+    string sUnitsX, sUnitsY;
 
     // create plotting vectors
     QVector<double> x, y, x_problem, y_problem;
@@ -186,9 +193,11 @@ void BareMinimumPlotter::plot()
     for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
         if (vVariableInputs[i]->getAxisMode() == MODE_X_AXIS){
             mVariableX = vVariableInputs[i]->getVariable();
+            sUnitsX = vVariableInputs[i]-> getUnits();
             tmpCheck++;
         } else if (vVariableInputs[i]->getAxisMode() == MODE_Y_AXIS){
             mVariableY = vVariableInputs[i]->getVariable();
+            sUnitsY = vVariableInputs[i]-> getUnits();
             tmpCheck++;
         } else {
             cout << "Point vector size: " << vVariableInputs[i]->getVariable().getElements() << endl;
@@ -289,12 +298,13 @@ void BareMinimumPlotter::plot()
     }
 
     // set general options, plot
-    ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName()));
-    ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName()));
+    ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + " [" + sUnitsX + "]"));
+    ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + " [" + sUnitsY + "]"));
     ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
     ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
     ui->plotter->replot();
 }
+
 
 //	Validation
 //	----------
@@ -365,25 +375,6 @@ bool BareMinimumPlotter::highlightInvalidExpressionTerms(Inequality mInequality,
     return flag_highlight;
 }
 
-
-//	GUI
-//	---
-
-bool BareMinimumPlotter::isEmpty_InputFields(){
-    return 	ui->lineEditInequalityLeft->text().isEmpty() ||
-            ui->lineEditInequalityRight->text().isEmpty();
-}
-
-void BareMinimumPlotter::addVariableInput(){
-    vVariableInputs.push_back(new VariableInput());
-    ui->gridLayout->addWidget(vVariableInputs.back());
-}
-
-//	"""""""""""""""""""""""""""""""""
-//	"		Private Functions		"
-//	"""""""""""""""""""""""""""""""""
-
-
 bool BareMinimumPlotter::charsValid(QLineEdit* qLineEdit){
     Expression tempExp;
     string s = qLineEdit->text().toStdString();
@@ -396,8 +387,80 @@ bool BareMinimumPlotter::charsValid(QLineEdit* qLineEdit){
     return true;
 }
 
+
+//	GUI
+//	---
+
+bool BareMinimumPlotter::isEmpty_InputFields(){
+    return 	ui->lineEditInequalityLeft->text().isEmpty() ||
+            ui->lineEditInequalityRight->text().isEmpty();
+}
+
+void BareMinimumPlotter::addVariableInput(){
+    vVariableInputs.push_back(new VariableInput());
+    ui->gridLayout->addWidget(vVariableInputs.back());
+    vVariableInputs.back()->setNumber(nLatestVariableInput++);
+    // connect slots to signals
+    QObject::connect(vVariableInputs.back(), SIGNAL(axisModeChanged(int)), 	// axis mode synch
+                     this, SLOT(checkAxisMode(int)));
+    QObject::connect(vVariableInputs.back(), SIGNAL(killThis(int)),			// delete
+                     this, SLOT(removeVariableInput(int)));
+}
+
+
 //	"""""""""""""""""""""""""""""""""
-//	"	Private Slot Functions		"
+//	"			Public Slots		"
+//	"""""""""""""""""""""""""""""""""
+
+void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
+    int nX = 0, nY = 0, nXPos, nYPos;
+    for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
+       if(vVariableInputs[i]->getAxisMode() == MODE_X_AXIS) {
+            nX++;
+            if (i != nVariableInputNumber)
+                nXPos = i;
+       }
+       if(vVariableInputs[i]->getAxisMode() == MODE_Y_AXIS) {
+            nY++;
+            if (i != nVariableInputNumber)
+                nYPos = i;
+       }
+    }
+    if (nX == 2 && nY == 1){
+        vVariableInputs[nXPos]->setAxisMode(MODE_POINT);
+    } else if (nX == 2 && nY == 0) {
+        vVariableInputs[nXPos]->setAxisMode(MODE_Y_AXIS);
+    } else if (nX == 0 && nY == 2) {
+        vVariableInputs[nYPos]->setAxisMode(MODE_X_AXIS);
+    } else if (nX == 1 && nY == 2) {
+        vVariableInputs[nYPos]->setAxisMode(MODE_POINT);
+    } else if (nX == 1 && nY == 0) {
+        vVariableInputs[nVariableInputNumber]->setAxisMode(MODE_Y_AXIS);
+    } else if (nX == 0 && nY == 1) {
+        vVariableInputs[nVariableInputNumber]->setAxisMode(MODE_X_AXIS);
+    }
+}
+
+
+void BareMinimumPlotter::removeVariableInput(int nVariableInputNumber){
+    cout << "Deleting: " << nVariableInputNumber << endl;
+    int index = 0;
+    for (vector<VariableInput*>::iterator it = vVariableInputs.begin();
+         it != vVariableInputs.end(); it++){
+        if (vVariableInputs[index]->getNumber() == nVariableInputNumber){
+            ui->gridLayout->removeWidget(vVariableInputs[index]);
+            vVariableInputs[index]->setVisible(false); // [BREAK] 4 June 2014 | temporary work around, widget not deleting fully
+            vVariableInputs.erase(it);
+            vVariableInputs[index]->setAxisMode(MODE_POINT);
+            return;
+        }
+        index ++;
+    }
+}
+
+
+//	"""""""""""""""""""""""""""""""""
+//	"		Private Slots	 		"
 //	"""""""""""""""""""""""""""""""""
 
 void BareMinimumPlotter::on_buttonPlot_clicked()
@@ -405,12 +468,12 @@ void BareMinimumPlotter::on_buttonPlot_clicked()
     plot();
 }
 
-void BareMinimumPlotter::on_lineEditInequalityLeft_textChanged(const QString &arg1)
+void BareMinimumPlotter::on_lineEditInequalityLeft_textChanged(const QString &)
 {
    clearLineEditTextFormat(ui->lineEditInequalityLeft);
 }
 
-void BareMinimumPlotter::on_lineEditInequalityRight_textChanged(const QString &arg1)
+void BareMinimumPlotter::on_lineEditInequalityRight_textChanged(const QString &)
 {
    clearLineEditTextFormat(ui->lineEditInequalityRight);
 }

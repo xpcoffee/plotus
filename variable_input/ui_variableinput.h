@@ -18,6 +18,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 
@@ -35,12 +36,14 @@ public:
     QComboBox *comboBoxAxes;
     QSlider *horizontalSliderPoint;
     QLabel *labelPoint;
+    QPushButton *pushButtonDelete;
 
     void setupUi(QWidget *VariableInput)
     {
         if (VariableInput->objectName().isEmpty())
             VariableInput->setObjectName(QStringLiteral("VariableInput"));
-        VariableInput->resize(705, 47);
+        VariableInput->resize(796, 47);
+        VariableInput->setMinimumSize(QSize(0, 0));
         horizontalLayout = new QHBoxLayout(VariableInput);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 0, 11, 0);
@@ -91,6 +94,12 @@ public:
 
         horizontalLayout->addWidget(labelPoint);
 
+        pushButtonDelete = new QPushButton(VariableInput);
+        pushButtonDelete->setObjectName(QStringLiteral("pushButtonDelete"));
+        pushButtonDelete->setMinimumSize(QSize(30, 0));
+
+        horizontalLayout->addWidget(pushButtonDelete);
+
 
         retranslateUi(VariableInput);
 
@@ -107,6 +116,7 @@ public:
          << QApplication::translate("VariableInput", "point", 0)
         );
         labelPoint->setText(QApplication::translate("VariableInput", "-", 0));
+        pushButtonDelete->setText(QApplication::translate("VariableInput", "-", 0));
     } // retranslateUi
 
 };

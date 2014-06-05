@@ -1,5 +1,19 @@
+/*
+    Emerick Bosch
+    June 2014
+    VariableInput.cpp
+
+    Modular component that allows variable information to be input.
+    Modularity allows for dynamic addition and deletion of variables.
+*/
+
+//	"""""""""""""""""""""""""""""""""
+//	"			Includes			"
+//	"""""""""""""""""""""""""""""""""
+
 #include "variableinput.h"
 #include "ui_variableinput.h"
+
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Static Functions		"
@@ -10,19 +24,21 @@ static void setQLineEditBackground(QLineEdit* lineEdit, string fg, string bg){
     lineEdit->setStyleSheet(QString::fromStdString(str));
 }
 
+
 //	"""""""""""""""""""""""""""""""""
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""
 
+
 //	Constructor
 //	-----------
+
 VariableInput::VariableInput(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::VariableInput)
 {
     ui->setupUi(this);
     // global variable initialization
-    nPrevIndex = 0;
     flag_initialized = false;
     // input validation
     QDoubleValidator *dValidator = new QDoubleValidator;
@@ -33,36 +49,19 @@ VariableInput::VariableInput(QWidget *parent) :
     ui->lineEditMin->setValidator(dValidator);
 }
 
+
 //	Destructor
 //	-----------
+
 VariableInput::~VariableInput()
 {
     delete ui;
 }
 
-//	Core Functions
-//	---------------
 
-// formatting
-void VariableInput::highlightName(){
-    setQLineEditBackground(ui->lineEditName, COLOR_ERROR_FG, COLOR_ERROR_BG);
-}
+//	Validation
+//	----------
 
-void VariableInput::clearFormatting(){
-    setQLineEditBackground(ui->lineEditName, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-    setQLineEditBackground(ui->lineEditElements, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-    setQLineEditBackground(ui->lineEditMax, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-    setQLineEditBackground(ui->lineEditMin, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-}
-
-void VariableInput::clearFields(){
-    ui->lineEditName->clear();
-    ui->lineEditMin->clear();
-    ui->lineEditMax->clear();
-    ui->lineEditElements->clear();
-}
-
-// input
 bool VariableInput::checkInput(){
     bool flag_isOK = true;
     // all fields filled in
@@ -103,6 +102,32 @@ bool VariableInput::checkInput(){
     return flag_isOK;
 }
 
+
+// 	Formatting
+//	----------
+
+void VariableInput::highlightName(){
+    setQLineEditBackground(ui->lineEditName, COLOR_ERROR_FG, COLOR_ERROR_BG);
+}
+
+void VariableInput::clearFormatting(){
+    setQLineEditBackground(ui->lineEditName, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
+    setQLineEditBackground(ui->lineEditElements, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
+    setQLineEditBackground(ui->lineEditMax, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
+    setQLineEditBackground(ui->lineEditMin, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
+}
+
+void VariableInput::clearFields(){
+    ui->lineEditName->clear();
+    ui->lineEditMin->clear();
+    ui->lineEditMax->clear();
+    ui->lineEditElements->clear();
+}
+
+
+//	Setters
+//	-------
+
 void VariableInput::setAxisMode(int nMode){
     switch(nMode){
     case 0:
@@ -123,6 +148,42 @@ void VariableInput::setAxisMode(int nMode){
     }
 }
 
+void VariableInput::setNumber(int nNumber){
+    nVariableInputNumber = nNumber;
+}
+
+
+// 	Getters
+//	-------
+
+int VariableInput::getAxisMode(){
+    return nAxisMode;
+}
+
+int VariableInput::getNumber(){
+    return nVariableInputNumber;
+}
+
+string VariableInput::getUnits(){
+    return ui->lineEditUnits->text().toStdString();
+}
+
+Variable VariableInput::getVariable(){
+    if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
+        cout << "[INFO] variableinput.cpp | getvariable | " << "creating point variable" << endl;
+        createPoint();
+    } else {
+        cout << "[INFO] variableinput.cpp | getvariable | " << "creating variable" << endl;
+        createVariable();
+    }
+    return mVariable;
+}
+
+
+//	"""""""""""""""""""""""""""""""""
+//	"		Private Functions		"
+//	"""""""""""""""""""""""""""""""""
+
 void VariableInput::sliderCheck(){
     resetSlider();
     if (ui->lineEditMin->text().isEmpty() || ui->lineEditMax->text().isEmpty() || ui->lineEditElements->text().isEmpty())
@@ -138,7 +199,6 @@ void VariableInput::sliderCheck(){
     }
 }
 
-// output
 void VariableInput::createVariable(){
     mVariable = Variable(	ui->lineEditName->text().toStdString(),
                             ui->lineEditMin->text().toDouble(),
@@ -155,46 +215,34 @@ void VariableInput::createPoint(){
                             1);
 }
 
-Variable VariableInput::getVariable(){
-    if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
-        cout << "[INFO] variableinput.cpp | getvariable | " << "creating point variable" << endl;
-        createPoint();
-    } else {
-        cout << "[INFO] variableinput.cpp | getvariable | " << "creating variable" << endl;
-        createVariable();
-    }
-    return mVariable;
-}
-
-int VariableInput::getAxisMode(){
-    return nAxisMode;
-}
-
-// gui
-// - own functions
 void VariableInput::resetSlider(){
        ui->horizontalSliderPoint->setValue(0);
        ui->labelPoint->setText("-");
        ui->horizontalSliderPoint->setEnabled(false);
 }
 
-// - private slots
+//	"""""""""""""""""""""""""""""""""
+//	"		Private Slots			"
+//	"""""""""""""""""""""""""""""""""
+
 void VariableInput::on_comboBoxAxes_currentIndexChanged(int index)
 {
    clearFormatting();
-   nPrevIndex = index;
    switch(index) {
    case 0:
         nAxisMode = MODE_X_AXIS;
         resetSlider();
+        emit axisModeChanged(nVariableInputNumber);
         break;
    case 1:
         nAxisMode = MODE_Y_AXIS;
         resetSlider();
+        emit axisModeChanged(nVariableInputNumber);
         break;
    case 2:
         nAxisMode = MODE_POINT;
         sliderCheck();
+        emit axisModeChanged(nVariableInputNumber);
         break;
    }
 }
@@ -234,4 +282,9 @@ void VariableInput::on_lineEditName_editingFinished()
     } else {
         setQLineEditBackground(ui->lineEditName, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
     }
+}
+
+void VariableInput::on_pushButtonDelete_clicked()
+{
+    emit killThis(nVariableInputNumber);
 }

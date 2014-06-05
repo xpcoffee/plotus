@@ -25,14 +25,20 @@ public:
     explicit BareMinimumPlotter(QWidget *parent = 0);
     ~BareMinimumPlotter();
 
+    // core
     void plot();
+    // validation
     void checkFields();
     void clearFormatting();
     bool highlightInvalidExpressionTerms(Inequality, QLineEdit*, QLineEdit*);
     bool charsValid(QLineEdit*);
     bool isEmpty_InputFields();
+    // gui
     void addVariableInput();
 
+public slots:
+    void checkAxisMode(int);
+    void removeVariableInput(int);
 
 private slots:
     void on_buttonPlot_clicked();
@@ -46,6 +52,7 @@ private:
     Variable mVariableX, mVariableY;
     Expression mExpression1, mExpression2;
     Inequality mInequality;
+    int nLatestVariableInput;
 
 };
 

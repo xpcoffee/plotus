@@ -49,26 +49,33 @@ class VariableInput : public QWidget
 public:
     explicit VariableInput(QWidget *parent = 0);
     ~VariableInput();
+    // validation
     bool checkInput();
+    // formatting
     void clearFields();
     void clearFormatting();
     void highlightName();
+    //	setters
     void setAxisMode(int);
+    void setNumber(int);
+    // 	getters
     int getAxisMode();
+    int getNumber();
+    string getUnits();
     Variable getVariable();
+
+signals:
+    void axisModeChanged(int nVarInputNumber);
+    void killThis(int nVariableInputNumber);
 
 private slots:
     void on_comboBoxAxes_currentIndexChanged(int index);
-
     void on_horizontalSliderPoint_sliderMoved(int position);
-
     void on_lineEditElements_editingFinished();
-
     void on_lineEditMax_editingFinished();
-
     void on_lineEditMin_editingFinished();
-
     void on_lineEditName_editingFinished();
+    void on_pushButtonDelete_clicked();
 
 
 private:
@@ -76,8 +83,9 @@ private:
     Ui::VariableInput *ui;
     Variable mVariable;
     bool flag_initialized;
-    int nPrevIndex;
+    int nVariableInputNumber;
     int nAxisMode;
+
     // functions
     void sliderCheck();
     void createVariable();
