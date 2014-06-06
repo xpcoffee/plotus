@@ -46,38 +46,6 @@ enum SHAPE {
 using namespace std;
 
 //	"""""""""""""""""""""""""""""""""
-//	"		3rd Party Functions		"
-//	"""""""""""""""""""""""""""""""""
-
-// -- Reference:	Vasaka
-// -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
-static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
-{
-    if(!lineEdit)
-        return;
-
-    QList<QInputMethodEvent::Attribute> attributes;
-    foreach(const QTextLayout::FormatRange& fr, formats)
-    {
-        QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
-        int start = fr.start - lineEdit->cursorPosition();
-        int length = fr.length;
-        QVariant value = fr.format;
-        attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
-    }
-    QInputMethodEvent event(QString(), attributes);
-    QCoreApplication::sendEvent(lineEdit, &event);
-}
-
-// -- Reference:	Vasaka
-// -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
-static void clearLineEditTextFormat(QLineEdit* lineEdit)
-{
-    setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
-}
-
-
-//	"""""""""""""""""""""""""""""""""
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""
 
@@ -93,10 +61,18 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
 
     // add original x & y variable inputs
     nLatestVariableInput = 0;
+    nLatestInequalityInput = 0;
     addVariableInput();
     addVariableInput();
     vVariableInputs[0]->setAxisMode(MODE_X_AXIS);
     vVariableInputs[1]->setAxisMode(MODE_Y_AXIS);
+    vVariableInputs[0]->enableRemoveButton(false);
+    vVariableInputs[1]->enableRemoveButton(false);
+
+    // add original inequality input
+    addInequalityInput();
+    vInequalityInputs.front()->enablePositionButtons(false);
+
 }
 
 
@@ -112,21 +88,10 @@ BareMinimumPlotter::~BareMinimumPlotter()
 //	Core
 //	----
 
-void BareMinimumPlotter::checkFields(){
-    // check not empty
-    if (isEmpty_InputFields()){
-        QMessageBox *msg = new QMessageBox(ui->centralWidget);
-        msg->setText("Please fill in all input fields.");
-        msg->setWindowTitle("Input error.");
-        msg->show();
-        return;
-    }
-}
-
-
 void BareMinimumPlotter::clearFormatting(){
-    clearLineEditTextFormat(ui->lineEditInequalityLeft);
-    clearLineEditTextFormat(ui->lineEditInequalityRight);
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+       vInequalityInputs[i]->clearFormatting();
+    }
     for (vector<VariableInput*>::iterator it = vVariableInputs.begin(); it != vVariableInputs.end(); it++){
         (*it)->clearFormatting();
     }
@@ -136,59 +101,31 @@ void BareMinimumPlotter::plot()
 {
     clearFormatting();
 
+    cout << "Creating Inequality" << endl;
+
     // create inequality
-    mInequality = Inequality(ui->lineEditInequalityLeft->text().toStdString(),
-                             ui->comboBoxInequality->currentText().toStdString(),
-                             ui->lineEditInequalityRight->text().toStdString());
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+       if(!vInequalityInputs[i]->createInequality())
+           return;
+    }
 
-    ui->lineEditInequalityLeft->setText(QString::fromStdString(mInequality.getExpressionLHS()));
-    ui->lineEditInequalityRight->setText(QString::fromStdString(mInequality.getExpressionRHS()));
-
-    // check expressions
-    if(highlightInvalidExpressionTerms(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
-        return;
-
+    cout << "Creating and adding variables." << endl;
     // create and add variables
-    for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
-        if (!vVariableInputs[i]->checkInput()) // check legal
-            return;
-        Variable tmpVariable = vVariableInputs[i]->getVariable();
-        if (!mInequality.variableIsValid(tmpVariable)) // check for uniqueness
-            return;
-        mInequality.addVariable(tmpVariable);
-    }
-
-    // do maths
-    vector<bool> vPlotSpace;
-    try{
-        vPlotSpace = mInequality.evaluate();
-    }
-    catch(INPUT_ERROR_CODES e){ // catch errors that happen during evaluation
-        switch(e){
-        case INPUT_ERROR_INVALID_EXPRESSION:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Invalid expression." << endl;
-            if(highlightInvalidExpressionTerms(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
+    for (int j = 0; j < static_cast<int>(vInequalityInputs.size()); j++){
+        for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
+            if (!vVariableInputs[i]->checkInput()) // check legal
                 return;
-            break;
-        case INPUT_ERROR_UNINITIALIZED_VARIABLE:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Uninitialized variable." << endl;
-            if(highlightInvalidExpressionTerms(mInequality, ui->lineEditInequalityLeft, ui->lineEditInequalityRight))
+            Variable tmpVariable = vVariableInputs[i]->getVariable();
+            if(!vInequalityInputs[j]->addVariable(tmpVariable))
                 return;
-            break;
-        default:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Unhandled INPUT_ERROR_CODE exception caught: ";
-            cerr << e << endl;
-            return;
         }
-
     }
 
-    vector<int> vProblemSpace = mInequality.getProblemElements_ResultsCombined();
-    vector<int>::iterator it_ProblemSpace = vProblemSpace.begin();
+    cout << "Selecting plotting variables." << endl;
+
     string sUnitsX, sUnitsY;
 
-    // create plotting vectors
-    QVector<double> x, y, x_problem, y_problem;
+    // select plotting variables
     int tmpCheck = 0;
     for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
         if (vVariableInputs[i]->getAxisMode() == MODE_X_AXIS){
@@ -199,217 +136,162 @@ void BareMinimumPlotter::plot()
             mVariableY = vVariableInputs[i]->getVariable();
             sUnitsY = vVariableInputs[i]-> getUnits();
             tmpCheck++;
-        } else {
-            cout << "Point vector size: " << vVariableInputs[i]->getVariable().getElements() << endl;
-            cout << "Point vector current value: " << vVariableInputs[i]->getVariable().getCurrentValue() << endl;
         }
     }
-
     if (tmpCheck != 2){
         cerr << "problem getting x and y plotting vector variables" << endl;
         return;
     }
-    cout << "Result vector size: " << vPlotSpace.size() << endl;
 
-    mVariableX.resetPosition(); // reset iterators
-    mVariableY.resetPosition();
-    // 	create plotting vectors from boolean results
-    for(int i = 0; i < static_cast<int>(vPlotSpace.size()); i++){
-        if(!vProblemSpace.empty() && i == *it_ProblemSpace){ 	// problem point - add to problem vectors
-            x_problem.push_back(mVariableX.getCurrentValue());
-            y_problem.push_back(mVariableY.getCurrentValue());
-            it_ProblemSpace++;
-        }
-        else if (vPlotSpace[i]) { 	// not a problem point - add to the normal graph vectors
-            x.push_back(mVariableX.getCurrentValue());
-            y.push_back(mVariableY.getCurrentValue());
-        }
-
-        if ((i+1) % mVariableY.getElements() == 0){
-            mVariableX.nextPosition();
-        }
-        mVariableY.nextPosition();
-    }
-
-    // add normal graph
+    // graph and plot
+    int nGraphIndex = 0;
     ui->plotter->clearGraphs();
-    ui->plotter->addGraph();
-    ui->plotter->graph(0)->setData(x,y);
-    ui->plotter->graph(0)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-    QCPScatterStyle style1;
-    //	- set marker
-    switch(ui->comboBoxShape->currentIndex()){
-    case CROSS:
-        style1.setShape(QCPScatterStyle::ssCross);
-        break;
-    case CIRCLE:
-        style1.setShape(QCPScatterStyle::ssCircle);
-        break;
-    case TRIANGLE:
-        style1.setShape(QCPScatterStyle::ssTriangle);
-        break;
-    case SQUARE:
-        style1.setShape(QCPScatterStyle::ssSquare);
-        break;
-    }
 
-    //	- set size
-    style1.setSize(5);
-    //	- set color
-    switch(ui->comboBoxColor->currentIndex()){
-    case RED:
-        style1.setPen(QPen(Qt::red));
-        break;
-    case GREEN:
-        style1.setPen(QPen(Qt::green));
-        break;
-    case BLUE:
-        style1.setPen(QPen(Qt::blue));
-        break;
-    case DARK_RED:
-        style1.setPen(QPen(Qt::darkRed));
-        break;
-    case DARK_GREEN:
-        style1.setPen(QPen(Qt::darkGreen));
-        break;
-    case DARK_BLUE:
-        style1.setPen(QPen(Qt::darkBlue));
-        break;
-    case GREY:
-        style1.setPen(QPen(Qt::lightGray));
-        break;
-    case BLACK:
-        style1.setPen(QPen(Qt::black));
-        break;
-    }
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+        cout << "Doing math: " << i << endl;
+        //do math
+        vInequalityInputs[i]->setXYVariables(mVariableX, mVariableY);
+        if(!vInequalityInputs[i]->evaluate())
+            return;
 
-    ui->plotter->graph(0)->setScatterStyle(style1);
+        cout << "Get Plotting Vectors" << endl;
+        // get plotting vectors
+        qvX = vInequalityInputs[i]->getX();
 
-    // add problem graph (if needed)
-    if (!x_problem.isEmpty()){
+        cout << "X | size: " << qvX.size() << endl;
+        for (int j = 0; j < qvX.size(); j++){
+            cout << "\t" << qvX[j] << endl;
+        }
+
+        qvY = vInequalityInputs[i]->getY();
+        qvX_problem = vInequalityInputs[i]->getXProblem();
+        qvY_problem = vInequalityInputs[i]->getYProblem();
+
+        cout << "Adding normal graph." << endl;
+
+        // add normal graph
         ui->plotter->addGraph();
-        ui->plotter->graph(1)->setData(x_problem,y_problem);
-        ui->plotter->graph(1)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-        QCPScatterStyle style2;
-        style2.setShape(QCPScatterStyle::ssCross);
-        style2.setSize(5);
-        style2.setPen(QPen(Qt::red));
-        ui->plotter->graph(1)->setScatterStyle(style2);
+        ui->plotter->graph(nGraphIndex)->setData(qvX,qvY);
+        ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+        QCPScatterStyle style1;
+        //	- set marker
+        switch(vInequalityInputs[i]->getShapeIndex()){
+        case CROSS:
+            style1.setShape(QCPScatterStyle::ssCross);
+            break;
+        case CIRCLE:
+            style1.setShape(QCPScatterStyle::ssCircle);
+            break;
+        case TRIANGLE:
+            style1.setShape(QCPScatterStyle::ssTriangle);
+            break;
+        case SQUARE:
+            style1.setShape(QCPScatterStyle::ssSquare);
+            break;
+        }
+
+        //	- set size
+        style1.setSize(5);
+        //	- set color
+        switch(vInequalityInputs[i]->getColorIndex()){
+        case RED:
+            style1.setPen(QPen(Qt::red));
+            break;
+        case GREEN:
+            style1.setPen(QPen(Qt::green));
+            break;
+        case BLUE:
+            style1.setPen(QPen(Qt::blue));
+            break;
+        case DARK_RED:
+            style1.setPen(QPen(Qt::darkRed));
+            break;
+        case DARK_GREEN:
+            style1.setPen(QPen(Qt::darkGreen));
+            break;
+        case DARK_BLUE:
+            style1.setPen(QPen(Qt::darkBlue));
+            break;
+        case GREY:
+            style1.setPen(QPen(Qt::lightGray));
+            break;
+        case BLACK:
+            style1.setPen(QPen(Qt::black));
+            break;
+        }
+
+        ui->plotter->graph(nGraphIndex)->setScatterStyle(style1);
+        nGraphIndex++;
+
+        // add problem graph (if needed)
+        if (!qvX_problem.isEmpty()){
+            cout << "Adding error graph." << endl;
+            ui->plotter->addGraph();
+            ui->plotter->graph(nGraphIndex)->setData(qvX_problem,qvY_problem);
+            ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+            QCPScatterStyle style2;
+            style2.setShape(QCPScatterStyle::ssCross);
+            style2.setSize(5);
+            style2.setPen(QPen(Qt::red));
+            ui->plotter->graph(nGraphIndex)->setScatterStyle(style2);
+            nGraphIndex++;
+        }
+
+        cout << "Plotting." << endl;
+
+        // set general options, plot
+        ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + " [" + sUnitsX + "]"));
+        ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + " [" + sUnitsY + "]"));
+        ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
+        ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
+        ui->plotter->replot();
     }
 
-    // set general options, plot
-    ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + " [" + sUnitsX + "]"));
-    ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + " [" + sUnitsY + "]"));
-    ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
-    ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
-    ui->plotter->replot();
 }
-
 
 //	Validation
 //	----------
 
-bool BareMinimumPlotter::highlightInvalidExpressionTerms(Inequality mInequality, QLineEdit * qLineEditLHS, QLineEdit * qLineEditRHS){
-    // Highlights invalid expression terms, returns 1 if highlighting has been done or 0 if no hightlighting has been done.
-    bool flag_highlight = false;
-    // check LHS
-    if (!mInequality.isValidLHS()){
-        flag_highlight = true;
-        vector<int> vInputErrorsLHS = mInequality.getProblemElements_ExpressionLHS();
-        int nFormatRangeCounter = 0;
-        QList<QTextLayout::FormatRange> formats;
-        QTextCharFormat f;
-        QTextLayout::FormatRange fr;
-        for (int nTerm = 0; nTerm < mInequality.getNumTermsLHS(); nTerm++){
-            string sTerm = mInequality.getTermLHS(nTerm);
-            f.setFontWeight(QFont::Normal);
-            f.setForeground(QBrush(Qt::black));
-            fr.start = nFormatRangeCounter;
-            fr.length = sTerm.length();
-            fr.format = f;
-            for (int i = 0; i < static_cast<int>(vInputErrorsLHS.size()); i++){
-                if (nTerm == vInputErrorsLHS[i]){
-                    f.setFontWeight(QFont::Bold);
-                    f.setForeground(QBrush(Qt::red));
-                    fr.format = f;
-                }
-            }
-            nFormatRangeCounter += sTerm.length();
-            formats.append(fr);
-        }
-        setLineEditTextFormat(qLineEditLHS, formats);
-
-        cerr << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "LHS inequality is invalid" << endl;
-    }
-
-    // check RHS
-    if (!mInequality.isValidRHS()){
-        flag_highlight = true;
-        vector<int> vInputErrorsRHS = mInequality.getProblemElements_ExpressionRHS();
-        int nFormatRangeCounter = 0;
-        QList<QTextLayout::FormatRange> formats;
-        QTextCharFormat f;
-        QTextLayout::FormatRange fr;
-        for (int nTerm = 0; nTerm < mInequality.getNumTermsRHS(); nTerm++){
-            string sTerm = mInequality.getTermRHS(nTerm);
-            f.setFontWeight(QFont::Normal);
-            f.setForeground(QBrush(Qt::black));
-            fr.start = nFormatRangeCounter;
-            fr.length = sTerm.length();
-            fr.format = f;
-            for (int i = 0; i < static_cast<int>(vInputErrorsRHS.size()); i++){
-                if (nTerm == vInputErrorsRHS[i]){
-                    f.setFontWeight(QFont::Bold);
-                    f.setForeground(QBrush(Qt::red));
-                    fr.format = f;
-                }
-            }
-            nFormatRangeCounter += sTerm.length();
-            formats.append(fr);
-        }
-
-        setLineEditTextFormat(qLineEditRHS, formats);
-
-        cerr << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "RHS inequality is invalid" << endl;
-    }
-    return flag_highlight;
-}
-
-bool BareMinimumPlotter::charsValid(QLineEdit* qLineEdit){
-    Expression tempExp;
-    string s = qLineEdit->text().toStdString();
-    for (string::iterator it = s.begin(); it != s.end(); it ++){
-        // if a char is invalid
-        if (!tempExp.charIsValid(*it))
-            return false;
-    }
-    // if all chars valid
-    return true;
-}
-
-
 //	GUI
 //	---
 
-bool BareMinimumPlotter::isEmpty_InputFields(){
-    return 	ui->lineEditInequalityLeft->text().isEmpty() ||
-            ui->lineEditInequalityRight->text().isEmpty();
-}
-
 void BareMinimumPlotter::addVariableInput(){
     vVariableInputs.push_back(new VariableInput());
-    ui->gridLayout->addWidget(vVariableInputs.back());
     vVariableInputs.back()->setNumber(nLatestVariableInput++);
+    ui->layout_Variable->addWidget(vVariableInputs.back());
     // connect slots to signals
     QObject::connect(vVariableInputs.back(), SIGNAL(axisModeChanged(int)), 	// axis mode synch
                      this, SLOT(checkAxisMode(int)));
     QObject::connect(vVariableInputs.back(), SIGNAL(killThis(int)),			// delete
                      this, SLOT(removeVariableInput(int)));
+    if (vVariableInputs.size() > 2){
+        vVariableInputs.back()->setAxisMode(MODE_POINT);
+        vVariableInputs[0]->enableRemoveButton(true);
+        vVariableInputs[1]->enableRemoveButton(true);
+    }
+}
+
+void BareMinimumPlotter::addInequalityInput(){
+    vInequalityInputs.push_back(new InequalityInput());
+    vInequalityInputs.back()->setNumber(nLatestInequalityInput++);
+    ui->layout_Inequality->addWidget(vInequalityInputs.back());
+    // connect slots to signals
+    QObject::connect(vInequalityInputs.back(), SIGNAL(killThis(int)),
+                        this, SLOT(removeInequalityInput(int)));
+    QObject::connect(vInequalityInputs.back(), SIGNAL(moveUp(int)),
+                        this, SLOT(moveInequalityInputUp(int)));
+    QObject::connect(vInequalityInputs.back(), SIGNAL(moveDown(int)),
+                        this, SLOT(moveInequalityInputDown(int)));
+    // enable/disable position buttons
+    if (vInequalityInputs.size() > 1){
+        vInequalityInputs.front()->enablePositionButtons(true);
+    }
+
 }
 
 
 //	"""""""""""""""""""""""""""""""""
-//	"			Public Slots		"
+//	"		Public Slots			"
 //	"""""""""""""""""""""""""""""""""
 
 void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
@@ -417,12 +299,12 @@ void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
     for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
        if(vVariableInputs[i]->getAxisMode() == MODE_X_AXIS) {
             nX++;
-            if (i != nVariableInputNumber)
+            if (vVariableInputs[i]->getNumber() != nVariableInputNumber)
                 nXPos = i;
        }
        if(vVariableInputs[i]->getAxisMode() == MODE_Y_AXIS) {
             nY++;
-            if (i != nVariableInputNumber)
+            if (vVariableInputs[i]->getNumber() != nVariableInputNumber)
                 nYPos = i;
        }
     }
@@ -441,44 +323,109 @@ void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
     }
 }
 
-
 void BareMinimumPlotter::removeVariableInput(int nVariableInputNumber){
-    cout << "Deleting: " << nVariableInputNumber << endl;
-    int index = 0;
-    for (vector<VariableInput*>::iterator it = vVariableInputs.begin();
-         it != vVariableInputs.end(); it++){
-        if (vVariableInputs[index]->getNumber() == nVariableInputNumber){
-            ui->gridLayout->removeWidget(vVariableInputs[index]);
-            vVariableInputs[index]->setVisible(false); // [BREAK] 4 June 2014 | temporary work around, widget not deleting fully
-            vVariableInputs.erase(it);
-            vVariableInputs[index]->setAxisMode(MODE_POINT);
+    if (vVariableInputs.size() < 3) // at least 2 variable inputs needed
+        return;
+    for (unsigned int i = 0; i < vVariableInputs.size(); i++){
+        if (vVariableInputs[i]->getNumber() == nVariableInputNumber){
+            int nAxisMode = vVariableInputs[i]->getAxisMode();
+            // delete
+            ui->layout_Variable->removeWidget(vVariableInputs[i]);
+            delete vVariableInputs[i];
+            if (i < vVariableInputs.size())
+                vVariableInputs.erase(vVariableInputs.begin()+i);
+            // ensure correct axis modes
+            // [TODO]	make this more elegant
+            if (nAxisMode != MODE_POINT){
+                if (i < vVariableInputs.size()){
+                    if(vVariableInputs[i]->getAxisMode() != MODE_POINT){
+                        if (i+1 < vVariableInputs.size()){
+                            vVariableInputs[i+1]->setAxisMode(nAxisMode);
+                        } else if (i != 0){
+                            vVariableInputs[i-1]->setAxisMode(nAxisMode);
+                        }
+                    } else {
+                        vVariableInputs[i]->setAxisMode(nAxisMode);
+                    }
+                } else {
+                    if(vVariableInputs[i-1]->getAxisMode() != MODE_POINT){
+                        if (i != 0){
+                            vVariableInputs[i-2]->setAxisMode(nAxisMode);
+                        }
+                    } else {
+                        vVariableInputs[i-1]->setAxisMode(nAxisMode);
+                    }
+
+                }
+            }
+            // enable removal buttons
+            if (vVariableInputs.size() < 3){
+                vVariableInputs.front()->enableRemoveButton(false);
+                vVariableInputs.back()->enableRemoveButton(false);
+            }
             return;
         }
-        index ++;
     }
 }
 
+void BareMinimumPlotter::removeInequalityInput(int nInequalityNumber){
+    if (vInequalityInputs.size() < 2) // at least 1 inequality input needed
+        return;
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+        if (vInequalityInputs[i]->getNumber() == nInequalityNumber){
+            ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
+            delete vInequalityInputs[i];
+            if (i < static_cast<int>(vInequalityInputs.size()))
+                vInequalityInputs.erase(vInequalityInputs.begin()+i);
+            // enable/disable position buttons
+            if (vInequalityInputs.size() < 2)
+                vInequalityInputs.back()->enablePositionButtons(false);
+            return;
+        }
+    }
+}
+
+void BareMinimumPlotter::moveInequalityInputUp (int nInequalityNumber){
+    int nCurrentPos;
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+        if (vInequalityInputs[i]->getNumber() == nInequalityNumber){
+            nCurrentPos = ui->layout_Inequality->indexOf(vInequalityInputs[i]);
+            if (nCurrentPos == 0) // if at top
+                return;
+            ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
+            ui->layout_Inequality->insertWidget(--nCurrentPos, vInequalityInputs[i]);
+        }
+    }
+}
+
+void BareMinimumPlotter::moveInequalityInputDown (int nInequalityNumber){
+    int nCurrentPos;
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+        if (vInequalityInputs[i]->getNumber() == nInequalityNumber){
+            nCurrentPos = ui->layout_Inequality->indexOf(vInequalityInputs[i]);
+            if (nCurrentPos == ui->layout_Inequality->count()) // if at bottom
+                return;
+            ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
+            ui->layout_Inequality->insertWidget(++nCurrentPos, vInequalityInputs[i]);
+        }
+    }
+}
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Private Slots	 		"
 //	"""""""""""""""""""""""""""""""""
 
-void BareMinimumPlotter::on_buttonPlot_clicked()
+void BareMinimumPlotter::on_button_Plot_clicked()
 {
     plot();
 }
 
-void BareMinimumPlotter::on_lineEditInequalityLeft_textChanged(const QString &)
-{
-   clearLineEditTextFormat(ui->lineEditInequalityLeft);
-}
-
-void BareMinimumPlotter::on_lineEditInequalityRight_textChanged(const QString &)
-{
-   clearLineEditTextFormat(ui->lineEditInequalityRight);
-}
-
-void BareMinimumPlotter::on_pushButtonAddVariable_clicked()
+void BareMinimumPlotter::on_button_AddVariable_clicked()
 {
     addVariableInput();
+}
+
+void BareMinimumPlotter::on_button_AddInequality_clicked()
+{
+    addInequalityInput();
 }

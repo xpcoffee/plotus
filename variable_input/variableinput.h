@@ -63,6 +63,8 @@ public:
     int getNumber();
     string getUnits();
     Variable getVariable();
+    //	gui
+    void enableRemoveButton(bool);
 
 signals:
     void axisModeChanged(int nVarInputNumber);

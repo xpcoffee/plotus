@@ -17,14 +17,17 @@ SOURCES += bareminimumplotter.cpp \
     qcustomplot.cpp \
     deplot/src/expression.cpp \
     main.cpp \
-    variable_input/variableinput.cpp
+    variable_input/variableinput.cpp \
+    inequality_input/inequalityinput.cpp
 
 HEADERS  += bareminimumplotter.h \
     qcustomplot.h \
     deplot/include/expression.h \
     deplot/include/inequality.h \
     deplot/include/variable.h \
-    variable_input/ui_variableinput.h \
-    variable_input/variableinput.h
+    variable_input/variableinput.h \
+    inequality_input/inequalityinput.h
 
-FORMS    += bareminimumplotter.ui
+FORMS    += bareminimumplotter.ui \
+    inequality_input/inequalityinput.ui \
+    variable_input/variableinput.ui

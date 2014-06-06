@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>777</width>
-    <height>711</height>
+    <height>731</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,52 +15,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="7" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonAddVariable">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Add Variable</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
     <item row="0" column="0">
      <widget class="QCustomPlot" name="plotter" native="true">
       <property name="sizePolicy">
@@ -77,147 +31,8 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLineEdit" name="lineEditInequalityLeft"/>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBoxInequality">
-        <item>
-         <property name="text">
-          <string>&lt;</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>&gt;</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>&lt;=</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>&gt;=</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditInequalityRight"/>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBoxShape">
-        <item>
-         <property name="text">
-          <string>star</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>circle</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>triangle</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>square</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBoxColor">
-        <item>
-         <property name="text">
-          <string>blue</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>green</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>red</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>dark blue</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>dark green</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>dark red</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>grey</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>black</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="2" column="0">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="label_Variables">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string>Variables</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_Inequalities">
-      <property name="text">
-       <string>Inequalities</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <item row="12" column="0">
+     <layout class="QHBoxLayout" name="layout_VariableLabels">
       <property name="bottomMargin">
        <number>0</number>
       </property>
@@ -262,7 +77,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_VariableUnits">
         <property name="text">
          <string>Units</string>
         </property>
@@ -272,7 +87,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label_VariablePlotMode">
         <property name="minimumSize">
          <size>
           <width>70</width>
@@ -288,7 +103,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_VariablePointChooser">
         <property name="minimumSize">
          <size>
           <width>200</width>
@@ -304,7 +119,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="label_VariableChosenPoint">
         <property name="minimumSize">
          <size>
           <width>80</width>
@@ -337,12 +152,181 @@
       </item>
      </layout>
     </item>
+    <item row="2" column="0">
+     <widget class="Line" name="line_Inequality">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
-     <widget class="QPushButton" name="buttonPlot">
+     <widget class="QPushButton" name="button_Plot">
       <property name="text">
        <string>Plot</string>
       </property>
+      <property name="shortcut">
+       <string notr="true">Ctrl+Return</string>
+      </property>
      </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_Inequalities">
+      <property name="text">
+       <string>Inequalities</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <layout class="QHBoxLayout" name="layout_AddInequality">
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="button_AddInequality">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Add &amp;Inequality</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="label_Variables">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Variables</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <layout class="QHBoxLayout" name="layout_AddVariable">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="button_AddVariable">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Add &amp;Variable</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="6" column="0">
+     <layout class="QVBoxLayout" name="layout_Inequality"/>
+    </item>
+    <item row="5" column="0">
+     <layout class="QHBoxLayout" name="layout_InequalityLabels">
+      <item>
+       <widget class="QLabel" name="label_Inequality">
+        <property name="text">
+         <string>Inequality</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_InequalityPlotOption">
+        <property name="text">
+         <string>Plot Options</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_InequalityVisualization">
+        <property name="text">
+         <string>Visualization Options</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="7" column="0">
+     <widget class="Line" name="line_Variables">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="0">
+     <layout class="QVBoxLayout" name="layout_Variable"/>
     </item>
    </layout>
   </widget>
@@ -357,10 +341,9 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>lineEditInequalityLeft</tabstop>
-  <tabstop>comboBoxInequality</tabstop>
-  <tabstop>lineEditInequalityRight</tabstop>
-  <tabstop>buttonPlot</tabstop>
+  <tabstop>button_Plot</tabstop>
+  <tabstop>button_AddInequality</tabstop>
+  <tabstop>button_AddVariable</tabstop>
  </tabstops>
  <resources/>
  <connections/>

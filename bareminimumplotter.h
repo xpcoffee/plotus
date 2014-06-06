@@ -10,6 +10,7 @@
 #include "deplot/include/inequality.h"
 #include "deplot/include/expression.h"
 #include "variable_input/variableinput.h"
+#include "inequality_input/inequalityinput.h"
 
 using namespace std;
 
@@ -35,24 +36,29 @@ public:
     bool isEmpty_InputFields();
     // gui
     void addVariableInput();
+    void addInequalityInput();
 
 public slots:
     void checkAxisMode(int);
     void removeVariableInput(int);
+    void removeInequalityInput(int);
+    void moveInequalityInputUp(int);
+    void moveInequalityInputDown(int);
 
 private slots:
-    void on_buttonPlot_clicked();
-    void on_lineEditInequalityLeft_textChanged(const QString &arg1);
-    void on_lineEditInequalityRight_textChanged(const QString &arg1);
-    void on_pushButtonAddVariable_clicked();
+    void on_button_Plot_clicked();
+    void on_button_AddVariable_clicked();
+    void on_button_AddInequality_clicked();
 
 private:
     Ui::BareMinimumPlotter *ui;
     vector<VariableInput*> vVariableInputs;
+    vector<InequalityInput*> vInequalityInputs;
     Variable mVariableX, mVariableY;
-    Expression mExpression1, mExpression2;
     Inequality mInequality;
     int nLatestVariableInput;
+    int nLatestInequalityInput;
+    QVector<double> qvX, qvY, qvX_problem, qvY_problem;
 
 };
 

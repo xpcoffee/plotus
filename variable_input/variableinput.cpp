@@ -180,6 +180,13 @@ Variable VariableInput::getVariable(){
 }
 
 
+//	GUI
+//	---
+
+void VariableInput::enableRemoveButton(bool flag_enable){
+    ui->pushButtonDelete->setEnabled(flag_enable);
+}
+
 //	"""""""""""""""""""""""""""""""""
 //	"		Private Functions		"
 //	"""""""""""""""""""""""""""""""""
