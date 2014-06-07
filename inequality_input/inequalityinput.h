@@ -1,15 +1,28 @@
 #ifndef INEQUALITYINPUT_H
 #define INEQUALITYINPUT_H
 
+//	Includes
 #include <QWidget>
 #include <QtWidgets>
 #include "../deplot/include/inequality.h"
 #include "../deplot/include/expression.h"
 
+// 	Enumerators
+enum COMBINE
+{
+    COMBINE_NONE 			= 0,
+    COMBINE_INTERSECTION 	= 1,
+    COMBINE_UNION 			= 2,
+    COMBINE_SUBTRACTION 	= 3,
+
+};
+
+// 	Namespace
 namespace Ui {
 class InequalityInput;
 }
 
+//	Class
 class InequalityInput : public QWidget
 {
     Q_OBJECT
@@ -27,6 +40,8 @@ public:
     int getColorIndex();
     int getShapeIndex();
     int getCombination();
+    string getLeftExpression();
+    string getRightExpression();
     QVector<double> getX();
     QVector<double> getY();
     QVector<double> getXProblem();

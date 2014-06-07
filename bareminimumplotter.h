@@ -28,8 +28,10 @@ public:
 
     // 	core
     void plot();
-    QVector<double> vectorCombineUnion();
-    QVector<double> vectorCombineIntersection();
+    void vectorCombineNone(int);
+    void vectorCombineUnion(int);
+    void vectorCombineIntersection(int);
+    void vectorCombineSubtraction(int);
     void formatGraph(int);
     void formatErrorGraph();
     // 	validation
@@ -37,6 +39,7 @@ public:
     // 	gui
     void addVariableInput();
     void addInequalityInput();
+    void reOrderInequalityInputs();
 
 public slots:
     void checkAxisMode(int);
@@ -57,6 +60,8 @@ private:
     vector<InequalityInput*> vInequalityInputs;
     //	plotting
     int nGraphIndex;
+    int nPrevCombination;
+    bool flag_Combination;
     Variable mVariableX, mVariableY;
     QVector<double> qvX, qvY, qvX_problem, qvY_problem;
     //	gui management
