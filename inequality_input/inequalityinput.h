@@ -26,6 +26,7 @@ public:
     int getNumber();
     int getColorIndex();
     int getShapeIndex();
+    int getCombination();
     QVector<double> getX();
     QVector<double> getY();
     QVector<double> getXProblem();

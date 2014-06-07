@@ -101,31 +101,8 @@ void BareMinimumPlotter::plot()
 {
     clearFormatting();
 
-    cout << "Creating Inequality" << endl;
-
-    // create inequality
-    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
-       if(!vInequalityInputs[i]->createInequality())
-           return;
-    }
-
-    cout << "Creating and adding variables." << endl;
-    // create and add variables
-    for (int j = 0; j < static_cast<int>(vInequalityInputs.size()); j++){
-        for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
-            if (!vVariableInputs[i]->checkInput()) // check legal
-                return;
-            Variable tmpVariable = vVariableInputs[i]->getVariable();
-            if(!vInequalityInputs[j]->addVariable(tmpVariable))
-                return;
-        }
-    }
-
-    cout << "Selecting plotting variables." << endl;
-
+    // 	determine plotting variables
     string sUnitsX, sUnitsY;
-
-    // select plotting variables
     int tmpCheck = 0;
     for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
         if (vVariableInputs[i]->getAxisMode() == MODE_X_AXIS){
@@ -143,34 +120,88 @@ void BareMinimumPlotter::plot()
         return;
     }
 
-    // graph and plot
-    int nGraphIndex = 0;
+    //	evaluate and plot each inequality
+    nGraphIndex = 0;
     ui->plotter->clearGraphs();
 
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
-        cout << "Doing math: " << i << endl;
+        // 	create inequality
+        if(!vInequalityInputs[i]->createInequality())
+           return;
+
+        // 	create and add variables
+        for (int j = 0; j < static_cast<int>(vVariableInputs.size()); j++){
+            if (!vVariableInputs[j]->checkInput()) // check legal
+                return;
+            Variable tmpVariable = vVariableInputs[j]->getVariable();
+            if(!vInequalityInputs[i]->addVariable(tmpVariable))
+                return;
+        }
+
         //do math
         vInequalityInputs[i]->setXYVariables(mVariableX, mVariableY);
         if(!vInequalityInputs[i]->evaluate())
             return;
 
-        cout << "Get Plotting Vectors" << endl;
         // get plotting vectors
         qvX = vInequalityInputs[i]->getX();
-
-        cout << "X | size: " << qvX.size() << endl;
-        for (int j = 0; j < qvX.size(); j++){
-            cout << "\t" << qvX[j] << endl;
-        }
-
         qvY = vInequalityInputs[i]->getY();
         qvX_problem = vInequalityInputs[i]->getXProblem();
         qvY_problem = vInequalityInputs[i]->getYProblem();
 
-        cout << "Adding normal graph." << endl;
-
         // add normal graph
         ui->plotter->addGraph();
+        formatGraph(i);
+        nGraphIndex++;
+
+        // add problem graph (if needed)
+        if (!qvX_problem.isEmpty()){
+            ui->plotter->addGraph();
+            formatErrorGraph();
+            nGraphIndex++;
+        }
+
+        // set general options, plot
+        ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + " [" + sUnitsX + "]"));
+        ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + " [" + sUnitsY + "]"));
+        ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
+        ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
+        ui->plotter->replot();
+    }
+}
+
+void BareMinimumPlotter::vectorCombineNone(int nInequality){
+        qvX = vInequalityInputs[i]->getX();
+        qvY = vInequalityInputs[i]->getY();
+        qvX_problem = vInequalityInputs[i]->getXProblem();
+        qvY_problem = vInequalityInputs[i]->getYProblem();
+}
+
+void BareMinimumPlotter::vectorCombineIntersection(int nInequality){
+    QVector<double> qvXOld = qvX;
+    QVector<double> qvXNew = vInequalityInputs[nInequality]->getX();
+    QVector<double> qvYOld = qvY;
+    QVector<double> qvYNew = vInequalityInputs[nInequality]->getY();
+
+    qvX.clear();
+    qvY.clear();
+
+    for (int i = 0; i < static_cast<int>(qvXOld.size()); i++){
+       for (int j = 0; j < static_cast<int>(qvXNew.size()); j++) {
+           if ((qvXOld[i] == qvXNew[j]) && (qvYOld[i] == qvYNew[i])) {
+               qvX.push_back(qvXOld);
+               qvY.push_back(qvYOld);
+           }
+       }
+    }
+
+    // [BREAK] 7 June 2014 | must still finish combinations (must also declare)
+
+    qvX_problem = vInequalityInputs[i]->getXProblem();
+    qvY_problem = vInequalityInputs[i]->getYProblem();
+}
+
+void BareMinimumPlotter::formatGraph(int i){
         ui->plotter->graph(nGraphIndex)->setData(qvX,qvY);
         ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
         QCPScatterStyle style1;
@@ -221,12 +252,9 @@ void BareMinimumPlotter::plot()
         }
 
         ui->plotter->graph(nGraphIndex)->setScatterStyle(style1);
-        nGraphIndex++;
+}
 
-        // add problem graph (if needed)
-        if (!qvX_problem.isEmpty()){
-            cout << "Adding error graph." << endl;
-            ui->plotter->addGraph();
+void BareMinimumPlotter::formatErrorGraph(){
             ui->plotter->graph(nGraphIndex)->setData(qvX_problem,qvY_problem);
             ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
             QCPScatterStyle style2;
@@ -234,19 +262,6 @@ void BareMinimumPlotter::plot()
             style2.setSize(5);
             style2.setPen(QPen(Qt::red));
             ui->plotter->graph(nGraphIndex)->setScatterStyle(style2);
-            nGraphIndex++;
-        }
-
-        cout << "Plotting." << endl;
-
-        // set general options, plot
-        ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + " [" + sUnitsX + "]"));
-        ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + " [" + sUnitsY + "]"));
-        ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
-        ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
-        ui->plotter->replot();
-    }
-
 }
 
 //	Validation

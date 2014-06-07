@@ -751,9 +751,7 @@ void Expression::recEval(){
             // substitute current values and evaluate...
             if (nCurrentVariable == static_cast<int>(vVariables.size()) - 1){
                     // do math
-                cout << "Expression: " << getExpression() << endl;
                     subVariableValues();
-                    cout << "\tSubbing: " << getExpression() << endl;
                     double dResult;
                     try{
                         dResult = evaluateExpression();
@@ -770,7 +768,6 @@ void Expression::recEval(){
                         vProblemElements_Expression.push_back(nProblemTerm);
                         flag_isValid = false;
                     }
-                    cout << "\tResult: " << dResult << endl;
 
                     vResult.push_back(dResult);
 			}

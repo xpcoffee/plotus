@@ -170,10 +170,8 @@ string VariableInput::getUnits(){
 
 Variable VariableInput::getVariable(){
     if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
-        cout << "[INFO] variableinput.cpp | getvariable | " << "creating point variable" << endl;
         createPoint();
     } else {
-        cout << "[INFO] variableinput.cpp | getvariable | " << "creating variable" << endl;
         createVariable();
     }
     return mVariable;

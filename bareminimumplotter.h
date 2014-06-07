@@ -26,15 +26,15 @@ public:
     explicit BareMinimumPlotter(QWidget *parent = 0);
     ~BareMinimumPlotter();
 
-    // core
+    // 	core
     void plot();
-    // validation
-    void checkFields();
+    QVector<double> vectorCombineUnion();
+    QVector<double> vectorCombineIntersection();
+    void formatGraph(int);
+    void formatErrorGraph();
+    // 	validation
     void clearFormatting();
-    bool highlightInvalidExpressionTerms(Inequality, QLineEdit*, QLineEdit*);
-    bool charsValid(QLineEdit*);
-    bool isEmpty_InputFields();
-    // gui
+    // 	gui
     void addVariableInput();
     void addInequalityInput();
 
@@ -52,13 +52,16 @@ private slots:
 
 private:
     Ui::BareMinimumPlotter *ui;
+    //	plotter elements
     vector<VariableInput*> vVariableInputs;
     vector<InequalityInput*> vInequalityInputs;
+    //	plotting
+    int nGraphIndex;
     Variable mVariableX, mVariableY;
-    Inequality mInequality;
+    QVector<double> qvX, qvY, qvX_problem, qvY_problem;
+    //	gui management
     int nLatestVariableInput;
     int nLatestInequalityInput;
-    QVector<double> qvX, qvY, qvX_problem, qvY_problem;
 
 };
 

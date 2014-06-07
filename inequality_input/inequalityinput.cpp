@@ -7,6 +7,20 @@
 
 
 //	"""""""""""""""""""""""""""""""""
+//	"			Enumerators			"
+//	"""""""""""""""""""""""""""""""""
+
+
+enum COMBINE
+{
+    NONE 			= 0,
+    INTERSECTION 	= 1,
+    UNION 			= 2,
+    SUBTRACTION 	= 3,
+
+};
+
+//	"""""""""""""""""""""""""""""""""
 //	"	  Third Party Functions		"
 //	"""""""""""""""""""""""""""""""""
 
@@ -104,6 +118,10 @@ int InequalityInput::getColorIndex(){
 
 int InequalityInput::getShapeIndex(){
     return ui->comboBoxShape->currentIndex();
+}
+
+int InequalityInput::getCombination(){
+    return ui->comboBoxInteract->currentIndex();
 }
 
 QVector<double> InequalityInput::getX(){
