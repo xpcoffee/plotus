@@ -91,6 +91,11 @@ void InequalityInput::enablePositionButtons(bool flag_enable){
 }
 
 
+void InequalityInput::resetCombinations(){
+    ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE);
+}
+
+
 //	Getters
 //	-------
 
@@ -308,4 +313,18 @@ void InequalityInput::on_lineEditLeft_textChanged(const QString&)
 void InequalityInput::on_lineEditRight_textChanged(const QString&)
 {
    clearLineEditTextFormat(ui->lineEditRight);
+}
+
+void InequalityInput::on_comboBoxInteract_currentIndexChanged(int index)
+{
+   switch (index) {
+    case COMBINE_NONE:
+       ui->comboBoxColor->setEnabled(true);
+       ui->comboBoxShape->setEnabled(true);
+       break;
+   default:
+       ui->comboBoxColor->setEnabled(false);
+       ui->comboBoxShape->setEnabled(false);
+       break;
+   }
 }

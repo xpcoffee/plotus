@@ -259,14 +259,18 @@ void BareMinimumPlotter::vectorCombineSubtraction(int nInequality){
 
     qvX.clear();
     qvY.clear();
+    bool flag_keep;
 
     for (int i = 0; i < static_cast<int>(qvXOld.size()); i++){
+       flag_keep = true;
        for (int j = 0; j < static_cast<int>(qvXNew.size()); j++) {
-           if ((qvXOld[i] == qvXNew[j]) && (qvYOld[i] == qvYNew[j])) {
-               qvX.push_back(qvXOld[i]);
-               qvY.push_back(qvYOld[i]);
+           if (((qvXOld[i] == qvXNew[j]) && (qvYOld[i] == qvYNew[j]))) {
+               flag_keep = false;
            }
-
+       }
+       if (flag_keep){
+           qvX.push_back(qvXOld[i]);
+           qvY.push_back(qvYOld[i]);
        }
     }
 
@@ -476,6 +480,7 @@ void BareMinimumPlotter::removeInequalityInput(int nInequalityNumber){
             // enable/disable position buttons
             if (vInequalityInputs.size() < 2)
                 vInequalityInputs.back()->enablePositionButtons(false);
+                vInequalityInputs.back()->resetCombinations();
             return;
         }
     }

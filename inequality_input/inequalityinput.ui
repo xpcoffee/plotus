@@ -180,13 +180,13 @@
     <widget class="QComboBox" name="comboBoxInteract">
      <property name="minimumSize">
       <size>
-       <width>30</width>
+       <width>80</width>
        <height>0</height>
       </size>
      </property>
      <item>
       <property name="text">
-       <string>-</string>
+       <string>None</string>
       </property>
      </item>
      <item>
@@ -197,6 +197,11 @@
      <item>
       <property name="text">
        <string>⋃</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>-</string>
       </property>
      </item>
     </widget>

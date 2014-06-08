@@ -35,6 +35,7 @@ public:
     void setNumber(int);
     void setXYVariables(Variable, Variable);
     void enablePositionButtons(bool);
+    void resetCombinations();
     //	getters
     int getNumber();
     int getColorIndex();
@@ -66,6 +67,8 @@ private slots:
     void on_pushButtonDelete_clicked();
     void on_lineEditLeft_textChanged(const QString&);
     void on_lineEditRight_textChanged(const QString&);
+
+    void on_comboBoxInteract_currentIndexChanged(int index);
 
 private:
     Ui::InequalityInput *ui;
