@@ -128,6 +128,10 @@ void BareMinimumPlotter::plot()
     ui->plotter->clearGraphs();
 
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+        //	check skip
+        if (vInequalityInputs[i]->getSkip())
+            continue;
+
         // 	create inequality
         if(!vInequalityInputs[i]->createInequality())
            return;
@@ -366,6 +370,7 @@ void BareMinimumPlotter::addVariableInput(){
 void BareMinimumPlotter::addInequalityInput(){
     vInequalityInputs.push_back(new InequalityInput());
     vInequalityInputs.back()->setNumber(nLatestInequalityInput++);
+    vInequalityInputs.back()->enableCombinations(false);
     ui->layout_Inequality->addWidget(vInequalityInputs.back());
     // connect slots to signals
     QObject::connect(vInequalityInputs.back(), SIGNAL(killThis(int)),
@@ -374,11 +379,10 @@ void BareMinimumPlotter::addInequalityInput(){
                         this, SLOT(moveInequalityInputUp(int)));
     QObject::connect(vInequalityInputs.back(), SIGNAL(moveDown(int)),
                         this, SLOT(moveInequalityInputDown(int)));
-    // enable/disable position buttons
+    // enable position buttons of first element
     if (vInequalityInputs.size() > 1){
         vInequalityInputs.front()->enablePositionButtons(true);
     }
-
 }
 
 void BareMinimumPlotter::reOrderInequalityInputs(){
@@ -493,6 +497,10 @@ void BareMinimumPlotter::moveInequalityInputUp (int nInequalityNumber){
             nCurrentPos = ui->layout_Inequality->indexOf(vInequalityInputs[i]);
             if (nCurrentPos == 0) // if at top
                 return;
+            vInequalityInputs[i]->enableCombinations(true);
+            // [BREAK] 8June2014 | working on disabling and enabling combination checkbox
+            if (nCurrentPos == ui->layout_Inequality->count()) 		// if moving from bottom
+                vInequalityInputs[i-1]->enableCombinations(false);
             ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
             ui->layout_Inequality->insertWidget(--nCurrentPos, vInequalityInputs[i]);
             reOrderInequalityInputs();
@@ -505,8 +513,13 @@ void BareMinimumPlotter::moveInequalityInputDown (int nInequalityNumber){
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
         if (vInequalityInputs[i]->getNumber() == nInequalityNumber){
             nCurrentPos = ui->layout_Inequality->indexOf(vInequalityInputs[i]);
-            if (nCurrentPos == ui->layout_Inequality->count()) // if at bottom
+            if (nCurrentPos == ui->layout_Inequality->count()) 		// if at bottom
                 return;
+            if (nCurrentPos == ui->layout_Inequality->count()-1){	// if moving to bottom
+                vInequalityInputs[i]->resetCombinations();
+                vInequalityInputs[i]->enableCombinations(false);
+                vInequalityInputs[i-1]->enableCombinations(true);
+            }
             ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
             ui->layout_Inequality->insertWidget(++nCurrentPos, vInequalityInputs[i]);
             reOrderInequalityInputs();

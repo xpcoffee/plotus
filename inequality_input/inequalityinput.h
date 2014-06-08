@@ -35,12 +35,14 @@ public:
     void setNumber(int);
     void setXYVariables(Variable, Variable);
     void enablePositionButtons(bool);
+    void enableCombinations(bool);
     void resetCombinations();
     //	getters
     int getNumber();
     int getColorIndex();
     int getShapeIndex();
     int getCombination();
+    bool getSkip();
     string getLeftExpression();
     string getRightExpression();
     QVector<double> getX();
@@ -67,14 +69,15 @@ private slots:
     void on_pushButtonDelete_clicked();
     void on_lineEditLeft_textChanged(const QString&);
     void on_lineEditRight_textChanged(const QString&);
-
     void on_comboBoxInteract_currentIndexChanged(int index);
+    void on_checkBoxSkip_toggled(bool checked);
 
 private:
     Ui::InequalityInput *ui;
     Inequality mInequality;
     Variable mVariableX, mVariableY;
     int nInequalityInputNumber;
+    bool flag_skip;
     vector<bool> vPlotSpace;
     vector<int> vProblemSpace;
     QVector<double> qvX, qvY, qvX_problem, qvY_problem;

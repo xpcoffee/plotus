@@ -10,8 +10,6 @@
 //	"	  Third Party Functions		"
 //	"""""""""""""""""""""""""""""""""
 
-// -- Reference:	Vasaka
-// -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
 static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
 {
     if(!lineEdit)
@@ -28,13 +26,17 @@ static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::
     }
     QInputMethodEvent event(QString(), attributes);
     QCoreApplication::sendEvent(lineEdit, &event);
+
+    // -- Reference:	Vasaka
+    // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
 }
 
-// -- Reference:	Vasaka
-// -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
 static void clearLineEditTextFormat(QLineEdit* lineEdit)
 {
     setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
+
+    // -- Reference:	Vasaka
+    // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
 }
 
 
@@ -47,6 +49,7 @@ InequalityInput::InequalityInput(QWidget *parent) :
     ui(new Ui::InequalityInput)
 {
     ui->setupUi(this);
+    flag_skip = false;
 }
 
 InequalityInput::~InequalityInput()
@@ -58,9 +61,7 @@ InequalityInput::~InequalityInput()
 //	Setters
 //	-------
 
-void InequalityInput::setNumber(int nNumber){
-    nInequalityInputNumber = nNumber;
-}
+void InequalityInput::setNumber(int nNumber){ nInequalityInputNumber = nNumber; }
 
 void InequalityInput::setXYVariables(Variable mX, Variable mY){
     mVariableX = mX;
@@ -72,11 +73,9 @@ bool InequalityInput::createInequality(){
     mInequality = Inequality(ui->lineEditLeft->text().toStdString(),
                              ui->comboBoxInequality->currentText().toStdString(),
                              ui->lineEditRight->text().toStdString());
-
     // remove whitespace
     ui->lineEditLeft->setText(QString::fromStdString(mInequality.getExpressionLHS()));
     ui->lineEditRight->setText(QString::fromStdString(mInequality.getExpressionRHS()));
-
     //check expression
     if(highlightInvalidExpressionTerms())
         return false;
@@ -90,54 +89,35 @@ void InequalityInput::enablePositionButtons(bool flag_enable){
     ui->pushButtonDelete->setEnabled(flag_enable);
 }
 
+void InequalityInput::enableCombinations(bool flag_enable){ ui->comboBoxInteract->setEnabled(flag_enable); }
 
-void InequalityInput::resetCombinations(){
-    ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE);
-}
+void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE); }
 
 
 //	Getters
 //	-------
 
-int InequalityInput::getNumber(){
-    return nInequalityInputNumber;
-}
+int InequalityInput::getNumber(){ return nInequalityInputNumber; }
 
-int InequalityInput::getColorIndex(){
-    return ui->comboBoxColor->currentIndex();
-}
+int InequalityInput::getColorIndex(){ return ui->comboBoxColor->currentIndex(); }
 
-int InequalityInput::getShapeIndex(){
-    return ui->comboBoxShape->currentIndex();
-}
+int InequalityInput::getShapeIndex(){ return ui->comboBoxShape->currentIndex(); }
 
-int InequalityInput::getCombination(){
-    return ui->comboBoxInteract->currentIndex();
-}
+int InequalityInput::getCombination(){ return ui->comboBoxInteract->currentIndex(); }
 
-string InequalityInput::getLeftExpression(){
-    return mInequality.getExpressionLHS();
-}
+bool InequalityInput::getSkip(){ return flag_skip; }
 
-string InequalityInput::getRightExpression(){
-    return mInequality.getExpressionRHS();
-}
+string InequalityInput::getLeftExpression(){ return mInequality.getExpressionLHS(); }
 
-QVector<double> InequalityInput::getX(){
-    return qvX;
-}
+string InequalityInput::getRightExpression(){ return mInequality.getExpressionRHS(); }
 
-QVector<double> InequalityInput::getY(){
-    return qvY;
-}
+QVector<double> InequalityInput::getX(){ return qvX; }
 
-QVector<double> InequalityInput::getXProblem(){
-    return qvX_problem;
-}
+QVector<double> InequalityInput::getY(){ return qvY; }
 
-QVector<double> InequalityInput::getYProblem(){
-    return qvY_problem;
-}
+QVector<double> InequalityInput::getXProblem(){ return qvX_problem; }
+
+QVector<double> InequalityInput::getYProblem(){ return qvY_problem; }
 
 //	Validation
 //	----------
@@ -290,30 +270,15 @@ bool InequalityInput::evaluate(){
 //	"		Private Slots			"
 //	"""""""""""""""""""""""""""""""""
 
-void InequalityInput::on_pushButtonUp_clicked()
-{
-    emit moveUp(nInequalityInputNumber);
-}
+void InequalityInput::on_pushButtonUp_clicked() { emit moveUp(nInequalityInputNumber); }
 
-void InequalityInput::on_pushButtonDown_clicked()
-{
-    emit moveDown(nInequalityInputNumber);
-}
+void InequalityInput::on_pushButtonDown_clicked() { emit moveDown(nInequalityInputNumber); }
 
-void InequalityInput::on_pushButtonDelete_clicked()
-{
-    emit killThis(nInequalityInputNumber);
-}
+void InequalityInput::on_pushButtonDelete_clicked() { emit killThis(nInequalityInputNumber); }
 
-void InequalityInput::on_lineEditLeft_textChanged(const QString&)
-{
-   clearLineEditTextFormat(ui->lineEditLeft);
-}
+void InequalityInput::on_lineEditLeft_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEditLeft); }
 
-void InequalityInput::on_lineEditRight_textChanged(const QString&)
-{
-   clearLineEditTextFormat(ui->lineEditRight);
-}
+void InequalityInput::on_lineEditRight_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEditRight); }
 
 void InequalityInput::on_comboBoxInteract_currentIndexChanged(int index)
 {
@@ -326,5 +291,29 @@ void InequalityInput::on_comboBoxInteract_currentIndexChanged(int index)
        ui->comboBoxColor->setEnabled(false);
        ui->comboBoxShape->setEnabled(false);
        break;
+   }
+}
+
+void InequalityInput::on_checkBoxSkip_toggled(bool checked)
+{
+   if(checked) {
+       flag_skip = true;
+       ui->comboBoxColor->setEnabled(false);
+       ui->comboBoxShape->setEnabled(false);
+       ui->lineEditLeft->setEnabled(false);
+       ui->lineEditRight->setEnabled(false);
+       ui->comboBoxInequality->setEnabled(false);
+       ui->comboBoxInteract->setEnabled(false);
+
+   }
+   else {
+       flag_skip = false;
+       ui->comboBoxColor->setEnabled(true);
+       ui->comboBoxShape->setEnabled(true);
+       ui->lineEditLeft->setEnabled(true);
+       ui->lineEditRight->setEnabled(true);
+       ui->comboBoxInequality->setEnabled(true);
+       if(ui->pushButtonDown->isEnabled())
+           ui->comboBoxInteract->setEnabled(true);
    }
 }
