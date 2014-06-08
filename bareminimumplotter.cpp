@@ -1,6 +1,5 @@
 /*	TASK LIST
     ---------
-    BREAK: 2 June 2014 | adding color and shape selection to inequality
 */
 
 
@@ -160,10 +159,10 @@ void BareMinimumPlotter::plot()
             vectorCombineIntersection(i);
             break;
         case COMBINE_UNION:
-            cerr << "No union option to combine vectors yet" << endl;
+            vectorCombineUnion(i);
             break;
         case COMBINE_SUBTRACTION:
-            cerr << "No subtraction option to combine vectors yet" << endl;
+            vectorCombineSubtraction(i);
             break;
         }
         nPrevCombination = vInequalityInputs[i]->getCombination();
@@ -189,7 +188,6 @@ void BareMinimumPlotter::plot()
         ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
         ui->plotter->replot();
     }
-    cout << "killed the loop" << endl;
 }
 
 void BareMinimumPlotter::vectorCombineNone(int nInequality){
@@ -227,8 +225,8 @@ void BareMinimumPlotter::vectorCombineIntersection(int nInequality){
 // [TODO] progress bar
 void BareMinimumPlotter::vectorCombineUnion(int nInequality){
     QVector<double> qvXOld = qvX;
-    QVector<double> qvXNew = vInequalityInputs[nInequality]->getX();
     QVector<double> qvYOld = qvY;
+    QVector<double> qvXNew = vInequalityInputs[nInequality]->getX();
     QVector<double> qvYNew = vInequalityInputs[nInequality]->getY();
 
     qvX.clear();
@@ -237,8 +235,13 @@ void BareMinimumPlotter::vectorCombineUnion(int nInequality){
     for (mVariableX.resetPosition(); !mVariableX.isEnd(); mVariableX.nextPosition()){
         for (mVariableY.resetPosition(); !mVariableY.isEnd(); mVariableY.nextPosition()){
             for (int i = 0; i < static_cast<int>(qvXOld.size()); i++){
-                if (((mVariableX.getCurrentValue() == qvXOld[i]) && (mVariableX.getCurrentValue() == qvYOld[i]))	||
-                    ((mVariableX.getCurrentValue() == qvXNew[i]) && (mVariableX.getCurrentValue() == qvYNew[i]))){
+                if ((mVariableX.getCurrentValue() == qvXOld[i]) && (mVariableY.getCurrentValue() == qvYOld[i])){
+                    qvX.push_back(mVariableX.getCurrentValue());
+                    qvY.push_back(mVariableY.getCurrentValue());
+                }
+            }
+            for (int i = 0; i < static_cast<int>(qvXNew.size()); i++){
+                if ((mVariableX.getCurrentValue() == qvXNew[i]) && (mVariableY.getCurrentValue() == qvYNew[i])){
                     qvX.push_back(mVariableX.getCurrentValue());
                     qvY.push_back(mVariableY.getCurrentValue());
                 }
