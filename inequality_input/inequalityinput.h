@@ -33,6 +33,7 @@ public:
 
     //	setters
     void setNumber(int);
+    void setIndex(int);
     void setXYVariables(Variable, Variable);
     void enablePositionButtons(bool);
     void enableCombinations(bool);
@@ -77,6 +78,7 @@ private:
     Inequality mInequality;
     Variable mVariableX, mVariableY;
     int nInequalityInputNumber;
+    int nIndex;
     bool flag_skip;
     vector<bool> vPlotSpace;
     vector<int> vProblemSpace;

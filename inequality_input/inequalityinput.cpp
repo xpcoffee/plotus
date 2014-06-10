@@ -63,6 +63,11 @@ InequalityInput::~InequalityInput()
 
 void InequalityInput::setNumber(int nNumber){ nInequalityInputNumber = nNumber; }
 
+void InequalityInput::setIndex(int nNumber){
+        nIndex = nNumber;
+        ui->label_Index->setNum(static_cast<double>(nNumber));
+}
+
 void InequalityInput::setXYVariables(Variable mX, Variable mY){
     mVariableX = mX;
     mVariableY = mY;

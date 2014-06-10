@@ -76,9 +76,24 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     flag_Combination = false;
     nPrevCombination = 0;
 
-//    QScrollArea* scrollAreaInequality = new QScrollArea;
-//    scrollAreaInequality->setBackgroundRole(QPalette::Dark);
-//    scrollAreaInequality->setWidget(ui->layout_Inequality);
+//    ui->layout_Inequality->setParent(0);
+//    ui->containerInequality->setLayout(ui->layout_Inequality);
+
+    int nIndex = ui->gridLayout->indexOf(ui->containerInequalityInputs);
+    ui->layout_Inequality->setAlignment(Qt::AlignTop);
+
+    QScrollArea* scrollAreaInequality = new QScrollArea(ui->gridLayout->widget());
+    scrollAreaInequality->setBackgroundRole(QPalette::NoRole);
+    int pos1, pos2, pos3, pos4;
+    ui->gridLayout->getItemPosition(nIndex, &pos1, &pos2, &pos3, &pos4);
+    scrollAreaInequality->setWidget(ui->containerInequalityInputs);
+    ui->containerInequalityInputs->setParent(scrollAreaInequality);
+    ui->gridLayout->addWidget(scrollAreaInequality, pos1, pos2, pos3, pos4);
+    scrollAreaInequality->setFrameShape(QFrame::NoFrame);
+    scrollAreaInequality->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollAreaInequality->setWidgetResizable(true);
+
+
 }
 
 
@@ -369,6 +384,7 @@ void BareMinimumPlotter::addVariableInput(){
 void BareMinimumPlotter::addInequalityInput(){
     vInequalityInputs.push_back(new InequalityInput());
     vInequalityInputs.back()->setNumber(nLatestInequalityInput++);
+    vInequalityInputs.back()->setIndex(vInequalityInputs.size());
     ui->layout_Inequality->addWidget(vInequalityInputs.back());
     // connect slots to signals
     QObject::connect(vInequalityInputs.back(), SIGNAL(killThis(int)),
@@ -389,6 +405,7 @@ void BareMinimumPlotter::reOrderInequalityInputs(){
     vector<InequalityInput*> tmpVec;
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
        tmpVec.push_back(qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget()));
+       qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget())->setIndex(i+1);
     }
     vInequalityInputs = tmpVec;
 }
@@ -398,7 +415,7 @@ void BareMinimumPlotter::setCombinationInputs(){
     // disable the combinations of last item
     qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->enableCombinations(false);
     qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->resetCombinations();
-    // diable combinations of second last item
+    // enable combinations of second last item
     if (ui->layout_Inequality->count() > 1)
         qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize-1)->widget())->enableCombinations(true);
 }
@@ -486,9 +503,8 @@ void BareMinimumPlotter::removeInequalityInput(int nInequalityNumber){
             if (i < static_cast<int>(vInequalityInputs.size()))
                 vInequalityInputs.erase(vInequalityInputs.begin()+i);
             // enable/disable position buttons
-            if (vInequalityInputs.size() < 2)
-                vInequalityInputs.back()->enablePositionButtons(false);
-                vInequalityInputs.back()->resetCombinations();
+            reOrderInequalityInputs();
+            setCombinationInputs();
             return;
         }
     }
