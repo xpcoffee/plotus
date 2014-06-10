@@ -60,8 +60,8 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui->setupUi(this);
 
     // add original x & y variable inputs
+    ui->layout_Variable->setAlignment(Qt::AlignTop);
     nLatestVariableInput = 0;
-    nLatestInequalityInput = 0;
     addVariableInput();
     addVariableInput();
     vVariableInputs[0]->setAxisMode(MODE_X_AXIS);
@@ -70,29 +70,13 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     vVariableInputs[1]->enableRemoveButton(false);
 
     // add original inequality input
+    ui->layout_Inequality->setAlignment(Qt::AlignTop);
+    nLatestInequalityInput = 0;
     addInequalityInput();
     vInequalityInputs.front()->enablePositionButtons(false);
 
     flag_Combination = false;
     nPrevCombination = 0;
-
-//    ui->layout_Inequality->setParent(0);
-//    ui->containerInequality->setLayout(ui->layout_Inequality);
-
-    int nIndex = ui->gridLayout->indexOf(ui->containerInequalityInputs);
-    ui->layout_Inequality->setAlignment(Qt::AlignTop);
-
-    QScrollArea* scrollAreaInequality = new QScrollArea(ui->gridLayout->widget());
-    scrollAreaInequality->setBackgroundRole(QPalette::NoRole);
-    int pos1, pos2, pos3, pos4;
-    ui->gridLayout->getItemPosition(nIndex, &pos1, &pos2, &pos3, &pos4);
-    scrollAreaInequality->setWidget(ui->containerInequalityInputs);
-    ui->containerInequalityInputs->setParent(scrollAreaInequality);
-    ui->gridLayout->addWidget(scrollAreaInequality, pos1, pos2, pos3, pos4);
-    scrollAreaInequality->setFrameShape(QFrame::NoFrame);
-    scrollAreaInequality->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollAreaInequality->setWidgetResizable(true);
-
 
 }
 
