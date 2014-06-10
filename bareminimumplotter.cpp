@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+//#include <qpalette.h>
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Enumerated Types		"
@@ -75,6 +76,9 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     flag_Combination = false;
     nPrevCombination = 0;
 
+//    QScrollArea* scrollAreaInequality = new QScrollArea;
+//    scrollAreaInequality->setBackgroundRole(QPalette::Dark);
+//    scrollAreaInequality->setWidget(ui->layout_Inequality);
 }
 
 
@@ -153,10 +157,6 @@ void BareMinimumPlotter::plot()
         // get plotting vectors
         switch(nPrevCombination){
         case COMBINE_NONE:
-//            if (flag_Combination){
-//                flag_Combination = false;
-//                return;
-//            }
             vectorCombineNone(i);
             break;
         case COMBINE_INTERSECTION:
@@ -224,7 +224,6 @@ void BareMinimumPlotter::vectorCombineIntersection(int nInequality){
     qvY_problem = vInequalityInputs[nInequality]->getYProblem();
 }
 
-// [BREAK] working on union
 // [TODO] prevent user from changing '-' in last inequality.
 // [TODO] progress bar
 void BareMinimumPlotter::vectorCombineUnion(int nInequality){
@@ -370,7 +369,6 @@ void BareMinimumPlotter::addVariableInput(){
 void BareMinimumPlotter::addInequalityInput(){
     vInequalityInputs.push_back(new InequalityInput());
     vInequalityInputs.back()->setNumber(nLatestInequalityInput++);
-    vInequalityInputs.back()->enableCombinations(false);
     ui->layout_Inequality->addWidget(vInequalityInputs.back());
     // connect slots to signals
     QObject::connect(vInequalityInputs.back(), SIGNAL(killThis(int)),
@@ -383,6 +381,8 @@ void BareMinimumPlotter::addInequalityInput(){
     if (vInequalityInputs.size() > 1){
         vInequalityInputs.front()->enablePositionButtons(true);
     }
+    // enable/disable combination fields
+    setCombinationInputs();
 }
 
 void BareMinimumPlotter::reOrderInequalityInputs(){
@@ -393,6 +393,16 @@ void BareMinimumPlotter::reOrderInequalityInputs(){
     vInequalityInputs = tmpVec;
 }
 
+void BareMinimumPlotter::setCombinationInputs(){
+    int nSize = ui->layout_Inequality->count()-1;
+    // disable the combinations of last item
+    qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->enableCombinations(false);
+    qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->resetCombinations();
+    // diable combinations of second last item
+    if (ui->layout_Inequality->count() > 1)
+        qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize-1)->widget())->enableCombinations(true);
+}
+
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Public Slots			"
@@ -400,7 +410,7 @@ void BareMinimumPlotter::reOrderInequalityInputs(){
 
 void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
     int nX = 0, nY = 0, nXPos, nYPos;
-    for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
+    for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){ 	// find x-axis and y-axis labels
        if(vVariableInputs[i]->getAxisMode() == MODE_X_AXIS) {
             nX++;
             if (vVariableInputs[i]->getNumber() != nVariableInputNumber)
@@ -412,19 +422,13 @@ void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
                 nYPos = i;
        }
     }
-    if (nX == 2 && nY == 1){
-        vVariableInputs[nXPos]->setAxisMode(MODE_POINT);
-    } else if (nX == 2 && nY == 0) {
-        vVariableInputs[nXPos]->setAxisMode(MODE_Y_AXIS);
-    } else if (nX == 0 && nY == 2) {
-        vVariableInputs[nYPos]->setAxisMode(MODE_X_AXIS);
-    } else if (nX == 1 && nY == 2) {
-        vVariableInputs[nYPos]->setAxisMode(MODE_POINT);
-    } else if (nX == 1 && nY == 0) {
-        vVariableInputs[nVariableInputNumber]->setAxisMode(MODE_Y_AXIS);
-    } else if (nX == 0 && nY == 1) {
-        vVariableInputs[nVariableInputNumber]->setAxisMode(MODE_X_AXIS);
-    }
+
+    if (nX == 2 && nY == 1){ vVariableInputs[nXPos]->setAxisMode(MODE_POINT); } 	// sort such that only one x and one y
+    else if (nX == 2 && nY == 0) { vVariableInputs[nXPos]->setAxisMode(MODE_Y_AXIS); }
+    else if (nX == 0 && nY == 2) { vVariableInputs[nYPos]->setAxisMode(MODE_X_AXIS); }
+    else if (nX == 1 && nY == 2) { vVariableInputs[nYPos]->setAxisMode(MODE_POINT); }
+    else if (nX == 1 && nY == 0) { vVariableInputs[nVariableInputNumber]->setAxisMode(MODE_Y_AXIS); }
+    else if (nX == 0 && nY == 1) { vVariableInputs[nVariableInputNumber]->setAxisMode(MODE_X_AXIS); }
 }
 
 void BareMinimumPlotter::removeVariableInput(int nVariableInputNumber){
@@ -497,13 +501,10 @@ void BareMinimumPlotter::moveInequalityInputUp (int nInequalityNumber){
             nCurrentPos = ui->layout_Inequality->indexOf(vInequalityInputs[i]);
             if (nCurrentPos == 0) // if at top
                 return;
-            vInequalityInputs[i]->enableCombinations(true);
-            // [BREAK] 8June2014 | working on disabling and enabling combination checkbox
-            if (nCurrentPos == ui->layout_Inequality->count()) 		// if moving from bottom
-                vInequalityInputs[i-1]->enableCombinations(false);
             ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
             ui->layout_Inequality->insertWidget(--nCurrentPos, vInequalityInputs[i]);
             reOrderInequalityInputs();
+            setCombinationInputs();
         }
     }
 }
@@ -515,14 +516,11 @@ void BareMinimumPlotter::moveInequalityInputDown (int nInequalityNumber){
             nCurrentPos = ui->layout_Inequality->indexOf(vInequalityInputs[i]);
             if (nCurrentPos == ui->layout_Inequality->count()) 		// if at bottom
                 return;
-            if (nCurrentPos == ui->layout_Inequality->count()-1){	// if moving to bottom
-                vInequalityInputs[i]->resetCombinations();
-                vInequalityInputs[i]->enableCombinations(false);
-                vInequalityInputs[i-1]->enableCombinations(true);
-            }
             ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
             ui->layout_Inequality->insertWidget(++nCurrentPos, vInequalityInputs[i]);
             reOrderInequalityInputs();
+            setCombinationInputs();
+            return;
         }
     }
 }
@@ -532,17 +530,8 @@ void BareMinimumPlotter::moveInequalityInputDown (int nInequalityNumber){
 //	"		Private Slots	 		"
 //	"""""""""""""""""""""""""""""""""
 
-void BareMinimumPlotter::on_button_Plot_clicked()
-{
-    plot();
-}
+void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }
 
-void BareMinimumPlotter::on_button_AddVariable_clicked()
-{
-    addVariableInput();
-}
+void BareMinimumPlotter::on_button_AddVariable_clicked() { addVariableInput(); }
 
-void BareMinimumPlotter::on_button_AddInequality_clicked()
-{
-    addInequalityInput();
-}
+void BareMinimumPlotter::on_button_AddInequality_clicked() { addInequalityInput(); }

@@ -40,6 +40,7 @@ public:
     void addVariableInput();
     void addInequalityInput();
     void reOrderInequalityInputs();
+    void setCombinationInputs();
 
 public slots:
     void checkAxisMode(int);
