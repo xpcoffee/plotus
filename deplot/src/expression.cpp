@@ -31,7 +31,6 @@
         TODO: error display
 
     LONG TERM
-        TODO: combine inequality results
         TODO: create report of plot
 */
 

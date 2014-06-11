@@ -45,6 +45,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxInequality">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Inequality symbol.">Inequality symbol</string>
      </property>
@@ -79,6 +82,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxShape">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Marker shape.">Marker shape</string>
      </property>
@@ -106,6 +112,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxColor">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Marker colour.">Marker colour</string>
      </property>
@@ -176,6 +185,9 @@
        <pointsize>10</pointsize>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Move up.">Move up</string>
      </property>
@@ -203,6 +215,9 @@
        <pointsize>10</pointsize>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Move down.">Move down</string>
      </property>
@@ -218,6 +233,9 @@
        <width>80</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
       <string extracomment="Choose combination mode.">Choose combination mode</string>
@@ -258,6 +276,9 @@
        <height>0</height>
       </size>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Remove">Remove</string>
      </property>
@@ -268,6 +289,9 @@
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxSkip">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="toolTip">
       <string extracomment="Disable">Disable</string>
      </property>

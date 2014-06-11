@@ -27,13 +27,24 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLineEdit" name="lineEditName"/>
+    <widget class="QLineEdit" name="lineEditName">
+     <property name="focusPolicy">
+      <enum>Qt::TabFocus</enum>
+     </property>
+    </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="lineEditMin"/>
+    <widget class="QLineEdit" name="lineEditMin">
+     <property name="focusPolicy">
+      <enum>Qt::TabFocus</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditMax">
+     <property name="focusPolicy">
+      <enum>Qt::TabFocus</enum>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -41,13 +52,20 @@
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditElements">
+     <property name="focusPolicy">
+      <enum>Qt::TabFocus</enum>
+     </property>
      <property name="text">
       <string/>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="lineEditUnits"/>
+    <widget class="QLineEdit" name="lineEditUnits">
+     <property name="focusPolicy">
+      <enum>Qt::TabFocus</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxAxes">
@@ -56,6 +74,9 @@
        <width>70</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <item>
       <property name="text">
@@ -85,6 +106,9 @@
        <height>0</height>
       </size>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -113,6 +137,9 @@
        <width>30</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string>-</string>

@@ -60,6 +60,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui->setupUi(this);
     // add original x & y variable inputs
     ui->layout_Variable->setAlignment(Qt::AlignTop);
+    ui->layout_groupBox_Variables->setAlignment(Qt::AlignTop);
     nLatestVariableInput = 0;
     addVariableInput();
     addVariableInput();
@@ -69,6 +70,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     vVariableInputs[1]->enableRemoveButton(false);
     // add original inequality input
     ui->layout_Inequality->setAlignment(Qt::AlignTop);
+    ui->layout_groupBox_Inequalities->setAlignment(Qt::AlignTop);
     nLatestInequalityInput = 0;
     addInequalityInput();
     vInequalityInputs.front()->enablePositionButtons(false);
