@@ -58,7 +58,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui(new Ui::BareMinimumPlotter)
 {
     ui->setupUi(this);
-
     // add original x & y variable inputs
     ui->layout_Variable->setAlignment(Qt::AlignTop);
     nLatestVariableInput = 0;
@@ -68,16 +67,14 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     vVariableInputs[1]->setAxisMode(MODE_Y_AXIS);
     vVariableInputs[0]->enableRemoveButton(false);
     vVariableInputs[1]->enableRemoveButton(false);
-
     // add original inequality input
     ui->layout_Inequality->setAlignment(Qt::AlignTop);
     nLatestInequalityInput = 0;
     addInequalityInput();
     vInequalityInputs.front()->enablePositionButtons(false);
-
+    // initialize global variables
     flag_Combination = false;
     nPrevCombination = 0;
-
 }
 
 
