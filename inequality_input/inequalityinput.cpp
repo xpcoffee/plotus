@@ -119,7 +119,7 @@ string InequalityInput::getLeftExpression(){ return mInequality.getExpressionLHS
 
 string InequalityInput::getRightExpression(){ return mInequality.getExpressionRHS(); }
 
-string InequalityInput::getErrors(){ return sErrorMessage; }
+string InequalityInput::getErrors(){ return sErrorMessage + mInequality.getErrors(); }
 
 QVector<double> InequalityInput::getX(){ return qvX; }
 
@@ -209,9 +209,7 @@ void InequalityInput::clearFormatting(){
 
 bool InequalityInput::addVariable(Variable mVariable){
     //	check variable unique
-    if (!mInequality.variableIsValid(mVariable)) // check for uniqueness
-    {
-        sErrorMessage += "Variable is not unique: " + mVariable.getName() + "\n";
+    if (!mInequality.variableIsValid(mVariable))  {
         return false;
     }
     // add variable
@@ -227,17 +225,16 @@ bool InequalityInput::evaluate(){
     catch(INPUT_ERROR_CODES e){ // catch errors that happen during evaluation
         switch(e){
         case INPUT_ERROR_INVALID_EXPRESSION:
-            sErrorMessage += "Invalid expression.\n";
+            sErrorMessage += "Input | Invalid expression.\n";
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
         case INPUT_ERROR_UNINITIALIZED_VARIABLE:
-            sErrorMessage += "Uninitialized variable.\n";
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
         default:
-            sErrorMessage += "Unhandled input error. Please report this as a bug to the following email address:\n" + sBugMail + "\n";
+            sErrorMessage += "Bug | Unhandled input error. Please report this bug to the following email address:\n" + sBugMail + "\n";
             cerr << e << endl;
             return false;
         }

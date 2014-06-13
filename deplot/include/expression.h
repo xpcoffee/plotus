@@ -96,6 +96,10 @@ private:
     string sErrorMessage;
     int nProblemTerm;
     vector<int> vProblemElements_Expression;
+    // - evaluation events
+    bool flag_Nan;
+    bool flag_Pole;
+    bool flag_DivByZero;
 
 	// functions
     // - parsing
@@ -133,17 +137,20 @@ private:
     string getStringArray(vector<string>);
     // - exceptions and error handling
     void handleMathException(MATH_ERROR_CODES);
+    void resetEvaluation();
 
 public:
 	// constructor
 	Expression(string sExpressionString = "")
 	{
-        sErrorMessage = "";
+        setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
+        // initialize
 		vOriginalExpression = parseExpressionArray(sExpressionString);
         resetExpression();
+        resetEvaluation();
+        // validate expression
+        sErrorMessage = "";
         vProblemElements_Expression = checkExpressionArray(vExpression);
-		nCurrentVariable = 0;
-        setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
     }
 
 	// functions
@@ -168,7 +175,6 @@ public:
     bool isValid();
     bool charIsValid(char);
     bool variableNameIsValid(Variable&);
-    // - experimental
 
 };
 

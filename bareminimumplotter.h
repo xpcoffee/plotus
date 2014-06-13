@@ -35,6 +35,8 @@ public:
     void formatGraph(int);
     void formatErrorGraph();
     // 	validation
+    void print(string);
+    void printclr();
     void printError();
     // 	gui
     void addVariableInput();

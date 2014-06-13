@@ -141,8 +141,6 @@ vector<string> Expression::parseExpressionArray (string sExpression){
         } else if (charIsWhitespace(*it)){
             // do nothing, char is still recognized
         } else {
-            cerr << "[ERROR] Expression | parseExpressionArray() | " << "Unknown character in expression: " << *it << endl;
-            cerr << "Ascii value: " << (int)*it << endl;
             // add it to expression, it will be highlighted in checkExpressionArray
             if (!flag_newNum){
                 vTermArray.push_back(sTerm);
@@ -152,6 +150,9 @@ vector<string> Expression::parseExpressionArray (string sExpression){
             vTermArray.push_back(sTerm);
             flag_newNum = true;
             flag_prevOp = false;
+            ostringstream buffer;
+            buffer << "Problem | Input | Illegal character in expression: " << sTerm << " | ASCII Value: " << (int)*it << "\n";
+            sErrorMessage += buffer.str();
         }
 		it++;	
 	}
@@ -165,23 +166,25 @@ vector<string> Expression::parseExpressionArray (string sExpression){
 
 //	Checking and Error Handling
 //	---------------------------
-
+// [BREAK] error message for variables starting with number
 bool Expression::check_DecimalPointOK(string sTerm){
    int nDecimalPoints = 0;
    bool flag_IsVar = false;
    for(string::iterator it = sTerm.begin(); it != sTerm.end(); it++) {
        flag_IsVar = flag_IsVar || charIsAlpha(*it);
        if (*it == '.' || *it == ',') { nDecimalPoints++; }
-       if (nDecimalPoints > 1) { return false; }
+       if (nDecimalPoints > 1) {
+           return false; }
        else if (nDecimalPoints > 0 && flag_IsVar) { return false;} // decimal points not allowed in vars
    }
    return true; // if no problem
 }
 
 bool Expression::check_NumbersOK(string sTerm){
-    if (charIsDigit(sTerm[0])){
+    if (termIsNumeric(sTerm)){
         for (string::iterator it = sTerm.begin(); it != sTerm.end(); it++){
             if (!charIsDigit(*it)){
+                sErrorMessage += "Problem | Input | Variables may not start with a number.\n";
                 return false; // numbers must only be made out of digits
             }
         }
@@ -233,8 +236,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
                             check_DecimalPointOK(sTerm);
 
        if(!flag_checksPassed) {
-           cerr <<"[ERROR] checkExpressionArray() | " << "incorrect input in term: " << nTerm << endl;
-           vErrorTerms.push_back(nTerm);
+           vErrorTerms.push_back(nTerm); // incorrect input in current term
            flag_isValid = false;
        }
        // parentheses checks
@@ -250,7 +252,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
            if (vErrorParenth.size() == 0){
                flag_isValid = false;
                vErrorTerms.push_back(nTerm);
-               cerr <<"[ERROR] checkExpressionArray() | " << " unopened parenthesis, term: " << nTerm << endl;
+               sErrorMessage += "Problem | Input | Unopened parenthesis.\n";
            }
            else {
                vErrorParenth.pop_back();
@@ -261,12 +263,12 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
                    && (nTerm - vParenthRangeStart.back()) == 1){
                flag_isValid = false;
                vErrorTerms.push_back(vParenthRangeStart.back()-1);
-               cerr <<"[ERROR] checkExpressionArray() | " << " function with empty parenth: " << vParenthRangeStart.back()<< endl;
+               sErrorMessage += "Problem | Input | Empty parentheses - function requires a value in parentheses.\n";
            } else if (!vTermsBeforeParenth.empty() && termIsStandardValue(vTermsBeforeParenth.back())
                       && (nTerm - vParenthRangeStart.back()) > 1){ 	// value with non-empty parenth
                flag_isValid = false;
                vErrorTerms.push_back(vParenthRangeStart.back()-1);
-               cerr <<"[ERROR] checkExpressionArray() | " << " value with non-empty parenth: " << vParenthRangeStart.back() << endl;
+               sErrorMessage += "Problem | Input | Non-empty parentheses - value requires parentheses to be empty.\n";
            }
            if(!vTermsBeforeParenth.empty()){
                 vTermsBeforeParenth.pop_back();
@@ -278,7 +280,7 @@ vector<int> Expression::checkExpressionArray(vector<string> & vExpression){
     // unclosed parentheses
     for (vector<int>::iterator it = vErrorParenth.begin(); it != vErrorParenth.end(); it++){
         vErrorTerms.push_back(*it);
-        cerr <<"[ERROR] checkExpressionArray() | " << " unclosed parenthesis, term: " << *it << endl;
+        sErrorMessage += "Problem | Input | Unclosed parenthesis.\n";
         flag_isValid = false;
     }
 
@@ -296,9 +298,9 @@ bool Expression::variableNameIsUnique(Variable& myVar){
 bool Expression::variableNameIsValid(Variable & myVar){
     string sName = myVar.getName();
     if (!Variable::nameIsLegal(sName))
-        cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable name illegal" << endl;
+        sErrorMessage += "Problem | Input | Variable name is illegal." + sName + "\n";
     if (!variableNameIsUnique(myVar))
-        cout << "[DEBUG] Expression | variableNameIsValid () | " << "variable is not unique" << endl;
+        sErrorMessage += "Problem | Input | Variable name is not unique: " + sName + "\n";
     return Variable::nameIsLegal(sName) && variableNameIsUnique(myVar);
 }
 
@@ -786,16 +788,32 @@ void Expression::handleMathException(MATH_ERROR_CODES e){
 
     switch(e){
     case MATH_DIVIDE_BY_ZERO:
+        if (!flag_DivByZero)
+        sErrorMessage += "Warning | Evaluation | Found division(s) by zero.\n";
+        flag_DivByZero = true;
         break;
     case MATH_NAN:
+        if (!flag_Nan)
+        sErrorMessage += "Warning | Evaluation | Found occurrence(s) of NaN (not a number). Caused by invalid mathematical operation.\n";
+        flag_Nan = true;
         break;
     case MATH_POLE:
-        cout << "pole" << endl;
+        if (!flag_Pole)
+        sErrorMessage += "Warning | Evaluation | Found pole(s).\n";
+        flag_Pole = true;
         break;
     default:
-        cerr << "Unhandled MATH_ERROR_CODE exception." << endl;
+        sErrorMessage += "Bug | Evaluation | Unhandled math exception. | Please report this bug to the following email address:\n emerick.bosch+bugmail@gmail.com\n";
         break;
     }
+}
+
+void Expression::resetEvaluation(){
+    nCurrentVariable = 0;
+    vResult.clear();
+    flag_Nan = false;
+    flag_Pole = false;
+    flag_DivByZero = false;
 }
 
 //	"""""""""""""""""""""""""""""""""	
@@ -846,7 +864,7 @@ void Expression::subVariableValues(){
         if (!flag_initialized && Variable::nameIsLegal(sTerm)){
             vProblemElements_Expression.push_back(j);
             flag_isValid = false;
-            sErrorMessage += "Uninitialized variable: " + sTerm + "\n";
+            sErrorMessage += "Problem | Input | Uninitialized variable: " + sTerm + "\n";
             throw INPUT_ERROR_UNINITIALIZED_VARIABLE; // [DOCUMENTATION] unitialized variable
         }
     }
@@ -856,8 +874,7 @@ vector<double> Expression::evaluateAll(){
     if (!flag_isValid)
         throw INPUT_ERROR_INVALID_EXPRESSION; // [DOCUMENTATION] invalid expression
 
-	nCurrentVariable = 0;
-	vResult.clear();
+    resetEvaluation();
 	recEval();
 	return vResult;
 }

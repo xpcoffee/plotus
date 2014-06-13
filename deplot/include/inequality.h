@@ -15,9 +15,9 @@
 	Runs evaluations of the expressions, evaluates true/false between the expressions. 
 */
 
-
 #ifndef INEQUALITY_H 
 #define INEQUALITY_H
+
 
 //	"""""""""""""""""""""""""""""""""	
 //	"			Includes			"
@@ -30,10 +30,13 @@
 #include"variable.h"
 #include"expression.h"
 
-//	"""""""""""""""""""""""""""""""""	
+
+//	"""""""""""""""""""""""""""""""""
 //	"			Namespaces			"
 //	"""""""""""""""""""""""""""""""""	
+
 using namespace std;
+
 
 //	"""""""""""""""""""""""""""""""""	
 //	"		Class Definition: 		"
@@ -42,20 +45,15 @@ using namespace std;
 
 class Inequality
 {
-    //	"""""""""""""""""""""""""""""""""
-    //	"			Private				"
-    //	"""""""""""""""""""""""""""""""""
 private:
 
     // variables
     string sSymbol;
+    string sErrorMessage;
 	vector<Variable> vVariables;
     vector<double> vEvalArray1, vEvalArray2;
     bool flag_initialized;
 	
-    //	"""""""""""""""""""""""""""""""""
-    //	"			Public				"
-    //	"""""""""""""""""""""""""""""""""
 public:
 
     // variables
@@ -70,6 +68,7 @@ public:
             mExpression1.setExpression(sExp1);
             mExpression2.setExpression(sExp2);
             sSymbol = symbol;
+            sErrorMessage = "";
             flag_initialized = true;
         }
 	}
@@ -101,46 +100,26 @@ public:
 	}
 
     // - member variable getters
-    vector<int> getProblemElements_ExpressionLHS(){
-        return mExpression1.getProblemElements_Expression();
-    }
+    vector<int> getProblemElements_ExpressionLHS(){ return mExpression1.getProblemElements_Expression(); }
 
-    vector<int> getProblemElements_ExpressionRHS(){
-        return mExpression2.getProblemElements_Expression();
-    }
+    vector<int> getProblemElements_ExpressionRHS(){ return mExpression2.getProblemElements_Expression(); }
 
-    string getTermLHS(int nTerm){
-        return mExpression1.getTerm(nTerm);
-    }
+    string getTermLHS(int nTerm){ return mExpression1.getTerm(nTerm); }
 
-    string getTermRHS(int nTerm){
-        return mExpression2.getTerm(nTerm);
-    }
+    string getTermRHS(int nTerm){ return mExpression2.getTerm(nTerm); }
 
-    string getExpressionLHS(){
-        return mExpression1.getExpression();
-    }
+    string getExpressionLHS(){ return mExpression1.getExpression(); }
 
-    string getExpressionRHS(){
-        return mExpression2.getExpression();
-    }
+    string getExpressionRHS(){ return mExpression2.getExpression(); }
 
-    int getNumTermsLHS(){
-        return mExpression1.getNumTerms();
-    }
+    int getNumTermsLHS(){ return mExpression1.getNumTerms(); }
 
-    int getNumTermsRHS(){
-        return mExpression2.getNumTerms();
-    }
+    int getNumTermsRHS(){ return mExpression2.getNumTerms(); }
 
     // - getters
-    bool isValidLHS(){
-        return mExpression1.isValid();
-    }
+    bool isValidLHS(){ return mExpression1.isValid(); }
 
-    bool isValidRHS(){
-        return mExpression2.isValid();
-    }
+    bool isValidRHS(){ return mExpression2.isValid(); }
 
     vector<int> getProblemElements_ResultsCombined(){
         vector <int> vCombinedProblemSpace;
@@ -205,17 +184,19 @@ public:
                 vResult.push_back(vEvalArray1[i] >= vEvalArray2[i]);
             } else {
                 cerr << "Unknown symbol" << endl;
-                assert (true);
+                assert (false && "Unknown inequality operator");
             }
 		}
         return vResult;
 	}
 
     // - validation
-    bool variableIsValid (Variable & myVar){
-        if (!mExpression1.variableNameIsValid(myVar))
-            cerr << "[ERROR] Inequality | variableIsValid() |" << "Invalid variable name: " << myVar.getName() << endl;
-        return mExpression1.variableNameIsValid(myVar);
+    bool variableIsValid (Variable & myVar){ return mExpression1.variableNameIsValid(myVar); }
+
+    string getErrors(){
+        sErrorMessage += mExpression1.getErrors();
+        sErrorMessage += mExpression2.getErrors();
+        return sErrorMessage;
     }
 
 }; // Inequality

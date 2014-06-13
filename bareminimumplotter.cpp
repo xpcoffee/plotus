@@ -112,7 +112,7 @@ void BareMinimumPlotter::plot()
         }
     }
     if (tmpCheck != 2){
-        sErrorMessage =+ "Problem getting variables for horizontal and vertical axes.\n";
+        sErrorMessage =+ "Internal Check | Problem getting variables for horizontal and vertical axes. Please report this to:\n emerick.bosch+bugmail@gmail.com\n";
         printError();
         return;
     }
@@ -120,6 +120,7 @@ void BareMinimumPlotter::plot()
     //	evaluate and plot each inequality
     nGraphIndex = 0;
     nPrevCombination = 0;
+    flag_Problem = false; // flag only causes return after all checks completed
     ui->plotter->clearGraphs();
 
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
@@ -128,20 +129,22 @@ void BareMinimumPlotter::plot()
             continue;
 
         // 	create inequality
-        if(!vInequalityInputs[i]->createInequality())
-           return;
+        if(!vInequalityInputs[i]->createInequality()){
+            printError();
+            return;
+        }
 
         // 	create and add variables
-        flag_Problem = false; // flag only causes return after all checks completed
         for (int j = 0; j < static_cast<int>(vVariableInputs.size()); j++){
             if (!vVariableInputs[j]->checkInput()) {	// check legal
-
                 flag_Problem = true;
                 continue; // next check not needed
             }
             Variable tmpVariable = vVariableInputs[j]->getVariable();
-            if(!vInequalityInputs[i]->addVariable(tmpVariable))
+            if(!vInequalityInputs[i]->addVariable(tmpVariable)){
+                vVariableInputs[j]-> highlightName();
                 flag_Problem = true;
+            }
         }
         if (flag_Problem){
             printError();
@@ -192,6 +195,9 @@ void BareMinimumPlotter::plot()
         ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
         ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
         ui->plotter->replot();
+
+        printError();
+        print("Info | Plotting | Done.\n");
     }
 }
 
@@ -347,6 +353,15 @@ void BareMinimumPlotter::formatErrorGraph(){
 
 //	Validation
 //	----------
+void BareMinimumPlotter::print(string sMessage){
+    sErrorMessage += sMessage;
+    ui->textEditError->setText(QString::fromStdString(sErrorMessage));
+}
+
+void BareMinimumPlotter::printclr(){
+    sErrorMessage = "";
+    ui->textEditError->setText(QString::fromStdString(sErrorMessage));
+}
 
 void BareMinimumPlotter::printError(){
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
