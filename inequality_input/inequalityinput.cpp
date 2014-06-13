@@ -50,6 +50,8 @@ InequalityInput::InequalityInput(QWidget *parent) :
 {
     ui->setupUi(this);
     flag_skip = false;
+    sErrorMessage = "";
+    sBugMail = "emerick.bosch+bugmail@gmail.com";
 }
 
 InequalityInput::~InequalityInput()
@@ -74,6 +76,7 @@ void InequalityInput::setXYVariables(Variable mX, Variable mY){
 }
 
 bool InequalityInput::createInequality(){
+    sErrorMessage = "";
     // input expressions
     mInequality = Inequality(ui->lineEditLeft->text().toStdString(),
                              ui->comboBoxInequality->currentText().toStdString(),
@@ -116,6 +119,8 @@ string InequalityInput::getLeftExpression(){ return mInequality.getExpressionLHS
 
 string InequalityInput::getRightExpression(){ return mInequality.getExpressionRHS(); }
 
+string InequalityInput::getErrors(){ return sErrorMessage; }
+
 QVector<double> InequalityInput::getX(){ return qvX; }
 
 QVector<double> InequalityInput::getY(){ return qvY; }
@@ -156,8 +161,6 @@ bool InequalityInput::highlightInvalidExpressionTerms(){
             formats.append(fr);
         }
         setLineEditTextFormat(ui->lineEditLeft, formats);
-
-        cerr << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "LHS inequality is invalid" << endl;
     }
 
     // check RHS
@@ -187,8 +190,6 @@ bool InequalityInput::highlightInvalidExpressionTerms(){
         }
 
         setLineEditTextFormat(ui->lineEditRight, formats);
-
-        cerr << "[ERROR] BareMinimumPlotter | highlightInvalidExpressionTerms | " << "RHS inequality is invalid" << endl;
     }
     return flag_highlight;
 }
@@ -209,7 +210,10 @@ void InequalityInput::clearFormatting(){
 bool InequalityInput::addVariable(Variable mVariable){
     //	check variable unique
     if (!mInequality.variableIsValid(mVariable)) // check for uniqueness
+    {
+        sErrorMessage += "Variable is not unique: " + mVariable.getName() + "\n";
         return false;
+    }
     // add variable
     mInequality.addVariable(mVariable);
     return true;
@@ -223,17 +227,17 @@ bool InequalityInput::evaluate(){
     catch(INPUT_ERROR_CODES e){ // catch errors that happen during evaluation
         switch(e){
         case INPUT_ERROR_INVALID_EXPRESSION:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Invalid expression." << endl;
+            sErrorMessage += "Invalid expression.\n";
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
         case INPUT_ERROR_UNINITIALIZED_VARIABLE:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Uninitialized variable." << endl;
+            sErrorMessage += "Uninitialized variable.\n";
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
         default:
-            cerr << "[ERROR] BareMinimumPlotter | plot | do maths | "<< "Unhandled INPUT_ERROR_CODE exception caught: ";
+            sErrorMessage += "Unhandled input error. Please report this as a bug to the following email address:\n" + sBugMail + "\n";
             cerr << e << endl;
             return false;
         }

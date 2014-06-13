@@ -81,17 +81,21 @@ class Expression
 {
 private:
 	// member variables
+    // - meta
     int nTerms;
     int nVariables;
     int nCurrentVariable;
-    int nProblemTerm;
-	vector<string> vExpression;
-	vector<string> vOriginalExpression;
+    // - data
+    vector<string> vOriginalExpression;
+    vector<string> vExpression;
     vector<Variable> vVariables;
     vector<double> vResult;
     vector<int> vProblemElements_Result;
-    vector<int> vProblemElements_Expression;
+    // - error handling
     bool flag_isValid;
+    string sErrorMessage;
+    int nProblemTerm;
+    vector<int> vProblemElements_Expression;
 
 	// functions
     // - parsing
@@ -134,6 +138,7 @@ public:
 	// constructor
 	Expression(string sExpressionString = "")
 	{
+        sErrorMessage = "";
 		vOriginalExpression = parseExpressionArray(sExpressionString);
         resetExpression();
         vProblemElements_Expression = checkExpressionArray(vExpression);
@@ -155,6 +160,7 @@ public:
     // - getters
 	string getExpression();
     string getTerm(int);
+    string getErrors();
     int getNumTerms();
     vector<int> getProblemElements_Expression();
     vector<int> getProblemElements_Result();

@@ -92,14 +92,6 @@ BareMinimumPlotter::~BareMinimumPlotter()
 //	Core
 //	----
 
-void BareMinimumPlotter::clearFormatting(){
-    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
-       vInequalityInputs[i]->clearFormatting();
-    }
-    for (vector<VariableInput*>::iterator it = vVariableInputs.begin(); it != vVariableInputs.end(); it++){
-        (*it)->clearFormatting();
-    }
-}
 
 void BareMinimumPlotter::plot()
 {
@@ -120,7 +112,8 @@ void BareMinimumPlotter::plot()
         }
     }
     if (tmpCheck != 2){
-        cerr << "problem getting x and y plotting vector variables" << endl;
+        sErrorMessage =+ "Problem getting variables for horizontal and vertical axes.\n";
+        printError();
         return;
     }
 
@@ -139,18 +132,28 @@ void BareMinimumPlotter::plot()
            return;
 
         // 	create and add variables
+        flag_Problem = false; // flag only causes return after all checks completed
         for (int j = 0; j < static_cast<int>(vVariableInputs.size()); j++){
-            if (!vVariableInputs[j]->checkInput()) // check legal
-                return;
+            if (!vVariableInputs[j]->checkInput()) {	// check legal
+
+                flag_Problem = true;
+                continue; // next check not needed
+            }
             Variable tmpVariable = vVariableInputs[j]->getVariable();
             if(!vInequalityInputs[i]->addVariable(tmpVariable))
-                return;
+                flag_Problem = true;
+        }
+        if (flag_Problem){
+            printError();
+            return;
         }
 
         //do math
         vInequalityInputs[i]->setXYVariables(mVariableX, mVariableY);
-        if(!vInequalityInputs[i]->evaluate())
+        if(!vInequalityInputs[i]->evaluate()){
+            printError();
             return;
+        }
 
         // get plotting vectors
         switch(nPrevCombination){
@@ -345,6 +348,13 @@ void BareMinimumPlotter::formatErrorGraph(){
 //	Validation
 //	----------
 
+void BareMinimumPlotter::printError(){
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+        sErrorMessage += vInequalityInputs[i]->getErrors();
+    }
+    ui->textEditError->setText(QString::fromStdString(sErrorMessage));
+}
+
 //	GUI
 //	---
 
@@ -401,6 +411,16 @@ void BareMinimumPlotter::setCombinationInputs(){
     // enable combinations of second last item
     if (ui->layout_Inequality->count() > 1)
         qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize-1)->widget())->enableCombinations(true);
+}
+
+void BareMinimumPlotter::clearFormatting(){
+    sErrorMessage = "";
+    for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
+       vInequalityInputs[i]->clearFormatting();
+    }
+    for (vector<VariableInput*>::iterator it = vVariableInputs.begin(); it != vVariableInputs.end(); it++){
+        (*it)->clearFormatting();
+    }
 }
 
 

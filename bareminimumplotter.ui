@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1052</width>
+    <width>1252</width>
     <height>445</height>
    </rect>
   </property>
@@ -16,12 +16,18 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QSplitter" name="splitter_2">
+     <widget class="QSplitter" name="splitter_Main">
+      <property name="cursor">
+       <cursorShape>ArrowCursor</cursorShape>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="verticalLayoutWidget">
-       <layout class="QVBoxLayout" name="layout_Plot" stretch="1,1">
+       <layout class="QVBoxLayout" name="layout_Plot" stretch="0,0">
         <property name="topMargin">
          <number>0</number>
         </property>
@@ -45,6 +51,9 @@
             <height>450</height>
            </size>
           </property>
+          <property name="cursor">
+           <cursorShape>ArrowCursor</cursorShape>
+          </property>
          </widget>
         </item>
         <item>
@@ -62,7 +71,13 @@
         </item>
        </layout>
       </widget>
-      <widget class="QSplitter" name="splitter">
+      <widget class="QSplitter" name="splitter_Inputs">
+       <property name="cursor">
+        <cursorShape>ArrowCursor</cursorShape>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -191,7 +206,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>600</width>
+              <width>800</width>
               <height>60</height>
              </rect>
             </property>
@@ -207,7 +222,13 @@
        </widget>
        <widget class="QGroupBox" name="groupBox_Variables">
         <property name="title">
-         <string>Variables</string>
+         <string> Variables</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
         </property>
         <layout class="QVBoxLayout" name="layout_groupBox_Variables">
          <item>

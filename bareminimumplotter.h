@@ -35,12 +35,13 @@ public:
     void formatGraph(int);
     void formatErrorGraph();
     // 	validation
-    void clearFormatting();
+    void printError();
     // 	gui
     void addVariableInput();
     void addInequalityInput();
     void reOrderInequalityInputs();
     void setCombinationInputs();
+    void clearFormatting();
 
 public slots:
     void checkAxisMode(int);
@@ -68,6 +69,9 @@ private:
     //	gui management
     int nLatestVariableInput;
     int nLatestInequalityInput;
+    //	error handling
+    bool flag_Problem;
+    string sErrorMessage;
 
 };
 

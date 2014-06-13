@@ -71,13 +71,9 @@ void Expression::addVariable(Variable myVar){
 	vVariables.push_back(myVar);
 }
 
-void Expression::clearVariables(){
-	vVariables.clear();
-}
+void Expression::clearVariables(){ vVariables.clear(); }
 
-void Expression::resetExpression(){
-	vExpression = vOriginalExpression;
-}
+void Expression::resetExpression(){ vExpression = vOriginalExpression; }
 
 //	Parsing
 //	-------
@@ -147,7 +143,6 @@ vector<string> Expression::parseExpressionArray (string sExpression){
         } else {
             cerr << "[ERROR] Expression | parseExpressionArray() | " << "Unknown character in expression: " << *it << endl;
             cerr << "Ascii value: " << (int)*it << endl;
-//            throw 302;	// [DOCUMENTATION] Illegal character in expression
             // add it to expression, it will be highlighted in checkExpressionArray
             if (!flag_newNum){
                 vTermArray.push_back(sTerm);
@@ -311,21 +306,13 @@ bool Expression::charIsValid(char c){
     return charIsAlpha(c) || charIsDigit(c) || charIsOperator(c) || charIsParenthesis(c) || charIsWhitespace(c);
 }
 
-bool Expression::termIsNumeric(string sTerm){
-        return charIsDigit(sTerm[0]); // reason why variable names may not start with digit
-}
+bool Expression::termIsNumeric(string sTerm){ return charIsDigit(sTerm[0]); } // reason why variable names may not start with digit
 
-bool Expression::termIsAlpha(string sTerm){
-        return charIsAlpha(sTerm[0]);
-}
+bool Expression::termIsAlpha(string sTerm){ return charIsAlpha(sTerm[0]); }
 
-bool Expression::termIsStandardValue(string sTerm){
-    return Variable::isStandardValue(sTerm);
-}
+bool Expression::termIsStandardValue(string sTerm){ return Variable::isStandardValue(sTerm); }
 
-bool Expression::termIsFunction(string sTerm){
-     return Variable::isFunction(sTerm);
-}
+bool Expression::termIsFunction(string sTerm){ return Variable::isFunction(sTerm); }
 
 //	Evaluation
 //	-----------
@@ -818,33 +805,23 @@ void Expression::handleMathException(MATH_ERROR_CODES e){
 //	Getters
 //	-------
 
-string Expression::getExpression(){
-    return getStringArray(vExpression);
-}
+string Expression::getExpression(){ return getStringArray(vExpression); }
 
-string Expression::getTerm(int nTerm){
-    // [DOCUMENTATION] getTerm() | 0th terms are a thing in DePlot
+string Expression::getTerm(int nTerm){ // [DOCUMENTATION] getTerm() | 0th terms are a thing in DePlot
     if(nTerm < 0 || nTerm >= static_cast<int>(vExpression.size()))
         throw 303; // [DOCUMENTATION] term out of bounds
-
     return vExpression[nTerm];
 }
 
-int Expression::getNumTerms(){
-    return static_cast<int> (vExpression.size());
-}
+string Expression::getErrors(){ return sErrorMessage; }
 
-bool Expression::isValid(){
-    return flag_isValid;
-}
+int Expression::getNumTerms(){ return static_cast<int> (vExpression.size()); }
 
-vector<int> Expression::getProblemElements_Expression(){
-    return vProblemElements_Expression;
-}
+bool Expression::isValid(){ return flag_isValid; }
 
-vector<int> Expression::getProblemElements_Result(){
-    return vProblemElements_Result;
-}
+vector<int> Expression::getProblemElements_Expression(){ return vProblemElements_Expression; }
+
+vector<int> Expression::getProblemElements_Result(){ return vProblemElements_Result; }
 
 //	Evaluation
 //	-----------
@@ -867,9 +844,9 @@ void Expression::subVariableValues(){
             }
 		}
         if (!flag_initialized && Variable::nameIsLegal(sTerm)){
-            cout << "j: " << j << endl;
             vProblemElements_Expression.push_back(j);
             flag_isValid = false;
+            sErrorMessage += "Uninitialized variable: " + sTerm + "\n";
             throw INPUT_ERROR_UNINITIALIZED_VARIABLE; // [DOCUMENTATION] unitialized variable
         }
     }

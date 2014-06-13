@@ -46,6 +46,7 @@ public:
     bool getSkip();
     string getLeftExpression();
     string getRightExpression();
+    string getErrors();
     QVector<double> getX();
     QVector<double> getY();
     QVector<double> getXProblem();
@@ -75,14 +76,20 @@ private slots:
 
 private:
     Ui::InequalityInput *ui;
+    // data
     Inequality mInequality;
     Variable mVariableX, mVariableY;
+    // meta
     int nInequalityInputNumber;
     int nIndex;
     bool flag_skip;
+    // result vectors
     vector<bool> vPlotSpace;
     vector<int> vProblemSpace;
     QVector<double> qvX, qvY, qvX_problem, qvY_problem;
+    // error handling
+    string sErrorMessage;
+    string sBugMail;
 };
 
 #endif // INEQUALITYINPUT_H

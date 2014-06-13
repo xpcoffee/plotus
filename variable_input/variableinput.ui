@@ -29,21 +29,21 @@
    <item>
     <widget class="QLineEdit" name="lineEditName">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::WheelFocus</enum>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditMin">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::WheelFocus</enum>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditMax">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::WheelFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -53,7 +53,7 @@
    <item>
     <widget class="QLineEdit" name="lineEditElements">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::WheelFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -63,7 +63,7 @@
    <item>
     <widget class="QLineEdit" name="lineEditUnits">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::WheelFocus</enum>
      </property>
     </widget>
    </item>
