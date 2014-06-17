@@ -64,6 +64,7 @@
         MATH_DIVIDE_BY_ZERO = 200,
         MATH_NAN = 201,
         MATH_POLE = 202,
+        MATH_COMPLEX = 203,
     };
 
 
@@ -100,6 +101,7 @@ private:
     bool flag_Nan;
     bool flag_Pole;
     bool flag_DivByZero;
+    bool flag_Complex;
 
 	// functions
     // - parsing

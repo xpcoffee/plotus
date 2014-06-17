@@ -523,6 +523,8 @@ void BareMinimumPlotter::removeInequalityInput(int nInequalityNumber){
             // enable/disable position buttons
             reOrderInequalityInputs();
             setCombinationInputs();
+            if (vInequalityInputs.size() < 2)
+                vInequalityInputs.front()->enablePositionButtons(false);
             return;
         }
     }

@@ -328,10 +328,19 @@ bool Expression::doPowers(vector<string> & vExpression) {
                 //do the math
                 string termBeforeOperator = vExpression[i-1];
                 string termAfterOperator  = vExpression[i+1];
+                double dBefore = atof(termBeforeOperator.c_str());
+                double dAfter = atof(termAfterOperator.c_str());
+                if ((dBefore < 0) && (fmod(dBefore, 1) != 0) && (fmod(dAfter, 1) != 0))
+                    throw MATH_COMPLEX;
+                if ((dBefore == 0) && (dAfter == 0))
+                    throw MATH_NAN;
+                if ((dBefore == 0) && (dAfter < 0))
+                    throw MATH_POLE;
                 double result =  pow(atof(termBeforeOperator.c_str()), atof(termAfterOperator.c_str()));
                 // update expression - operator and second value filled with special character
                 ostringstream buffer;
                 buffer << result;
+                cout << "Result: " << buffer.str() << endl;
                 vExpression[i-1] = buffer.str();
                 vExpression[i]   = COMPRESSION_CHAR;
                 vExpression[i+1] = COMPRESSION_CHAR;
@@ -444,6 +453,7 @@ bool Expression::doSubtraction (vector<string>& vExpression) {
             double result;
             if (i == 0){
                 // multiply the term after the minus by -1
+                cout << "Term: " << sTerm << endl;
                 string termAfterOperator  = vExpression[i+1];
                 result = -1*atof(termAfterOperator.c_str());
                 // update expression - operator and second value filled with special character
@@ -789,18 +799,23 @@ void Expression::handleMathException(MATH_ERROR_CODES e){
     switch(e){
     case MATH_DIVIDE_BY_ZERO:
         if (!flag_DivByZero)
-        sErrorMessage += "Warning | Evaluation | Found division(s) by zero.\n";
+            sErrorMessage += "Warning | Evaluation | Found division(s) by zero.\n";
         flag_DivByZero = true;
         break;
     case MATH_NAN:
         if (!flag_Nan)
-        sErrorMessage += "Warning | Evaluation | Found occurrence(s) of NaN (not a number). Caused by invalid mathematical operation.\n";
+            sErrorMessage += "Warning | Evaluation | Found occurrence(s) of NaN (not a number). Caused by invalid mathematical operation.\n";
         flag_Nan = true;
         break;
     case MATH_POLE:
         if (!flag_Pole)
-        sErrorMessage += "Warning | Evaluation | Found pole(s).\n";
+            sErrorMessage += "Warning | Evaluation | Found pole(s).\n";
         flag_Pole = true;
+        break;
+    case MATH_COMPLEX:
+        if (!flag_Complex)
+            sErrorMessage += "Warning | Evaluation | Found complex number result(s).\n";
+        flag_Complex = true;
         break;
     default:
         sErrorMessage += "Bug | Evaluation | Unhandled math exception. | Please report this bug to the following email address:\n emerick.bosch+bugmail@gmail.com\n";
@@ -814,6 +829,7 @@ void Expression::resetEvaluation(){
     flag_Nan = false;
     flag_Pole = false;
     flag_DivByZero = false;
+    flag_Complex = false;
 }
 
 //	"""""""""""""""""""""""""""""""""	
