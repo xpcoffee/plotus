@@ -190,8 +190,13 @@ void BareMinimumPlotter::plot()
         }
 
         // set general options, plot
-        ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + " [" + sUnitsX + "]"));
-        ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + " [" + sUnitsY + "]"));
+        if (!sUnitsX.empty())
+            sUnitsX = " [" + sUnitsX + "]";
+        if (!sUnitsY.empty())
+            sUnitsY = " [" + sUnitsY + "]";
+
+        ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + sUnitsX));
+        ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + sUnitsY));
         ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
         ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
         ui->plotter->replot();

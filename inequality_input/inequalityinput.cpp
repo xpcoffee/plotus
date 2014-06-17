@@ -242,6 +242,7 @@ bool InequalityInput::evaluate(){
 
     vProblemSpace = mInequality.getProblemElements_ResultsCombined();
 
+    // [BREAK] 18 June 2014 | determining nature of wrong plotting
     // create QVectors (for plotting)
     mVariableX.resetPosition();		// reset iterators
     mVariableY.resetPosition();
