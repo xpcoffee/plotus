@@ -149,7 +149,6 @@ bool InequalityInput::highlightInvalidExpressionTerms(){
             f.setForeground(QBrush(Qt::black));
             fr.start = nFormatRangeCounter;
             fr.length = sTerm.length();
-            cout << "length: " << fr.length << endl;
             fr.format = f;
             for (int i = 0; i < static_cast<int>(vInputErrorsLHS.size()); i++){
                 if (nTerm == vInputErrorsLHS[i]){
@@ -266,6 +265,7 @@ bool InequalityInput::evaluate(){
             qvY.push_back(mVariableY.getCurrentValue());
         }
 
+        //	TODO: XBeforeY more elegantly
         if (flag_XBeforeY){ 		// accounts for the fact that evaluation happens in the order in which variables were *added*
             if ((i+1) % mVariableY.getElements() == 0){
                 mVariableX.nextPosition();

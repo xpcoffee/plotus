@@ -15,11 +15,12 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-//#include <qpalette.h>
+
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Enumerated Types		"
 //	"""""""""""""""""""""""""""""""""
+
 enum COLOR {
     BLUE 		= 0,
     GREEN 		= 1,
@@ -39,16 +40,29 @@ enum SHAPE {
     SQUARE 		= 3,
 };
 
+
 //	"""""""""""""""""""""""""""""""""
-//	"		Private Functions		"
+//	"			Namespaces			"
 //	"""""""""""""""""""""""""""""""""
 
 using namespace std;
+
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Public Functions		"
 //	"""""""""""""""""""""""""""""""""
 
+void elideLable(QLabel *label){
+    QString text = label->text();
+    QFontMetrics metrics(label->font());
+    QString elidedText = metrics.elidedText(text, Qt::ElideRight, label->width());
+    label->setText(elidedText);
+}
+
+
+//	"""""""""""""""""""""""""""""""""
+//	"		Public Functions		"
+//	"""""""""""""""""""""""""""""""""
 
 //	Constructor
 //	-----------
@@ -58,6 +72,27 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui(new Ui::BareMinimumPlotter)
 {
     ui->setupUi(this);
+    // format ui elements - things that can't be done in designer
+    QString style_GroupBox = "QGroupBox {\
+                                border-width: 1px;\
+                                border-style: solid;\
+                                border-radius: 10px;\
+                                border-color: lightGray;\
+                                font-weight: bold;\
+                                color: gray;}\
+                             QGroupBox::title {\
+                                 background-color: transparent;}";
+    ui->groupBox_Inequalities->setStyleSheet(style_GroupBox);
+    ui->groupBox_Variables->setStyleSheet(style_GroupBox);
+    // [BREAK] 18 June 2014 | playing with border of textedit
+    QString style_TextEdit = "QTextEdit {\
+                                border-width: 1px;\
+                                border-style: solid;\
+                                border-color: lightGray;\
+                                border-radius: 10px;}";
+    ui->textEditError->setStyleSheet(style_TextEdit);
+    elideLable(ui->label_VariableElements);
+    elideLable(ui->label_VariableChosenPoint);
     // add original x & y variable inputs
     ui->layout_Variable->setAlignment(Qt::AlignTop);
     ui->layout_groupBox_Variables->setAlignment(Qt::AlignTop);
@@ -96,6 +131,8 @@ BareMinimumPlotter::~BareMinimumPlotter()
 void BareMinimumPlotter::plot()
 {
     clearFormatting();
+    int nProgress = 0; // progress bar counter
+
 
     // 	determine plotting variables
     string sUnitsX, sUnitsY;
@@ -128,13 +165,19 @@ void BareMinimumPlotter::plot()
         if (vInequalityInputs[i]->getSkip())
             continue;
 
+        nProgress = floor((0.0+i)/vInequalityInputs.size()*100);
+        ui->progressBar->setFormat("Initializing...");
+
         // 	create inequality
         if(!vInequalityInputs[i]->createInequality()){
             printError();
             return;
         }
 
+
         // 	create and add variables
+        nProgress = floor((0.1+i)/vInequalityInputs.size()*100);
+        ui->progressBar->setFormat("Creating Variables...");
         for (int j = 0; j < static_cast<int>(vVariableInputs.size()); j++){
             if (!vVariableInputs[j]->checkInput()) {	// check legal
                 flag_Problem = true;
@@ -151,12 +194,20 @@ void BareMinimumPlotter::plot()
             return;
         }
 
+        nProgress = floor((0.1+i)/vInequalityInputs.size()*100);
+        ui->progressBar->setValue(nProgress);
+        ui->progressBar->setFormat("Evaluating...");
+
         //do math
         vInequalityInputs[i]->setXYVariables(mVariableX, mVariableY);
         if(!vInequalityInputs[i]->evaluate()){
             printError();
             return;
         }
+
+        nProgress = floor((0.6+i)/vInequalityInputs.size()*100);
+        ui->progressBar->setValue(nProgress);
+        ui->progressBar->setFormat("Combining results...");
 
         // get plotting vectors
         switch(nPrevCombination){
@@ -176,6 +227,10 @@ void BareMinimumPlotter::plot()
         nPrevCombination = vInequalityInputs[i]->getCombination();
         if (nPrevCombination != COMBINE_NONE)
             continue;
+
+        nProgress = floor((0.8+i)/vInequalityInputs.size()*100);
+        ui->progressBar->setValue(nProgress);
+        ui->progressBar->setFormat("Plotting results...");
 
         // add normal graph
         ui->plotter->addGraph();
@@ -202,7 +257,9 @@ void BareMinimumPlotter::plot()
         ui->plotter->replot();
 
         printError();
-        print("Info | Plotting | Done.\n");
+        nProgress = floor((1+i)/vInequalityInputs.size()*100);
+        ui->progressBar->setValue(nProgress);
+        ui->progressBar->setFormat("Done.");
     }
 }
 
@@ -369,10 +426,14 @@ void BareMinimumPlotter::printclr(){
 }
 
 void BareMinimumPlotter::printError(){
+    // show in display
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
         sErrorMessage += vInequalityInputs[i]->getErrors();
     }
     ui->textEditError->setText(QString::fromStdString(sErrorMessage));
+    // show on progress bar
+    ui->progressBar->setValue(100);
+    ui->progressBar->setFormat("Error.");
 }
 
 //	GUI
@@ -441,7 +502,9 @@ void BareMinimumPlotter::clearFormatting(){
     for (vector<VariableInput*>::iterator it = vVariableInputs.begin(); it != vVariableInputs.end(); it++){
         (*it)->clearFormatting();
     }
+    ui->progressBar->setValue(0);
 }
+
 
 
 //	"""""""""""""""""""""""""""""""""

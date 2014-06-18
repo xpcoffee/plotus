@@ -321,7 +321,7 @@ bool Expression::termIsFunction(string sTerm){ return Variable::isFunction(sTerm
 
 bool Expression::doPowers(vector<string> & vExpression) {
     nTerms = vExpression.size();
-    for (int i = 0; i < nTerms; i++){
+    for (int i = nTerms-1; i > 0; i--){ // powers must be done right to left (directional)
         string sTerm = vExpression[i];
         // if operation found and it is the correct operation
         if (charIsOperator(sTerm[0]) && sTerm[0] == '^'){
@@ -452,7 +452,6 @@ bool Expression::doSubtraction (vector<string>& vExpression) {
             double result;
             if (i == 0){
                 // multiply the term after the minus by -1
-                cout << "Term: " << sTerm << endl;
                 string termAfterOperator  = vExpression[i+1];
                 result = -1*atof(termAfterOperator.c_str());
                 // update expression - operator and second value filled with special character
@@ -594,65 +593,126 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     //trig functions
     if (termBeforeParenthesis == "sin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = sin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "cos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = cos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "tan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = tan(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "sinh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = sinh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "cosh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = cosh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "tanh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = tanh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arcsin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = asin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arccos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = acos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arctan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = atan(atof(sEvalTerm.c_str()));
     }
+    else if(termBeforeParenthesis == "arcsinh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = asinh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "arccosh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = acosh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "arctanh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = atanh(atof(sEvalTerm.c_str()));
+    }
+    //	negative
     else if (termBeforeParenthesis == "-sin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -sin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-cos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -cos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-tan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -tan(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-sinh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = -sinh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-cosh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = -cosh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-tanh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = -tanh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arcsin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -asin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arccos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -acos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arctan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;	// [DOCUMENTATION] empty parentheses for somehthing that needs stuff in parentheses
+            throw INPUT_ERROR_PARENTH_EMPTY;
         result = -atan(atof(sEvalTerm.c_str()));
     }
-    // exponential
+    else if(termBeforeParenthesis == "-arcsinh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = -asinh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-arccosh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = -acosh(atof(sEvalTerm.c_str()));
+    }
+    else if(termBeforeParenthesis == "-arctanh"){
+        if (flag_EmptyParenth)
+            throw INPUT_ERROR_PARENTH_EMPTY;
+        result = -atanh(atof(sEvalTerm.c_str()));
+    }
+    //	exponential
     else if(termBeforeParenthesis == "exp"){
         if (flag_EmptyParenth)
             throw INPUT_ERROR_PARENTH_EMPTY;
@@ -885,7 +945,6 @@ void Expression::subVariableValues(){
             }
 		}
         if (!flag_initialized && Variable::nameIsLegal(sTerm)){
-            cout << "j: " << j << endl;
             vProblemElements_Expression.push_back(j);
             flag_isValid = false;
             sErrorMessage += "Problem | Input | Uninitialized variable: " + sTerm + "\n";

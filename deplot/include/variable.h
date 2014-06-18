@@ -156,7 +156,13 @@ public:
 
     static bool isFunction(string sName){
          return (sName == "sin") 		|| (sName == "cos") 	|| (sName == "tan") 	||
+                (sName == "sec") 		|| (sName == "csc") 	|| (sName == "cot") 	||
+                (sName == "sinh")		|| (sName == "cosh")	|| (sName == "tanh")	||
+                (sName == "sech") 		|| (sName == "csch") 	|| (sName == "coth") 	||
                 (sName == "arcsin") 	|| (sName == "arccos") 	|| (sName == "arctan") 	||
+                (sName == "arcsec") 	|| (sName == "arccsc") 	|| (sName == "arccot") 	||
+                (sName == "arcsinh")	|| (sName == "arccosh")	|| (sName == "arctanh") ||
+                (sName == "arcsech") 	|| (sName == "arccsch") || (sName == "arccoth") ||
                 (sName == "exp") 		|| (sName == "ln") 		|| (sName == "log");
     }
 

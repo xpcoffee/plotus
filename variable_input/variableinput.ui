@@ -28,6 +28,12 @@
    </property>
    <item>
     <widget class="QLineEdit" name="lineEditName">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
@@ -35,13 +41,28 @@
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditMin">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditMax">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
@@ -52,6 +73,12 @@
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditElements">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
@@ -62,6 +89,12 @@
    </item>
    <item>
     <widget class="QLineEdit" name="lineEditUnits">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
@@ -132,7 +165,19 @@
    </item>
    <item>
     <widget class="QPushButton" name="pushButtonDelete">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>2</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
+      <size>
+       <width>30</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="baseSize">
       <size>
        <width>30</width>
        <height>0</height>
