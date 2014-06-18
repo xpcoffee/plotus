@@ -92,6 +92,7 @@ private:
     vector<Variable> vVariables;
     vector<double> vResult;
     vector<int> vProblemElements_Result;
+    bool flag_XBeforeY;
     // - error handling
     bool flag_isValid;
     string sErrorMessage;
@@ -170,6 +171,7 @@ public:
 	string getExpression();
     string getTerm(int);
     string getErrors();
+    bool getXBeforeY(Variable, Variable);
     int getNumTerms();
     vector<int> getProblemElements_Expression();
     vector<int> getProblemElements_Result();

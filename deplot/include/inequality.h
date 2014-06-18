@@ -50,7 +50,6 @@ private:
     // variables
     string sSymbol;
     string sErrorMessage;
-	vector<Variable> vVariables;
     vector<double> vEvalArray1, vEvalArray2;
     bool flag_initialized;
 	
@@ -120,6 +119,8 @@ public:
     bool isValidLHS(){ return mExpression1.isValid(); }
 
     bool isValidRHS(){ return mExpression2.isValid(); }
+
+    bool getXBeforeY(Variable mXVar, Variable mYVar) { return mExpression1.getXBeforeY(mXVar, mYVar); }
 
     vector<int> getProblemElements_ResultsCombined(){
         vector <int> vCombinedProblemSpace;

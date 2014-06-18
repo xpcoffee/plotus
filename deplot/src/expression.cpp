@@ -340,7 +340,6 @@ bool Expression::doPowers(vector<string> & vExpression) {
                 // update expression - operator and second value filled with special character
                 ostringstream buffer;
                 buffer << result;
-                cout << "Result: " << buffer.str() << endl;
                 vExpression[i-1] = buffer.str();
                 vExpression[i]   = COMPRESSION_CHAR;
                 vExpression[i+1] = COMPRESSION_CHAR;
@@ -839,15 +838,23 @@ void Expression::resetEvaluation(){
 //	Getters
 //	-------
 
-string Expression::getExpression(){ return getStringArray(vExpression); }
+string Expression::getExpression(){ return getStringArray(vOriginalExpression); }
 
 string Expression::getTerm(int nTerm){ // [DOCUMENTATION] getTerm() | 0th terms are a thing in DePlot
-    if(nTerm < 0 || nTerm >= static_cast<int>(vExpression.size()))
-        throw 303; // [DOCUMENTATION] term out of bounds
-    return vExpression[nTerm];
+    assert(!(nTerm < 0 || nTerm >= static_cast<int>(vExpression.size())) && "getTerm: Out of Bounds");
+    return vOriginalExpression[nTerm];
 }
 
 string Expression::getErrors(){ return sErrorMessage; }
+
+bool Expression::getXBeforeY(Variable mXVar, Variable mYVar){
+    for (int i = 0; i < static_cast<int>(vVariables.size()); i++){
+        if (vVariables[i].getName() == mXVar.getName())	{ return true; }
+        else if (vVariables[i].getName() == mYVar.getName()) { return false; }
+    }
+    assert (false && "getXBeforeY: Neither X nor Y variables were found. Make sure they are added.");
+    return false; 	// will never get here, used just for synta
+}
 
 int Expression::getNumTerms(){ return static_cast<int> (vExpression.size()); }
 
@@ -878,6 +885,7 @@ void Expression::subVariableValues(){
             }
 		}
         if (!flag_initialized && Variable::nameIsLegal(sTerm)){
+            cout << "j: " << j << endl;
             vProblemElements_Expression.push_back(j);
             flag_isValid = false;
             sErrorMessage += "Problem | Input | Uninitialized variable: " + sTerm + "\n";

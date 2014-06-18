@@ -149,6 +149,7 @@ bool InequalityInput::highlightInvalidExpressionTerms(){
             f.setForeground(QBrush(Qt::black));
             fr.start = nFormatRangeCounter;
             fr.length = sTerm.length();
+            cout << "length: " << fr.length << endl;
             fr.format = f;
             for (int i = 0; i < static_cast<int>(vInputErrorsLHS.size()); i++){
                 if (nTerm == vInputErrorsLHS[i]){
@@ -242,7 +243,6 @@ bool InequalityInput::evaluate(){
 
     vProblemSpace = mInequality.getProblemElements_ResultsCombined();
 
-    // [BREAK] 18 June 2014 | determining nature of wrong plotting
     // create QVectors (for plotting)
     mVariableX.resetPosition();		// reset iterators
     mVariableY.resetPosition();
@@ -251,6 +251,8 @@ bool InequalityInput::evaluate(){
     qvY.clear();
     qvX_problem.clear();
     qvY_problem.clear();
+
+    bool flag_XBeforeY = mInequality.getXBeforeY(mVariableX, mVariableY);
 
     vector<int>::iterator it_ProblemSpace = vProblemSpace.begin();
     for(int i = 0; i < static_cast<int>(vPlotSpace.size()); i++){
@@ -264,10 +266,17 @@ bool InequalityInput::evaluate(){
             qvY.push_back(mVariableY.getCurrentValue());
         }
 
-        if ((i+1) % mVariableY.getElements() == 0){
+        if (flag_XBeforeY){ 		// accounts for the fact that evaluation happens in the order in which variables were *added*
+            if ((i+1) % mVariableY.getElements() == 0){
+                mVariableX.nextPosition();
+            }
+            mVariableY.nextPosition();
+        } else {
+            if ((i+1) % mVariableX.getElements() == 0){
+                mVariableY.nextPosition();
+            }
             mVariableX.nextPosition();
         }
-        mVariableY.nextPosition();
     }
     return true;
 }
