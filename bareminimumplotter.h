@@ -51,11 +51,15 @@ public slots:
     void removeInequalityInput(int);
     void moveInequalityInputUp(int);
     void moveInequalityInputDown(int);
+    void on_button_Plot_clicked();
 
 private slots:
-    void on_button_Plot_clicked();
+    void menu_about();
+    void menu_open();
+    void menu_saveAs();
     void on_button_AddVariable_clicked();
     void on_button_AddInequality_clicked();
+
 
 private:
     Ui::BareMinimumPlotter *ui;

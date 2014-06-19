@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 
 //	"""""""""""""""""""""""""""""""""
@@ -353,64 +356,64 @@ void BareMinimumPlotter::vectorCombineSubtraction(int nInequality){
 void BareMinimumPlotter::formatGraph(int i){
         ui->plotter->graph(nGraphIndex)->setData(qvX,qvY);
         ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-        QCPScatterStyle style1;
+        QCPScatterStyle style;
         //	- set marker
         switch(vInequalityInputs[i]->getShapeIndex()){
         case CROSS:
-            style1.setShape(QCPScatterStyle::ssCross);
+            style.setShape(QCPScatterStyle::ssCross);
             break;
         case CIRCLE:
-            style1.setShape(QCPScatterStyle::ssCircle);
+            style.setShape(QCPScatterStyle::ssCircle);
             break;
         case TRIANGLE:
-            style1.setShape(QCPScatterStyle::ssTriangle);
+            style.setShape(QCPScatterStyle::ssTriangle);
             break;
         case SQUARE:
-            style1.setShape(QCPScatterStyle::ssSquare);
+            style.setShape(QCPScatterStyle::ssSquare);
             break;
         }
 
         //	- set size
-        style1.setSize(5);
+        style.setSize(5);
         //	- set color
         switch(vInequalityInputs[i]->getColorIndex()){
         case RED:
-            style1.setPen(QPen(Qt::red));
+            style.setPen(QPen(Qt::red));
             break;
         case GREEN:
-            style1.setPen(QPen(Qt::green));
+            style.setPen(QPen(Qt::green));
             break;
         case BLUE:
-            style1.setPen(QPen(Qt::blue));
+            style.setPen(QPen(Qt::blue));
             break;
         case DARK_RED:
-            style1.setPen(QPen(Qt::darkRed));
+            style.setPen(QPen(Qt::darkRed));
             break;
         case DARK_GREEN:
-            style1.setPen(QPen(Qt::darkGreen));
+            style.setPen(QPen(Qt::darkGreen));
             break;
         case DARK_BLUE:
-            style1.setPen(QPen(Qt::darkBlue));
+            style.setPen(QPen(Qt::darkBlue));
             break;
         case GREY:
-            style1.setPen(QPen(Qt::lightGray));
+            style.setPen(QPen(Qt::lightGray));
             break;
         case BLACK:
-            style1.setPen(QPen(Qt::black));
+            style.setPen(QPen(Qt::black));
             break;
         }
 
-        ui->plotter->graph(nGraphIndex)->setScatterStyle(style1);
+        ui->plotter->graph(nGraphIndex)->setScatterStyle(style);
 }
 
 void BareMinimumPlotter::formatErrorGraph(){
             ui->plotter->graph(nGraphIndex)->setData(qvX_problem,qvY_problem);
             ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-            QCPScatterStyle style2;
-            style2.setShape(QCPScatterStyle::ssCross);
-            style2.setSize(5);
-            style2.setPen(QPen(Qt::red));
-            ui->plotter->graph(nGraphIndex)->setScatterStyle(style2);
+            QCPScatterStyle style;
+            style.setShape(QCPScatterStyle::ssCross);
+            style.setSize(5);
+            style.setPen(QPen(Qt::red));
+            ui->plotter->graph(nGraphIndex)->setScatterStyle(style);
 }
 
 //	Validation
@@ -633,6 +636,57 @@ void BareMinimumPlotter::moveInequalityInputDown (int nInequalityNumber){
 //	"""""""""""""""""""""""""""""""""
 //	"		Private Slots	 		"
 //	"""""""""""""""""""""""""""""""""
+
+void BareMinimumPlotter::menu_about(){
+    QString title = "BareMinimumPlotter :: About";
+    QString info = "<h1><b>B</b>are<b>M</b>inimum<b>P</b>lotter</h1><br/> \
+                    Prototype - build 0.3<br/> \
+                    <br/>\
+                    Emerick Bosch<br/>\
+                    June 2014<br/>\
+                    <br/>\
+                    Send questions and feedback to: <a href=\"emerick.bosch+bugmail@gmail.com\">bugmail</a>";
+
+    QMessageBox::about(ui->centralWidget, title, info);
+}
+
+void BareMinimumPlotter::menu_open(){
+    qvX.clear();
+    qvY.clear();
+    string value;
+    ifstream inFile("testsave.csv");
+    if(inFile.is_open()){
+        while( getline(inFile, value) ){ // x value
+            string token;
+            stringstream iss;
+            iss << value;
+            if(getline (iss, token, ','))
+                qvX.push_back(atof(token.c_str()));
+            if(getline (iss, token, ','))
+                qvY.push_back(atof(token.c_str()));
+        }
+    }
+    inFile.close();
+    ui->plotter->addGraph();
+    ui->plotter->graph(nGraphIndex)->setData(qvX, qvY);
+    ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+    QCPScatterStyle style;
+    style.setPen(QPen(Qt::lightGray));
+    style.setShape(QCPScatterStyle::ssCross);
+    ui->plotter->graph(nGraphIndex)->setScatterStyle(style);
+    nGraphIndex++;
+    ui->plotter->replot();
+}
+
+void BareMinimumPlotter::menu_saveAs(){
+    ofstream outFile("testsave.csv");
+    if (outFile.is_open()){
+        for (int i = 0; i < qvX.size(); i++){
+            outFile << qvX[i] << "," << qvY[i] << "\n";
+        }
+        outFile.close();
+    }
+}
 
 void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }
 
