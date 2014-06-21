@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1032</width>
-    <height>442</height>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -164,7 +164,7 @@
              <x>0</x>
              <y>0</y>
              <width>769</width>
-             <height>65</height>
+             <height>76</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -545,7 +545,7 @@
              <x>0</x>
              <y>0</y>
              <width>769</width>
-             <height>62</height>
+             <height>76</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -860,10 +860,27 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionNew</sender>
+   <signal>triggered()</signal>
+   <receiver>BareMinimumPlotter</receiver>
+   <slot>menu_new()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>233</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>menu_about()</slot>
   <slot>menu_open()</slot>
   <slot>menu_saveAs()</slot>
+  <slot>menu_new()</slot>
  </slots>
 </ui>

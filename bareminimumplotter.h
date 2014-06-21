@@ -60,6 +60,7 @@ private slots:
     void menu_about();
     void menu_open();
     void menu_saveAs();
+    void menu_new();
     void on_button_AddVariable_clicked();
     void on_button_AddInequality_clicked();
 

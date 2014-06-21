@@ -520,6 +520,9 @@ void BareMinimumPlotter::clearGUI(){
     vVariableInputs.back()->clearFields();
     vVariableInputs.front()->clearFields();
     ui->plotter->clearGraphs();
+    ui->plotter->replot();
+    ui->plotter->xAxis->setLabel("");
+    ui->plotter->yAxis->setLabel("");
 }
 
 
@@ -739,7 +742,6 @@ void BareMinimumPlotter::menu_open(){
                     unsigned int nVar = 0;
                     if(getline(ss, token, '['))
                         if(getline(inFile, token, ']')){
-                            cout << token << endl;
                             string var_token;
                             stringstream var_ss;
                             var_ss << token;
@@ -765,6 +767,10 @@ void BareMinimumPlotter::menu_saveAs(){
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", QString::fromStdString(sDefaultDirectory), "JSON (*.json)");
     save_JSON(filename);
+}
+
+void BareMinimumPlotter::menu_new(){
+    clearGUI();
 }
 
 void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }

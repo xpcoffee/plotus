@@ -171,13 +171,17 @@ string VariableInput::getUnits(){
 }
 
 string VariableInput::toJSON(){
-        ostringstream buffer;
-        buffer <<  "{\"name\":\"" << mVariable.getName() << "\"," <<
-                "\"min\":" << mVariable.getMin() << "," <<
-                "\"max\":" << mVariable.getMax() << "," <<
-                "\"elements\":" << mVariable.getElements() << "," <<
-                "\"units\":\"" << getUnits() << "\"}";
-        return buffer.str();
+    ostringstream buffer;
+    createVariable();
+    buffer <<  "{\"name\":\"" << mVariable.getName() << "\"," <<
+            "\"min\":" << mVariable.getMin() << "," <<
+            "\"max\":" << mVariable.getMax() << "," <<
+            "\"elements\":" << mVariable.getElements() << "," <<
+            "\"units\":\"" << getUnits() << "\"";
+    if (ui->comboBoxAxes->currentIndex() == MODE_POINT)
+        buffer << ",\"slider point\":" << ui->horizontalSliderPoint->value();
+    buffer << "}";
+    return buffer.str();
 }
 
 Variable VariableInput::getVariable(){
@@ -193,8 +197,8 @@ Variable VariableInput::getVariable(){
 //	Parsers
 //	-------
 
+// TODO: Make this more elegant
 void VariableInput::fromJSON(string sInput){
-    cout << "in" << endl;
     string token;
     stringstream ss;
     ss << sInput;
@@ -214,13 +218,25 @@ void VariableInput::fromJSON(string sInput){
         if (token == "elements")
             if (getline (ss, token, ':'))
                 if (getline (ss, token, ',')){
-                    cout << "token: " << token << endl;
                     ui->lineEditElements->setText(QString::fromStdString(token));
                 }
         if (token == "units")
             if (getline (ss, token, '"'))
                 if (getline (ss, token, '"'))
                     ui->lineEditUnits->setText(QString::fromStdString(token));
+        if (token == "slider point")
+            if (getline (ss, token, ':'))
+                if (getline (ss, token, ',')){
+                    stringstream ss;
+                    int value;
+                    ss << token;
+                    if(!(ss >> value))
+                        value = 0;
+                    sliderCheck();
+                    ui->horizontalSliderPoint->setValue(value);
+                    double dSelectedValue = mVariable.getMin() + value*(mVariable.getMax()-mVariable.getMin())/mVariable.getElements();
+                    ui->labelPoint->setNum(dSelectedValue);
+                }
     }
 }
 
