@@ -102,6 +102,53 @@ void InequalityInput::enableCombinations(bool flag_enable){ ui->comboBoxInteract
 void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE); }
 
 
+
+//	Parsers
+//	-------
+
+void InequalityInput::fromJSON(string sInput){
+    string token;
+    stringstream iss;
+    iss << sInput;
+    while (getline (iss, token, '"')){
+        if (token == "left expression")	{
+            if (getline (iss, token, '"'))
+                if (getline (iss, token, '"'))
+                    ui->lineEditLeft->setText(QString::fromStdString(token));
+        } else if (token == "symbol") {
+            if (getline (iss, token, '"'))
+                if (getline (iss, token, '"')){
+                    int symbol;
+                    if (token == "<")
+                        symbol = 0;
+                    if (token == ">")
+                        symbol = 1;
+                    if (token == "<=")
+                        symbol = 2;
+                    if (token == ">=")
+                        symbol = 3;
+                    ui->comboBoxInequality->setCurrentIndex(symbol);
+                }
+        } else if (token == "right expression") {
+            if (getline (iss, token, '"'))
+                if (getline (iss, token, '"'))
+                    ui->lineEditRight->setText(QString::fromStdString(token));
+
+        } else if (token == "combination") {
+            if (getline (iss, token, '"'))
+                if (getline (iss, token, '"')){
+                    stringstream ss;
+                    int index;
+                    ss << token;
+                    if(!(ss >> index))
+                        index = 0;
+                    ui->comboBoxInteract->setCurrentIndex(index);
+                }
+        }
+    }
+}
+
+
 //	Getters
 //	-------
 
@@ -118,6 +165,15 @@ bool InequalityInput::getSkip(){ return flag_skip; }
 string InequalityInput::getLeftExpression(){ return mInequality.getExpressionLHS(); }
 
 string InequalityInput::getRightExpression(){ return mInequality.getExpressionRHS(); }
+
+string InequalityInput::toJSON() {
+    ostringstream buffer;
+    buffer <<	"{\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
+                "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\"," <<
+                "\"right expression\":" << "\"" << getRightExpression() << "\"," <<
+                "\"combination\":" << "\"" <<getCombination() << "\"}";
+    return buffer.str();
+}
 
 string InequalityInput::getErrors(){ return sErrorMessage + mInequality.getErrors(); }
 
@@ -201,6 +257,15 @@ bool InequalityInput::highlightInvalidExpressionTerms(){
 void InequalityInput::clearFormatting(){
     clearLineEditTextFormat(ui->lineEditLeft);
     clearLineEditTextFormat(ui->lineEditRight);
+}
+
+void InequalityInput::clearFields(){
+    ui->lineEditLeft->clear();
+    ui->lineEditRight->clear();
+    ui->comboBoxInequality->setCurrentIndex(0);
+    ui->comboBoxShape->setCurrentIndex(0);
+    ui->comboBoxColor->setCurrentIndex(0);
+    ui->comboBoxInteract->setCurrentIndex(0);
 }
 
 

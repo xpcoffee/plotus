@@ -87,7 +87,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
                                  background-color: transparent;}";
     ui->groupBox_Inequalities->setStyleSheet(style_GroupBox);
     ui->groupBox_Variables->setStyleSheet(style_GroupBox);
-    // [BREAK] 18 June 2014 | playing with border of textedit
     QString style_TextEdit = "QTextEdit {\
                                 border-width: 1px;\
                                 border-style: solid;\
@@ -115,6 +114,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     // initialize global variables
     flag_Combination = false;
     nPrevCombination = 0;
+    sDefaultDirectory = "~/Documents/code/qt/proto/bare_minimum_plotter/";
 }
 
 
@@ -508,6 +508,63 @@ void BareMinimumPlotter::clearFormatting(){
     ui->progressBar->setValue(0);
 }
 
+void BareMinimumPlotter::clearGUI(){
+    while (vInequalityInputs.size() > 1){
+        removeInequalityInput(0);
+    }
+    while (vVariableInputs.size() > 2){
+        removeVariableInput(0);
+    }
+    clearFormatting();
+    vInequalityInputs.back()->clearFields();
+    vVariableInputs.back()->clearFields();
+    vVariableInputs.front()->clearFields();
+    ui->plotter->clearGraphs();
+}
+
+
+void BareMinimumPlotter::save_JSON(QString filename){
+    if (filename.isEmpty())
+        return;
+    ofstream outFile(filename.toStdString().c_str());
+    if (outFile.is_open()){
+        outFile << "{";	 // open file
+        for (unsigned int i = 0; i < vInequalityInputs.size(); i++){ // for all inequalities
+            // inequality
+            outFile << "\"inequality\":{\n";
+            // expression
+            outFile << "\"expression\":" << vInequalityInputs[i]->toJSON() << ",\n";
+            // variables
+            outFile << "\"variables\":[\n";
+            for(unsigned int j = 0; j < vVariableInputs.size(); j++){
+                outFile << vVariableInputs[j]->toJSON();
+                if (j != vVariableInputs.size() - 1)
+                    outFile << ",";
+                outFile << "\n";
+            }
+            outFile << "],\n";
+            // plot data
+            outFile << "\"plot\":[";
+            QVector<double> X = vInequalityInputs[i]->getX();
+            QVector<double> Y = vInequalityInputs[i]->getY();
+            for (int j = 0; j < X.size(); j++){
+                outFile << "{"
+                           "\"x\":"<< X[j] << ","
+                           "\"y\":" << Y[j] <<
+                           "}";
+                if (j != X.size()-1)
+                    outFile << ",";
+                outFile << "\n";
+            }
+            outFile << "]\n"; 	// plot
+            outFile << "}"; 	// inequality
+            if(i != vInequalityInputs.size()-1)
+                outFile << ",\n";
+        }
+        outFile << "}"; 	// file
+        outFile.close();
+    }
+}
 
 
 //	"""""""""""""""""""""""""""""""""
@@ -650,42 +707,64 @@ void BareMinimumPlotter::menu_about(){
     QMessageBox::about(ui->centralWidget, title, info);
 }
 
+// [BREAK] 21 June 2014 | 'Create Point' messing with opening a point-variable (doesn't retain max and min)
 void BareMinimumPlotter::menu_open(){
-    qvX.clear();
-    qvY.clear();
-    string value;
-    ifstream inFile("testsave.csv");
+    QString filename = QFileDialog::getOpenFileName(this, "Open plot", QString::fromStdString(sDefaultDirectory), "JSON (*.json)");
+    if (filename.isEmpty())
+        return;
+
+    clearGUI();
+    unsigned int nIneq = 0;
+
+    string line;
+    ifstream inFile(filename.toStdString().c_str());
+
     if(inFile.is_open()){
-        while( getline(inFile, value) ){ // x value
+        while( getline(inFile, line) ){ // x value
             string token;
-            stringstream iss;
-            iss << value;
-            if(getline (iss, token, ','))
-                qvX.push_back(atof(token.c_str()));
-            if(getline (iss, token, ','))
-                qvY.push_back(atof(token.c_str()));
+            stringstream ss;
+            ss << line;
+            while ( getline(ss,token, '"') ){
+                if (token == "inequality"){
+                    if ((nIneq + 1) > vInequalityInputs.size())
+                        addInequalityInput();
+                    nIneq++;
+                }
+                if (token == "expression"){
+                    if(getline(ss, token,'{'))
+                        if(getline(ss, token,'}'))
+                            vInequalityInputs.back()->fromJSON(token);
+                }
+                if (token =="variables"){
+                    unsigned int nVar = 0;
+                    if(getline(ss, token, '['))
+                        if(getline(inFile, token, ']')){
+                            cout << token << endl;
+                            string var_token;
+                            stringstream var_ss;
+                            var_ss << token;
+                            while ( getline (var_ss, var_token, '{')){
+                                if ( getline (var_ss, var_token, '}')){
+                                    if ((nVar+1) > vVariableInputs.size()){
+                                        addVariableInput();
+                                    }
+                                    vVariableInputs[nVar]->fromJSON(var_token);
+                                }
+                                nVar++;
+                            }
+                        }
+                }
+            }
         }
     }
-    inFile.close();
-    ui->plotter->addGraph();
-    ui->plotter->graph(nGraphIndex)->setData(qvX, qvY);
-    ui->plotter->graph(nGraphIndex)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-    QCPScatterStyle style;
-    style.setPen(QPen(Qt::lightGray));
-    style.setShape(QCPScatterStyle::ssCross);
-    ui->plotter->graph(nGraphIndex)->setScatterStyle(style);
-    nGraphIndex++;
-    ui->plotter->replot();
+
 }
 
 void BareMinimumPlotter::menu_saveAs(){
-    ofstream outFile("testsave.csv");
-    if (outFile.is_open()){
-        for (int i = 0; i < qvX.size(); i++){
-            outFile << qvX[i] << "," << qvY[i] << "\n";
-        }
-        outFile.close();
-    }
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    QString filename = dialog.getSaveFileName(this, "Save configuration", QString::fromStdString(sDefaultDirectory), "JSON (*.json)");
+    save_JSON(filename);
 }
 
 void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }

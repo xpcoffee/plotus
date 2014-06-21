@@ -13,6 +13,7 @@
 
 #include "variableinput.h"
 #include "ui_variableinput.h"
+#include  <sstream>
 
 
 //	"""""""""""""""""""""""""""""""""
@@ -122,6 +123,7 @@ void VariableInput::clearFields(){
     ui->lineEditMin->clear();
     ui->lineEditMax->clear();
     ui->lineEditElements->clear();
+    ui->comboBoxAxes->setCurrentIndex(0);
 }
 
 
@@ -168,6 +170,16 @@ string VariableInput::getUnits(){
     return ui->lineEditUnits->text().toStdString();
 }
 
+string VariableInput::toJSON(){
+        ostringstream buffer;
+        buffer <<  "{\"name\":\"" << mVariable.getName() << "\"," <<
+                "\"min\":" << mVariable.getMin() << "," <<
+                "\"max\":" << mVariable.getMax() << "," <<
+                "\"elements\":" << mVariable.getElements() << "," <<
+                "\"units\":\"" << getUnits() << "\"}";
+        return buffer.str();
+}
+
 Variable VariableInput::getVariable(){
     if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
         createPoint();
@@ -175,6 +187,41 @@ Variable VariableInput::getVariable(){
         createVariable();
     }
     return mVariable;
+}
+
+
+//	Parsers
+//	-------
+
+void VariableInput::fromJSON(string sInput){
+    cout << "in" << endl;
+    string token;
+    stringstream ss;
+    ss << sInput;
+    while (getline (ss, token, '"')){
+        if (token == "name")
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"'))
+                    ui->lineEditName->setText(QString::fromStdString(token));
+        if (token == "min")
+            if (getline (ss, token, ':'))
+                if (getline (ss, token, ','))
+                    ui->lineEditMin->setText(QString::fromStdString(token));
+        if (token == "max")
+            if (getline (ss, token, ':'))
+                if (getline (ss, token, ','))
+                    ui->lineEditMax->setText(QString::fromStdString(token));
+        if (token == "elements")
+            if (getline (ss, token, ':'))
+                if (getline (ss, token, ',')){
+                    cout << "token: " << token << endl;
+                    ui->lineEditElements->setText(QString::fromStdString(token));
+                }
+        if (token == "units")
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"'))
+                    ui->lineEditUnits->setText(QString::fromStdString(token));
+    }
 }
 
 

@@ -62,7 +62,10 @@ public:
     int getAxisMode();
     int getNumber();
     string getUnits();
+    string toJSON();
     Variable getVariable();
+    //	parsers
+    void fromJSON(string);
     //	gui
     void enableRemoveButton(bool);
 

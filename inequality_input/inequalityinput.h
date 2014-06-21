@@ -4,6 +4,7 @@
 //	Includes
 #include <QWidget>
 #include <QtWidgets>
+#include <sstream>
 #include "../deplot/include/inequality.h"
 #include "../deplot/include/expression.h"
 
@@ -38,12 +39,15 @@ public:
     void enablePositionButtons(bool);
     void enableCombinations(bool);
     void resetCombinations();
+    // 	parsers
+    void fromJSON(string);
     //	getters
     int getNumber();
     int getColorIndex();
     int getShapeIndex();
     int getCombination();
     bool getSkip();
+    string toJSON();
     string getLeftExpression();
     string getRightExpression();
     string getErrors();
@@ -55,6 +59,7 @@ public:
     bool highlightInvalidExpressionTerms();
     // 	formatting
     void clearFormatting();
+    void clearFields();
     //	core
     bool createInequality();
     bool addVariable(Variable);

@@ -44,6 +44,9 @@ public:
     void reOrderInequalityInputs();
     void setCombinationInputs();
     void clearFormatting();
+    void clearGUI();
+    //	parsing and file i/o
+    void save_JSON(QString);
 
 public slots:
     void checkAxisMode(int);
@@ -78,6 +81,8 @@ private:
     //	error handling
     bool flag_Problem;
     string sErrorMessage;
+    // 	application context
+    string sDefaultDirectory;
 
 };
 
