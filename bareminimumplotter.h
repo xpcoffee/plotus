@@ -81,6 +81,7 @@ private:
     int nLatestInequalityInput;
     //	error handling
     bool flag_Problem;
+    bool flag_Empty;
     string sErrorMessage;
     // 	application context
     string sDefaultDirectory;

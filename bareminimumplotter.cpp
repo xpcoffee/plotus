@@ -112,6 +112,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     addInequalityInput();
     vInequalityInputs.front()->enablePositionButtons(false);
     // initialize global variables
+    flag_Empty = true;
     flag_Combination = false;
     nPrevCombination = 0;
     sDefaultDirectory = "~/Documents/code/qt/proto/bare_minimum_plotter/";
@@ -263,6 +264,7 @@ void BareMinimumPlotter::plot()
         nProgress = floor((1+i)/vInequalityInputs.size()*100);
         ui->progressBar->setValue(nProgress);
         ui->progressBar->setFormat("Done.");
+        flag_Empty = false;
     }
 }
 
@@ -437,6 +439,7 @@ void BareMinimumPlotter::printError(){
     // show on progress bar
     ui->progressBar->setValue(100);
     ui->progressBar->setFormat("Error.");
+    flag_Empty = true;
 }
 
 //	GUI
@@ -527,6 +530,7 @@ void BareMinimumPlotter::clearGUI(){
 
 
 void BareMinimumPlotter::save_JSON(QString filename){
+
     if (filename.isEmpty())
         return;
     ofstream outFile(filename.toStdString().c_str());
@@ -763,6 +767,11 @@ void BareMinimumPlotter::menu_open(){
 }
 
 void BareMinimumPlotter::menu_saveAs(){
+    if (flag_Empty){
+        sErrorMessage = "Error | Input | Plot not complete. Cannot save.";
+        printError();
+        return;
+    }
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", QString::fromStdString(sDefaultDirectory), "JSON (*.json)");
