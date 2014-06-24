@@ -34,7 +34,6 @@ public:
 
     //	setters
     void setNumber(int);
-    void setIndex(int);
     void setXYVariables(Variable, Variable);
     void enablePositionButtons(bool);
     void enableCombinations(bool);
@@ -86,7 +85,6 @@ private:
     Variable mVariableX, mVariableY;
     // meta
     int nInequalityInputNumber;
-    int nIndex;
     bool flag_skip;
     // result vectors
     vector<bool> vPlotSpace;

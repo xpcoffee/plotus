@@ -107,9 +107,7 @@ bool VariableInput::checkInput(){
 // 	Formatting
 //	----------
 
-void VariableInput::highlightName(){
-    setQLineEditBackground(ui->lineEditName, COLOR_ERROR_FG, COLOR_ERROR_BG);
-}
+void VariableInput::highlightName(){ setQLineEditBackground(ui->lineEditName, COLOR_ERROR_FG, COLOR_ERROR_BG); }
 
 void VariableInput::clearFormatting(){
     setQLineEditBackground(ui->lineEditName, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
@@ -150,25 +148,17 @@ void VariableInput::setAxisMode(int nMode){
     }
 }
 
-void VariableInput::setNumber(int nNumber){
-    nVariableInputNumber = nNumber;
-}
+void VariableInput::setNumber(int nNumber){ nVariableInputNumber = nNumber; }
 
 
 // 	Getters
 //	-------
 
-int VariableInput::getAxisMode(){
-    return nAxisMode;
-}
+int VariableInput::getAxisMode(){ return nAxisMode; }
 
-int VariableInput::getNumber(){
-    return nVariableInputNumber;
-}
+int VariableInput::getNumber(){ return nVariableInputNumber; }
 
-string VariableInput::getUnits(){
-    return ui->lineEditUnits->text().toStdString();
-}
+string VariableInput::getUnits(){ return ui->lineEditUnits->text().toStdString(); }
 
 string VariableInput::toJSON(){
     ostringstream buffer;
@@ -185,11 +175,8 @@ string VariableInput::toJSON(){
 }
 
 Variable VariableInput::getVariable(){
-    if (ui->comboBoxAxes->currentIndex() == MODE_POINT)	{
-        createPoint();
-    } else {
-        createVariable();
-    }
+    if (ui->comboBoxAxes->currentIndex() == MODE_POINT) { createPoint(); }
+    else { createVariable(); }
     return mVariable;
 }
 
@@ -322,25 +309,14 @@ void VariableInput::on_horizontalSliderPoint_sliderMoved(int position)
     ui->labelPoint->setNum(dSelectedValue);
 }
 
-void VariableInput::on_lineEditElements_editingFinished()
-{
-    clearFormatting();
-    sliderCheck();
-}
 
-void VariableInput::on_lineEditMax_editingFinished()
-{
-    clearFormatting();
-    sliderCheck();
-}
+void VariableInput::on_lineEditElements_textChanged(const QString&) { clearFormatting(); sliderCheck(); }
 
-void VariableInput::on_lineEditMin_editingFinished()
-{
-    clearFormatting();
-    sliderCheck();
-}
+void VariableInput::on_lineEditMax_textChanged(const QString&) { clearFormatting(); sliderCheck(); }
 
-void VariableInput::on_lineEditName_editingFinished()
+void VariableInput::on_lineEditMin_textChanged(const QString&) { clearFormatting(); sliderCheck(); }
+
+void VariableInput::on_lineEditName_textChanged(const QString&)
 {
     // remove whitespace in name lineEdit
     ui->lineEditName->setText(ui->lineEditName->text().replace(QString(" "), QString("")));
@@ -352,7 +328,4 @@ void VariableInput::on_lineEditName_editingFinished()
     }
 }
 
-void VariableInput::on_pushButtonDelete_clicked()
-{
-    emit killThis(nVariableInputNumber);
-}
+void VariableInput::on_pushButtonDelete_clicked() { emit killThis(nVariableInputNumber); }

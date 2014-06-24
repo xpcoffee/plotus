@@ -463,8 +463,7 @@ void BareMinimumPlotter::addVariableInput(){
 
 void BareMinimumPlotter::addInequalityInput(){
     vInequalityInputs.push_back(new InequalityInput());
-    vInequalityInputs.back()->setNumber(nLatestInequalityInput++);
-    vInequalityInputs.back()->setIndex(vInequalityInputs.size());
+    vInequalityInputs.back()->setNumber(vInequalityInputs.size());
     ui->layout_Inequality->addWidget(vInequalityInputs.back());
     // connect slots to signals
     QObject::connect(vInequalityInputs.back(), SIGNAL(killThis(int)),
@@ -485,7 +484,7 @@ void BareMinimumPlotter::reOrderInequalityInputs(){
     vector<InequalityInput*> tmpVec;
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
        tmpVec.push_back(qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget()));
-       qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget())->setIndex(i+1);
+       qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget())->setNumber(i+1);
     }
     vInequalityInputs = tmpVec;
 }
@@ -714,7 +713,6 @@ void BareMinimumPlotter::menu_about(){
     QMessageBox::about(ui->centralWidget, title, info);
 }
 
-// [BREAK] 21 June 2014 | 'Create Point' messing with opening a point-variable (doesn't retain max and min)
 void BareMinimumPlotter::menu_open(){
     QString filename = QFileDialog::getOpenFileName(this, "Open plot", QString::fromStdString(sDefaultDirectory), "JSON (*.json)");
     if (filename.isEmpty())

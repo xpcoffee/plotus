@@ -63,10 +63,8 @@ InequalityInput::~InequalityInput()
 //	Setters
 //	-------
 
-void InequalityInput::setNumber(int nNumber){ nInequalityInputNumber = nNumber; }
-
-void InequalityInput::setIndex(int nNumber){
-        nIndex = nNumber;
+void InequalityInput::setNumber(int nNumber){
+    nInequalityInputNumber = nNumber;
         ui->label_Index->setNum(static_cast<double>(nNumber));
 }
 
