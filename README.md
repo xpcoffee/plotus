@@ -3,6 +3,10 @@ BareMinimumPlotter
 Emerick Bosch || 
 July 2014
 
+NOTE: This is still a work in progress and is not yet ready for distribution of any kind.
+
+----
+
 ##About BareMinimumPlotter
 Solutions to technical problems, such as engineering design problems, are very often non-singular; they can be more accurately represented as a region or 'space' of solutions rather than a single point. 
 
