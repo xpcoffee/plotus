@@ -18,7 +18,8 @@ SOURCES += bareminimumplotter.cpp \
     deplot/src/expression.cpp \
     main.cpp \
     variable_input/variableinput.cpp \
-    inequality_input/inequalityinput.cpp
+    inequality_input/inequalityinput.cpp \
+    inequality_loader/inequalityloader.cpp
 
 HEADERS  += bareminimumplotter.h \
     qcustomplot.h \
@@ -26,8 +27,10 @@ HEADERS  += bareminimumplotter.h \
     deplot/include/inequality.h \
     deplot/include/variable.h \
     variable_input/variableinput.h \
-    inequality_input/inequalityinput.h
+    inequality_input/inequalityinput.h \
+    inequality_loader/inequalityloader.h
 
 FORMS    += bareminimumplotter.ui \
     inequality_input/inequalityinput.ui \
-    variable_input/variableinput.ui
+    variable_input/variableinput.ui \
+    inequality_loader/inequalityloader.ui

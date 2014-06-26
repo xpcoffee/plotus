@@ -39,6 +39,7 @@ public:
     void enableCombinations(bool);
     void resetCombinations();
     // 	parsers
+    string toJSON();
     void fromJSON(string);
     //	getters
     int getNumber();
@@ -46,10 +47,10 @@ public:
     int getShapeIndex();
     int getCombination();
     bool getSkip();
-    string toJSON();
     string getLeftExpression();
     string getRightExpression();
     string getErrors();
+    string getType();
     QVector<double> getX();
     QVector<double> getY();
     QVector<double> getXProblem();
@@ -86,6 +87,7 @@ private:
     // meta
     int nInequalityInputNumber;
     bool flag_skip;
+    string sType;
     // result vectors
     vector<bool> vPlotSpace;
     vector<int> vProblemSpace;

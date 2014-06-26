@@ -10,14 +10,6 @@
 #include "bareminimumplotter.h"
 #include "ui_bareminimumplotter.h"
 #include "deplot/include/inequality.h"
-#include <qvalidator.h>
-#include <qlocale.h>
-#include <stdlib.h>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
 
 //	"""""""""""""""""""""""""""""""""
@@ -534,7 +526,7 @@ void BareMinimumPlotter::save_JSON(QString filename){
         return;
     ofstream outFile(filename.toStdString().c_str());
     if (outFile.is_open()){
-        outFile << "{";	 // open file
+        outFile << "{";	 // beginning of file
         for (unsigned int i = 0; i < vInequalityInputs.size(); i++){ // for all inequalities
             // inequality
             outFile << "\"inequality\":{\n";

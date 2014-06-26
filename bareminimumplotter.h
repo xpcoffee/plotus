@@ -6,6 +6,14 @@
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
+#include <qvalidator.h>
+#include <qlocale.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "deplot/include/variable.h"
 #include "deplot/include/inequality.h"
 #include "deplot/include/expression.h"

@@ -50,6 +50,7 @@ InequalityInput::InequalityInput(QWidget *parent) :
 {
     ui->setupUi(this);
     flag_skip = false;
+    sType = "input";
     sErrorMessage = "";
     sBugMail = "emerick.bosch+bugmail@gmail.com";
 }
@@ -103,6 +104,15 @@ void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex
 
 //	Parsers
 //	-------
+
+string InequalityInput::toJSON() {
+    ostringstream buffer;
+    buffer <<	"{\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
+                "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\"," <<
+                "\"right expression\":" << "\"" << getRightExpression() << "\"," <<
+                "\"combination\":" << "\"" <<getCombination() << "\"}";
+    return buffer.str();
+}
 
 void InequalityInput::fromJSON(string sInput){
     string token;
@@ -164,16 +174,9 @@ string InequalityInput::getLeftExpression(){ return mInequality.getExpressionLHS
 
 string InequalityInput::getRightExpression(){ return mInequality.getExpressionRHS(); }
 
-string InequalityInput::toJSON() {
-    ostringstream buffer;
-    buffer <<	"{\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
-                "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\"," <<
-                "\"right expression\":" << "\"" << getRightExpression() << "\"," <<
-                "\"combination\":" << "\"" <<getCombination() << "\"}";
-    return buffer.str();
-}
-
 string InequalityInput::getErrors(){ return sErrorMessage + mInequality.getErrors(); }
+
+string InequalityInput::getType(){ return sType; }
 
 QVector<double> InequalityInput::getX(){ return qvX; }
 
