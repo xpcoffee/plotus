@@ -10,12 +10,10 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     ui->setupUi(this);
     // initialize variables
     flag_skip = false;
-    sType = "loader";
     nInequalityInputNumber = -1;
     beginPlot();
     //	experimental
-    QString filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)");
-    loadCase(filename.toStdString());
+    setAccessibleDescription("loader");
 }
 
 //	Destructor
@@ -27,8 +25,9 @@ InequalityLoader::~InequalityLoader()
 
 // 	Setters
 void InequalityLoader::setNumber(int nNumber = -1) {
-    if (!(nNumber > -1))
+    if (nNumber > -1)
         nInequalityInputNumber = nNumber;
+    ui->label_Number->setNum(nNumber);
 }
 
 void InequalityLoader::setCase(string sCaseName){
@@ -53,9 +52,8 @@ void InequalityLoader::loadCase(string filename){
         string filename_short;
         stringstream ss_name;
         ss_name << filename;
-        while (getline(ss_name, filename_short, '/')){ cout << filename_short << endl; }
+        while (getline(ss_name, filename_short, '/')){}
         ss_name << filename_short;
-        cout << "a: " << filename_short << endl;
         ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + filename_short +"<i\\><b\\>"));
 
         while ( getline(ss, token, '"')){
@@ -207,8 +205,6 @@ int InequalityLoader::getCombination(){ return ui->comboBoxInteract->currentInde
 
 bool InequalityLoader::getSkip(){ return flag_skip; }
 
-string InequalityLoader::getType(){ return sType; }
-
 QVector<double> InequalityLoader::getCurrentX(){
     return _XResults[nCurrentPlot];
 }
@@ -225,6 +221,19 @@ bool InequalityLoader::nextPlot(){
     nCurrentPlot++;
     return true;
 }
+
+
+//	GUI
+void InequalityLoader::enablePositionButtons (bool flag_enable){
+    ui->pushButtonDown->setEnabled(flag_enable);
+    ui->pushButtonUp->setEnabled(flag_enable);
+    ui->comboBoxInteract->setEnabled(flag_enable);
+    ui->pushButton_Remove->setEnabled(flag_enable);
+}
+
+void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBoxInteract->setEnabled(flag_enable); }
+
+void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(0); }
 
 
 ///	Private Functions

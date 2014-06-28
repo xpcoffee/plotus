@@ -50,9 +50,9 @@ InequalityInput::InequalityInput(QWidget *parent) :
 {
     ui->setupUi(this);
     flag_skip = false;
-    sType = "input";
     sErrorMessage = "";
     sBugMail = "emerick.bosch+bugmail@gmail.com";
+    setAccessibleDescription("input");
 }
 
 InequalityInput::~InequalityInput()
@@ -175,8 +175,6 @@ string InequalityInput::getLeftExpression(){ return mInequality.getExpressionLHS
 string InequalityInput::getRightExpression(){ return mInequality.getExpressionRHS(); }
 
 string InequalityInput::getErrors(){ return sErrorMessage + mInequality.getErrors(); }
-
-string InequalityInput::getType(){ return sType; }
 
 QVector<double> InequalityInput::getX(){ return qvX; }
 

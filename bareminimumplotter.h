@@ -19,6 +19,7 @@
 #include "deplot/include/expression.h"
 #include "variable_input/variableinput.h"
 #include "inequality_input/inequalityinput.h"
+#include "inequality_loader/inequalityloader.h"
 
 using namespace std;
 
@@ -36,11 +37,13 @@ public:
 
     // 	core
     void plot();
+    void plotNew(int, string, string, int);
+    void plotOld(int);
     void vectorCombineNone(int);
-    void vectorCombineUnion(int);
     void vectorCombineIntersection(int);
+    void vectorCombineUnion(int);
     void vectorCombineSubtraction(int);
-    void formatGraph(int);
+    void formatGraph(int, int);
     void formatErrorGraph();
     // 	validation
     void print(string);
@@ -49,6 +52,7 @@ public:
     // 	gui
     void addVariableInput();
     void addInequalityInput();
+    void addInequalityLoader();
     void reOrderInequalityInputs();
     void setCombinationInputs();
     void clearFormatting();
@@ -71,13 +75,14 @@ private slots:
     void menu_new();
     void on_button_AddVariable_clicked();
     void on_button_AddInequality_clicked();
-
+    void on_pushButton_AddInequalityLoader_clicked();
 
 private:
     Ui::BareMinimumPlotter *ui;
     //	plotter elements
     vector<VariableInput*> vVariableInputs;
     vector<InequalityInput*> vInequalityInputs;
+    vector<InequalityLoader*> vInequalityLoaders;
     //	plotting
     int nGraphIndex;
     int nPrevCombination;
@@ -93,6 +98,7 @@ private:
     string sErrorMessage;
     // 	application context
     string sDefaultDirectory;
+    // experimental
 
 };
 

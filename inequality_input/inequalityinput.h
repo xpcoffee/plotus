@@ -50,7 +50,6 @@ public:
     string getLeftExpression();
     string getRightExpression();
     string getErrors();
-    string getType();
     QVector<double> getX();
     QVector<double> getY();
     QVector<double> getXProblem();
@@ -87,7 +86,6 @@ private:
     // meta
     int nInequalityInputNumber;
     bool flag_skip;
-    string sType;
     // result vectors
     vector<bool> vPlotSpace;
     vector<int> vProblemSpace;

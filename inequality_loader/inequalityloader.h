@@ -9,16 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-
-// 	Enumerators
-enum COMBINE
-{
-    COMBINE_NONE 			= 0,
-    COMBINE_INTERSECTION 	= 1,
-    COMBINE_UNION 			= 2,
-    COMBINE_SUBTRACTION 	= 3,
-
-};
+#include "inequality_input/inequalityinput.h"
 
 //	Namespace
 using namespace std;
@@ -45,12 +36,15 @@ public:
     int getShapeIndex();
     int getCombination();
     bool getSkip();
-    string getType();
     QVector<double> getCurrentX();
     QVector<double> getCurrentY();
     // evaluation
     void beginPlot();
     bool nextPlot();
+    // gui
+    void enablePositionButtons(bool);
+    void enableCombinations(bool);
+    void resetCombinations();
 
 signals:
     void moveUp(int nNumber);
@@ -62,9 +56,7 @@ private slots:
     void on_pushButton_Remove_clicked();
     void on_pushButtonUp_clicked();
     void on_pushButtonDown_clicked();
-
     void on_checkBoxSkip_toggled(bool checked);
-
     void on_comboBoxInteract_currentIndexChanged(int index);
 
 private:
