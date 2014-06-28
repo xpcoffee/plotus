@@ -23,12 +23,15 @@
 //	"			Includes			"
 //	"""""""""""""""""""""""""""""""""	
 
+#include<stdlib.h>
 #include<string>
 #include<vector>
-#include<iostream>
-#include<locale.h>
-#include<stdlib.h>
 #include<iomanip>
+#include<iostream>
+#include<sstream>
+#include<cassert>
+#include<locale.h>
+#include<math.h>
 #include"variable.h"
 
 //	"""""""""""""""""""""""""""""""""
@@ -179,6 +182,11 @@ public:
     bool isValid();
     bool charIsValid(char);
     bool variableNameIsValid(Variable&);
+    // - utility
+//    static bool approxEqual(double, double, double);
+    static bool approxEqual(double dNum1, double dNum2, double dPrec){
+        return sqrt((dNum1-dNum2)*(dNum1-dNum2)) <= dPrec;
+    }
 
 };
 

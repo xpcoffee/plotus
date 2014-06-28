@@ -5,14 +5,12 @@
 //	Constructor
 InequalityLoader::InequalityLoader(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::InequalityLoader)
+    ui(new Ui::InequalityLoader),
+    nInequalityInputNumber(-1),
+    flag_skip(false)
 {
     ui->setupUi(this);
-    // initialize variables
-    flag_skip = false;
-    nInequalityInputNumber = -1;
     beginPlot();
-    //	experimental
     setAccessibleDescription("loader");
 }
 
@@ -38,6 +36,7 @@ void InequalityLoader::setCase(string sCaseName){
 void InequalityLoader::loadCase(string filename){
     if (filename.empty())
         return;
+    sFileName = filename;
 
     string token;
     ifstream ss(filename.c_str());
@@ -160,19 +159,20 @@ void InequalityLoader::loadCase(string filename){
                 if (getline(ss, token,'['))
                     if (getline(ss, token,']')){
                        string token_plot;
-                        stringstream iss;
+                       stringstream iss;
                        iss << token;
                        while (getline(iss, token_plot, '"')){
                             if (token_plot == "x")
                                 if (getline (iss, token_plot, ':'))
-                                    if (getline (iss, token_plot, ','))
-                                        qvX.push_back(atof(token.c_str()));
+                                    if (getline (iss, token_plot, ',')){
+                                        qvX.push_back(atof(token_plot.c_str()));
+                                    }
 
                             if (token_plot == "y")
                                 if (getline (iss, token_plot, ':'))
-                                    if (getline (iss, token_plot,'}'))
-                                        qvY.push_back(atof(token.c_str()));
-
+                                    if (getline (iss, token_plot,'}')){
+                                        qvY.push_back(atof(token_plot.c_str()));
+                                    }
                         }
                         if (!qvX.empty()){
                             _XResults.push_back(qvX);
@@ -205,22 +205,33 @@ int InequalityLoader::getCombination(){ return ui->comboBoxInteract->currentInde
 
 bool InequalityLoader::getSkip(){ return flag_skip; }
 
-QVector<double> InequalityLoader::getCurrentX(){
+QVector<double> InequalityLoader::getX(){
     return _XResults[nCurrentPlot];
 }
 
-QVector<double> InequalityLoader::getCurrentY(){
+QVector<double> InequalityLoader::getY(){
    return _YResults[nCurrentPlot];
 }
 
 void InequalityLoader::beginPlot(){ nCurrentPlot = 0; }
 
-bool InequalityLoader::nextPlot(){
+void InequalityLoader::nextPlot(){
     if (isEnd())
-        return false;
+        return;
     nCurrentPlot++;
-    return true;
 }
+
+//	Parsers
+string InequalityLoader::toJSON(){
+    string sJSON;
+    string token;
+    ifstream ss(sFileName.c_str());
+    while (getline(ss, token)){
+        sJSON += token + "\n";
+    }
+    return sJSON;
+}
+
 
 
 //	GUI
@@ -236,13 +247,13 @@ void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBoxIntera
 void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(0); }
 
 
-///	Private Functions
 bool InequalityLoader::isEnd(){
     if (_XResults.empty())
         return true;
     return nCurrentPlot == (_XResults.size()-1);
 }
 
+///	Private Functions
 //	Private Slots
 void InequalityLoader::on_pushButton_Details_clicked()
 {

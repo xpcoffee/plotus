@@ -38,13 +38,6 @@
 //	"			Includes			"
 //	"""""""""""""""""""""""""""""""""	
 
-	#include<string>
-	#include<iostream>
-    #include<stdlib.h>
-	#include<sstream>
-	#include<cassert>
-    #include<vector>
-    #include<math.h>
 	#include"../include/expression.h"
 
 
@@ -961,3 +954,13 @@ vector<double> Expression::evaluateAll(){
 	recEval();
 	return vResult;
 }
+
+
+//	Utility
+//	-------
+
+//static bool Expression::approxEqual(double dNum1, double dNum2, double dPrec){
+//    if ((dNum1 == null) || (dNum2 == null) || (dPrec == null))
+//        return false;
+//    return sqrt((dNum1-dNum2)*(dNum1-dNum2)) <= dPrec;
+//}

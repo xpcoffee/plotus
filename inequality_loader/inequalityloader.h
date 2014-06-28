@@ -36,11 +36,14 @@ public:
     int getShapeIndex();
     int getCombination();
     bool getSkip();
-    QVector<double> getCurrentX();
-    QVector<double> getCurrentY();
+    QVector<double> getX();
+    QVector<double> getY();
+    // parsers
+    string toJSON();
     // evaluation
     void beginPlot();
-    bool nextPlot();
+    void nextPlot();
+    bool isEnd();
     // gui
     void enablePositionButtons(bool);
     void enableCombinations(bool);
@@ -68,12 +71,11 @@ private:
     // meta
     int nInequalityInputNumber;
     bool flag_skip;
-    string sType;
+    string sFileName;
     // evaluation
     unsigned int nCurrentPlot;
 
     // functions
-    bool isEnd();
 
 };
 

@@ -21,6 +21,10 @@
 #include "inequality_input/inequalityinput.h"
 #include "inequality_loader/inequalityloader.h"
 
+#ifndef APPROX_EQUAL_PRECISION
+#define APPROX_EQUAL_PRECISION	1E-5
+#endif
+
 using namespace std;
 
 namespace Ui {
@@ -38,7 +42,7 @@ public:
     // 	core
     void plot();
     void plotNew(int, string, string, int);
-    void plotOld(int);
+    void plotOld(int, string, string, int);
     void vectorCombineNone(int);
     void vectorCombineIntersection(int);
     void vectorCombineUnion(int);

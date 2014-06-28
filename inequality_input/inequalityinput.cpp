@@ -46,12 +46,12 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
 
 InequalityInput::InequalityInput(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::InequalityInput)
+    ui(new Ui::InequalityInput),
+    flag_skip(false),
+    sErrorMessage(""),
+    sBugMail("emerick.bosch+bugmail@gmail.com")
 {
     ui->setupUi(this);
-    flag_skip = false;
-    sErrorMessage = "";
-    sBugMail = "emerick.bosch+bugmail@gmail.com";
     setAccessibleDescription("input");
 }
 
