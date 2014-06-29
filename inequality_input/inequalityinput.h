@@ -35,6 +35,8 @@ public:
     //	setters
     void setNumber(int);
     void setXYVariables(Variable, Variable);
+    void setX(QVector<double>);
+    void setY(QVector<double>);
     void enablePositionButtons(bool);
     void enableCombinations(bool);
     void resetCombinations();

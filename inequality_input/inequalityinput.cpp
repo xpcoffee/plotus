@@ -74,6 +74,10 @@ void InequalityInput::setXYVariables(Variable mX, Variable mY){
     mVariableY = mY;
 }
 
+void InequalityInput::setX(QVector<double> vX){ qvX = vX; }
+
+void InequalityInput::setY(QVector<double> vY){ qvY = vY; }
+
 bool InequalityInput::createInequality(){
     sErrorMessage = "";
     // input expressions

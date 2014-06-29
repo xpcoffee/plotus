@@ -3,18 +3,15 @@
 */
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Private Functions		"
-//	"""""""""""""""""""""""""""""""""
+///	Includes
+/// ========
 
 #include "bareminimumplotter.h"
 #include "ui_bareminimumplotter.h"
-#include "deplot/include/inequality.h"
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Enumerated Types		"
-//	"""""""""""""""""""""""""""""""""
+///	Enumerated Types
+///	=================
 
 enum COLOR {
     BLUE 		= 0,
@@ -36,16 +33,14 @@ enum SHAPE {
 };
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"			Namespaces			"
-//	"""""""""""""""""""""""""""""""""
+///	Namespaces
+/// ===========
 
 using namespace std;
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Public Functions		"
-//	"""""""""""""""""""""""""""""""""
+///	Exprimental Functions
+/// ======================
 
 void elideLable(QLabel *label){
     QString text = label->text();
@@ -55,9 +50,8 @@ void elideLable(QLabel *label){
 }
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Public Functions		"
-//	"""""""""""""""""""""""""""""""""
+///	Public Functions
+/// =================
 
 //	Constructor
 //	-----------
@@ -275,7 +269,7 @@ void BareMinimumPlotter::plotNew(int nIneq, string sUnitsX, string sUnitsY, int 
 
 void BareMinimumPlotter::plotOld(int nIneq, string sUnitsX, string sUnitsY, int nProgress){
     vInequalityLoaders[nIneq]->beginPlot();
-    do{
+    while (!vInequalityLoaders[nIneq]->isEnd()){
         nProgress = floor((0.6+nGraphIndex)/ui->layout_Inequality->count()*100);
         ui->progressBar->setValue(nProgress);
         ui->progressBar->setFormat("Combining results...");
@@ -334,7 +328,7 @@ void BareMinimumPlotter::plotOld(int nIneq, string sUnitsX, string sUnitsY, int 
         flag_Empty = false;
 
         vInequalityLoaders[nIneq]->nextPlot();
-    }while (!vInequalityLoaders[nIneq]->isEnd());
+    }
 }
 
 void BareMinimumPlotter::vectorCombineNone(int nIndex){
@@ -369,7 +363,6 @@ void BareMinimumPlotter::vectorCombineIntersection(int nIndex){
         qvY_problem = mCurrentInequality->getYProblem();
     }
     else if (ui->layout_Inequality->itemAt(nIndex)->widget()->accessibleDescription() == "loader"){
-        cout << "loader intersection" << endl;
         InequalityLoader *mCurrentInequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nIndex)->widget());
         qvXNew = mCurrentInequality->getX();
         qvYNew = mCurrentInequality->getY();
@@ -382,13 +375,28 @@ void BareMinimumPlotter::vectorCombineIntersection(int nIndex){
 
     for (int i = 0; i < static_cast<int>(qvXOld.size()); i++){
        for (int j = 0; j < static_cast<int>(qvXNew.size()); j++) {
-           cout << "loaded: " << qvXNew[i] << "\tnew: " << qvXOld[i] << endl;
            if (Expression::approxEqual(qvXOld[i], qvXNew[j], APPROX_EQUAL_PRECISION) && Expression::approxEqual(qvYOld[i], qvYNew[j], APPROX_EQUAL_PRECISION)) {
                qvX.push_back(qvXOld[i]);
                qvY.push_back(qvYOld[i]);
            }
        }
     }
+
+    if (ui->layout_Inequality->itemAt(nIndex)->widget()->accessibleDescription() == "input"){
+        InequalityInput *mCurrentInequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nIndex)->widget());
+        if (mCurrentInequality->getCombination() == COMBINE_NONE){
+            mCurrentInequality->setX(qvX);
+            mCurrentInequality->setY(qvY);
+        }
+    }
+    else if (ui->layout_Inequality->itemAt(nIndex)->widget()->accessibleDescription() == "loader"){
+        InequalityLoader *mCurrentInequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nIndex)->widget());
+        if (mCurrentInequality->getCombination() == COMBINE_NONE){
+            mCurrentInequality->setX(qvX);
+            mCurrentInequality->setY(qvY);
+        }
+    }
+
 }
 
 // [TODO] prevent user from changing '-' in last inequality.
@@ -679,8 +687,8 @@ void BareMinimumPlotter::clearFormatting(){
 }
 
 void BareMinimumPlotter::clearGUI(){
-    while (vInequalityInputs.size() > 1){
-        removeInequalityInput(0);
+    while (ui->layout_Inequality->count() > 1){
+        removeInequalityInput(1);
     }
     while (vVariableInputs.size() > 2){
         removeVariableInput(0);
@@ -696,6 +704,9 @@ void BareMinimumPlotter::clearGUI(){
 }
 
 
+//	Parsing and File IO
+//	--------------------
+
 void BareMinimumPlotter::save_JSON(QString filename){
 
     if (filename.isEmpty())
@@ -703,7 +714,7 @@ void BareMinimumPlotter::save_JSON(QString filename){
     ofstream outFile(filename.toStdString().c_str());
     if (outFile.is_open()){
         outFile << "{";	 // beginning of file
-        for (unsigned int i = 0; i < ui->layout_Inequality->count(); i++){
+        for (int i = 0; i < ui->layout_Inequality->count(); i++){
             if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "input"){
                 InequalityInput *mCurrentInequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget());
                 // inequality
@@ -720,24 +731,25 @@ void BareMinimumPlotter::save_JSON(QString filename){
                 }
                 outFile << "],\n";
                 // plot data
-                outFile << "\"plot\":[";
-                QVector<double> X = mCurrentInequality->getX();
-                QVector<double> Y = mCurrentInequality->getY();
-                for (int j = 0; j < X.size(); j++){
-                    outFile << "{"
-                               "\"x\":"<< X[j] << ","
-                               "\"y\":" << Y[j] <<
-                               "}";
-                    if (j != X.size()-1)
-                        outFile << ",";
-                    outFile << "\n";
+                if (mCurrentInequality->getCombination() == COMBINE_NONE){ // save only combined results
+                    outFile << "\"plot\":[";
+                    QVector<double> X = mCurrentInequality->getX();
+                    QVector<double> Y = mCurrentInequality->getY();
+                    for (int j = 0; j < X.size(); j++){
+                        outFile << "{"
+                                   "\"x\":"<< X[j] << ","
+                                   "\"y\":" << Y[j] <<
+                                   "}";
+                        if (j != X.size()-1)
+                            outFile << ",";
+                        outFile << "\n";
+                    }
+                    outFile << "]\n"; 	// plot
                 }
-                outFile << "]\n"; 	// plot
                 outFile << "}"; 	// inequality
                 if(i != vInequalityInputs.size()-1)
                     outFile << ",\n";
             }
-            // [BREAK] 28 June 2014 | saving loader data - last few things are missing from the save file.
             if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "loader"){
                 InequalityLoader *mCurrentInequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(i)->widget());
                 outFile << mCurrentInequality->toJSON();
@@ -749,9 +761,8 @@ void BareMinimumPlotter::save_JSON(QString filename){
 }
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Public Slots			"
-//	"""""""""""""""""""""""""""""""""
+///	Public Slots
+/// =============
 
 void BareMinimumPlotter::checkAxisMode(int nVariableInputNumber){
     int nX = 0, nY = 0, nXPos, nYPos;
@@ -824,6 +835,10 @@ void BareMinimumPlotter::removeVariableInput(int nVariableInputNumber){
 void BareMinimumPlotter::removeInequalityInput(int nInequalityNumber){
     if (ui->layout_Inequality->count() < 2) // at least 1 inequality input needed
         return;
+
+    // 	Using for loop to find exact element within the vector to delete
+    //	else, would have used the qobjectcast method
+
     for (int i = 0; i < static_cast<int>(vInequalityInputs.size()); i++){
         if (vInequalityInputs[i]->getNumber() == nInequalityNumber){
             ui->layout_Inequality->removeWidget(vInequalityInputs[i]);
@@ -906,9 +921,8 @@ void BareMinimumPlotter::moveInequalityInputDown (int nInequalityNumber){
 }
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Private Slots	 		"
-//	"""""""""""""""""""""""""""""""""
+///	Private Slots
+/// ==============
 
 void BareMinimumPlotter::menu_about(){
     QString title = "BareMinimumPlotter :: About";

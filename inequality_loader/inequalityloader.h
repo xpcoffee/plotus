@@ -30,6 +30,8 @@ public:
     void setNumber(int);
     void setCase(string);
     void loadCase(string);
+    void setX(QVector<double>);
+    void setY(QVector<double>);
     // getters
     int getNumber();
     int getColorIndex();
@@ -38,6 +40,7 @@ public:
     bool getSkip();
     QVector<double> getX();
     QVector<double> getY();
+    string getFile();
     // parsers
     string toJSON();
     // evaluation

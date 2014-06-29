@@ -2,7 +2,11 @@
 #include "ui_inequalityloader.h"
 
 ///	Public Functions
+///	=================
+
 //	Constructor
+//	-----------
+
 InequalityLoader::InequalityLoader(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InequalityLoader),
@@ -14,7 +18,10 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     setAccessibleDescription("loader");
 }
 
+
 //	Destructor
+//	-----------
+
 InequalityLoader::~InequalityLoader()
 {
     delete ui;
@@ -22,6 +29,8 @@ InequalityLoader::~InequalityLoader()
 
 
 // 	Setters
+//	-------
+
 void InequalityLoader::setNumber(int nNumber = -1) {
     if (nNumber > -1)
         nInequalityInputNumber = nNumber;
@@ -193,8 +202,14 @@ void InequalityLoader::loadCase(string filename){
 
 }
 
+void InequalityLoader::setX(QVector<double> qvX){ _XResults[nCurrentPlot] = qvX; }
+
+void InequalityLoader::setY(QVector<double> qvY){ _YResults[nCurrentPlot] = qvY; }
+
 
 //	Getters
+//	--------
+
 int InequalityLoader::getNumber(){ return nInequalityInputNumber; }
 
 int InequalityLoader::getColorIndex(){ return ui->comboBoxColor->currentIndex(); }
@@ -213,15 +228,12 @@ QVector<double> InequalityLoader::getY(){
    return _YResults[nCurrentPlot];
 }
 
-void InequalityLoader::beginPlot(){ nCurrentPlot = 0; }
+string InequalityLoader::getFile(){ return sFileName; }
 
-void InequalityLoader::nextPlot(){
-    if (isEnd())
-        return;
-    nCurrentPlot++;
-}
 
 //	Parsers
+//	--------
+
 string InequalityLoader::toJSON(){
     string sJSON;
     string token;
@@ -233,8 +245,26 @@ string InequalityLoader::toJSON(){
 }
 
 
+//	Evaluation
+//	-----------
+
+void InequalityLoader::beginPlot(){ nCurrentPlot = 0; }
+
+void InequalityLoader::nextPlot(){
+    if (isEnd())
+        return;
+    nCurrentPlot++;
+}
+
+bool InequalityLoader::isEnd(){
+    if (_XResults.empty())
+        return true;
+    return nCurrentPlot == (_XResults.size());
+}
 
 //	GUI
+//	----
+
 void InequalityLoader::enablePositionButtons (bool flag_enable){
     ui->pushButtonDown->setEnabled(flag_enable);
     ui->pushButtonUp->setEnabled(flag_enable);
@@ -247,14 +277,12 @@ void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBoxIntera
 void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(0); }
 
 
-bool InequalityLoader::isEnd(){
-    if (_XResults.empty())
-        return true;
-    return nCurrentPlot == (_XResults.size()-1);
-}
-
 ///	Private Functions
+/// ==================
+
 //	Private Slots
+//	--------------
+
 void InequalityLoader::on_pushButton_Details_clicked()
 {
     QMessageBox *dialog = new QMessageBox(0);
