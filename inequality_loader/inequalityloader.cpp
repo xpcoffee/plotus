@@ -56,6 +56,8 @@ void InequalityLoader::loadCase(string filename){
         int nCount;
         QVector<double> qvX;
         QVector<double> qvY;
+        _XResults.clear();
+        _YResults.clear();
 
         string filename_short;
         stringstream ss_name;

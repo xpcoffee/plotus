@@ -31,6 +31,18 @@
 #include"expression.h"
 
 
+/// Enumerated Types
+/// =================
+
+enum INEQUALITY_SYMBOL{
+    SYMBOL_SMALLER_THAN 		= 0,
+    SYMBOL_GREATER_THAN 		= 1,
+    SYMBOL_SMALLER_THAN_EQUAL 	= 2,
+    SYMBOL_GREATER_THAN_EQUAL	= 3,
+    SYMBOL_APPROX_EQUAL			= 4,
+};
+
+
 //	"""""""""""""""""""""""""""""""""
 //	"			Namespaces			"
 //	"""""""""""""""""""""""""""""""""	
@@ -48,7 +60,8 @@ class Inequality
 private:
 
     // variables
-    string sSymbol;
+    double dPrecision;
+    int nSymbol;
     string sErrorMessage;
     vector<double> vEvalArray1, vEvalArray2;
     bool flag_initialized;
@@ -59,16 +72,18 @@ public:
     Expression mExpression1, mExpression2;
 
     // constructor
-    Inequality(string sExp1 = "", string symbol = "!", string sExp2 = ""){
-        if (symbol == "!"){
+    Inequality(string sExp1 = "", int symbol = -1, string sExp2 = "") :
+     dPrecision(0),
+     sErrorMessage(""),
+     flag_initialized(true)
+    {
+        if (symbol == -1){
             flag_initialized = false;
         }
         else{
             mExpression1.setExpression(sExp1);
             mExpression2.setExpression(sExp2);
-            sSymbol = symbol;
-            sErrorMessage = "";
-            flag_initialized = true;
+            nSymbol = symbol;
         }
 	}
 
@@ -86,17 +101,19 @@ public:
 		mExpression2.addVariable(myVar);
 	}
 
-    void setInequality(string sExp1, string symbol, string sExp2){
+    void setInequality(string sExp1, int symbol, string sExp2){
             mExpression1.setExpression(sExp1);
             mExpression2.setExpression(sExp2);
-            sSymbol = symbol;
+            nSymbol = symbol;
             flag_initialized = true;
     }
 
-    void changeSymbol(string symbol){
+    void changeSymbol(int symbol){
         assert(flag_initialized);
-        sSymbol = symbol;
+        nSymbol = symbol;
 	}
+
+    void setPrecision(double dPrec){ dPrecision = dPrec; }
 
     // - member variable getters
     vector<int> getProblemElements_ExpressionLHS(){ return mExpression1.getProblemElements_Expression(); }
@@ -173,19 +190,31 @@ public:
         vEvalArray2 = mExpression2.evaluateAll();
 
         for (unsigned int i = 0; i < vEvalArray1.size(); i++){
-            if(sSymbol == "<"){
+            switch (nSymbol){
+            case SYMBOL_SMALLER_THAN:
 //                cout << vEvalArray1[i] << " < " << vEvalArray2[i] << ": " << (vEvalArray1[i] < vEvalArray2[i]) << endl;
                 vResult.push_back(vEvalArray1[i] < vEvalArray2[i]);
-            } else if (sSymbol == ">"){
+                break;
+            case SYMBOL_GREATER_THAN:
 //                cout << vEvalArray1[i] << " > " << vEvalArray2[i] << ": " << (vEvalArray1[i] > vEvalArray2[i]) << endl;
                 vResult.push_back(vEvalArray1[i] > vEvalArray2[i]);
-            } else if (sSymbol == "<="){
+                break;
+            case SYMBOL_SMALLER_THAN_EQUAL:
                 vResult.push_back(vEvalArray1[i] <= vEvalArray2[i]);
-            } else if (sSymbol == ">="){
+                break;
+            case SYMBOL_GREATER_THAN_EQUAL:
                 vResult.push_back(vEvalArray1[i] >= vEvalArray2[i]);
-            } else {
+                break;
+            case SYMBOL_APPROX_EQUAL:
+                {
+                    double diff = (vEvalArray1[i]-vEvalArray2[i])*(vEvalArray1[i]-vEvalArray2[i]);
+                    vResult.push_back((dPrecision*dPrecision) >= diff);
+                    break;
+                }
+            default:
                 cerr << "Unknown symbol" << endl;
                 assert (false && "Unknown inequality operator");
+                break;
             }
 		}
         return vResult;

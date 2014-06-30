@@ -15,13 +15,13 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="leftMargin">
-    <number>6</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
     <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>6</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
     <number>0</number>
@@ -64,6 +64,19 @@
     </layout>
    </item>
    <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QPushButton" name="pushButton_Details">
      <property name="minimumSize">
       <size>
@@ -83,20 +96,19 @@
     </widget>
    </item>
    <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+    <widget class="QComboBox" name="comboBoxShape">
+     <property name="minimumSize">
       <size>
-       <width>40</width>
-       <height>20</height>
+       <width>80</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QComboBox" name="comboBoxShape">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <item>
       <property name="text">
        <string>star</string>
@@ -121,6 +133,18 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxColor">
+     <property name="minimumSize">
+      <size>
+       <width>95</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>95</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <item>
       <property name="text">
        <string>blue</string>
@@ -165,20 +189,62 @@
    </item>
    <item>
     <widget class="QPushButton" name="pushButtonUp">
+     <property name="minimumSize">
+      <size>
+       <width>30</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>⋀</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="pushButtonDown">
+     <property name="minimumSize">
+      <size>
+       <width>30</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>32</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>⋁</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxInteract">
+     <property name="minimumSize">
+      <size>
+       <width>80</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <item>
       <property name="text">
        <string>None</string>
@@ -215,14 +281,32 @@
        <height>0</height>
       </size>
      </property>
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="baseSize">
       <size>
        <width>30</width>
        <height>0</height>
       </size>
      </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
      <property name="text">
-      <string>-</string>
+      <string>⨯</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QtWidgets>
 #include <sstream>
+#include <qvalidator.h>
 #include "../deplot/include/inequality.h"
 #include "../deplot/include/expression.h"
 
@@ -48,6 +49,7 @@ public:
     int getColorIndex();
     int getShapeIndex();
     int getCombination();
+    double getPrecision();
     bool getSkip();
     string getLeftExpression();
     string getRightExpression();
@@ -80,6 +82,8 @@ private slots:
     void on_comboBoxInteract_currentIndexChanged(int index);
     void on_checkBoxSkip_toggled(bool checked);
 
+    void on_comboBoxInequality_currentIndexChanged(int index);
+
 private:
     Ui::InequalityInput *ui;
     // data
@@ -87,6 +91,7 @@ private:
     Variable mVariableX, mVariableY;
     // meta
     int nInequalityInputNumber;
+    int nPrecisionIndex;
     bool flag_skip;
     // result vectors
     vector<bool> vPlotSpace;

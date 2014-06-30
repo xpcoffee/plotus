@@ -122,6 +122,10 @@ void BareMinimumPlotter::plot()
     clearFormatting();
     int nProgress = 0; // progress bar counter
 
+    // reload loaders (in case previous plotting changed its data through combinations)
+    for (int i = 0; i < static_cast<int>(vInequalityLoaders.size()); i++){
+        vInequalityLoaders[i]->loadCase(vInequalityLoaders[i]->getFile());
+    }
 
     // 	determine plotting variables
     string sUnitsX, sUnitsY;
@@ -269,6 +273,7 @@ void BareMinimumPlotter::plotNew(int nIneq, string sUnitsX, string sUnitsY, int 
 
 void BareMinimumPlotter::plotOld(int nIneq, string sUnitsX, string sUnitsY, int nProgress){
     vInequalityLoaders[nIneq]->beginPlot();
+
     while (!vInequalityLoaders[nIneq]->isEnd()){
         nProgress = floor((0.6+nGraphIndex)/ui->layout_Inequality->count()*100);
         ui->progressBar->setValue(nProgress);
@@ -639,7 +644,7 @@ void BareMinimumPlotter::reOrderInequalityInputs(){
     vInequalityLoaders = tmpVecLoader;
 }
 
-
+// [BREAK] 30 June 2014 | fixing enabled/disabled buttons when adding and removing inequalities
 void BareMinimumPlotter::setCombinationInputs(){
     int nSize = ui->layout_Inequality->count()-1;
     //	TODO: make this more elegant
@@ -1000,15 +1005,9 @@ void BareMinimumPlotter::menu_saveAs(){
     save_JSON(filename);
 }
 
-void BareMinimumPlotter::menu_new(){
-    clearGUI();
-}
+void BareMinimumPlotter::menu_new(){ clearGUI(); }
 
-void BareMinimumPlotter::on_button_Plot_clicked() {
-
-    plot();
-
-}
+void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }
 
 void BareMinimumPlotter::on_button_AddVariable_clicked() { addVariableInput(); }
 

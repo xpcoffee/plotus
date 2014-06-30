@@ -20,7 +20,13 @@
    <string>VariableInput</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
    <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
     <number>0</number>
    </property>
    <property name="bottomMargin">
@@ -34,11 +40,14 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="cursor">
+      <cursorShape>SizeVerCursor</cursorShape>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
      <property name="frame">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -50,11 +59,17 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="cursor">
+      <cursorShape>SizeVerCursor</cursorShape>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="frame">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -66,11 +81,17 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="cursor">
+      <cursorShape>SizeVerCursor</cursorShape>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="frame">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -82,11 +103,17 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="cursor">
+      <cursorShape>SizeVerCursor</cursorShape>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="frame">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -98,8 +125,14 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="cursor">
+      <cursorShape>SizeVerCursor</cursorShape>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::WheelFocus</enum>
+     </property>
+     <property name="frame">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -190,7 +223,10 @@
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
-      <string>-</string>
+      <string>⨯</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

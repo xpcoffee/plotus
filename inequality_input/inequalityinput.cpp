@@ -53,6 +53,13 @@ InequalityInput::InequalityInput(QWidget *parent) :
 {
     ui->setupUi(this);
     setAccessibleDescription("input");
+    // set input validation
+    QDoubleValidator *dValidator = new QDoubleValidator;
+    dValidator->setLocale(QLocale(QStringLiteral("de")));
+    ui->lineEdit_Precision->setValidator(dValidator);
+    // initialize precision line edit
+    nPrecisionIndex = ui->horizontalLayout->indexOf(ui->lineEdit_Precision);
+    on_comboBoxInequality_currentIndexChanged(0);
 }
 
 InequalityInput::~InequalityInput()
@@ -82,8 +89,9 @@ bool InequalityInput::createInequality(){
     sErrorMessage = "";
     // input expressions
     mInequality = Inequality(ui->lineEditLeft->text().toStdString(),
-                             ui->comboBoxInequality->currentText().toStdString(),
+                             ui->comboBoxInequality->currentIndex(),
                              ui->lineEditRight->text().toStdString());
+    mInequality.setPrecision(atof(ui->lineEdit_Precision->text().toStdString().c_str()));
     // remove whitespace
     ui->lineEditLeft->setText(QString::fromStdString(mInequality.getExpressionLHS()));
     ui->lineEditRight->setText(QString::fromStdString(mInequality.getExpressionRHS()));
@@ -139,6 +147,8 @@ void InequalityInput::fromJSON(string sInput){
                         symbol = 2;
                     if (token == ">=")
                         symbol = 3;
+                    if (token == "≈")
+                        symbol = 4;
                     ui->comboBoxInequality->setCurrentIndex(symbol);
                 }
         } else if (token == "right expression") {
@@ -171,6 +181,8 @@ int InequalityInput::getColorIndex(){ return ui->comboBoxColor->currentIndex(); 
 int InequalityInput::getShapeIndex(){ return ui->comboBoxShape->currentIndex(); }
 
 int InequalityInput::getCombination(){ return ui->comboBoxInteract->currentIndex(); }
+
+double InequalityInput::getPrecision() { return atof(ui->lineEdit_Precision->text().toStdString().c_str()); }
 
 bool InequalityInput::getSkip(){ return flag_skip; }
 
@@ -400,4 +412,20 @@ void InequalityInput::on_checkBoxSkip_toggled(bool checked)
        if(ui->pushButtonDown->isEnabled())
            ui->comboBoxInteract->setEnabled(true);
    }
+}
+
+void InequalityInput::on_comboBoxInequality_currentIndexChanged(int index)
+{
+    if (index == SYMBOL_APPROX_EQUAL){
+        ui->horizontalLayout->insertWidget(nPrecisionIndex, ui->lineEdit_Precision);
+        ui->lineEdit_Precision->setEnabled(true);
+        ui->lineEdit_Precision->setVisible(true);
+    }
+    else{
+        if (ui->lineEdit_Precision->isEnabled()){
+            ui->horizontalLayout->takeAt(nPrecisionIndex);
+            ui->lineEdit_Precision->setEnabled(false);
+            ui->lineEdit_Precision->setVisible(false);
+        }
+    }
 }
