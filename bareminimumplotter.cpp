@@ -116,7 +116,6 @@ BareMinimumPlotter::~BareMinimumPlotter()
 //	Core
 //	----
 
-
 void BareMinimumPlotter::plot()
 {
     clearFormatting();
