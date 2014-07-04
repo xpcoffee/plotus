@@ -11,7 +11,8 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InequalityLoader),
     nInequalityInputNumber(-1),
-    flag_skip(false)
+    flag_skip(false),
+    sErrorMessage("")
 {
     ui->setupUi(this);
     beginPlot();
@@ -34,7 +35,7 @@ InequalityLoader::~InequalityLoader()
 void InequalityLoader::setNumber(int nNumber = -1) {
     if (nNumber > -1)
         nInequalityInputNumber = nNumber;
-    ui->label_Number->setNum(nNumber);
+    ui->label_Number->setNum(nNumber+1);
 }
 
 void InequalityLoader::setCase(string sCaseName){
@@ -110,7 +111,9 @@ void InequalityLoader::loadCase(string filename){
                                            break;
                                        case 3:
                                            sDetails += "Subtraction\n";
+                                           break;
                                        default:
+                                           sErrorMessage += "Parsing Error | Combination\n";
                                            flag_problem = true;
                                            break;
                                         }
@@ -118,8 +121,10 @@ void InequalityLoader::loadCase(string filename){
                                 }
                             }
                         }
-                        if (nCount != 4)
+                        if (nCount != 4){
                             flag_problem = true;
+                            sErrorMessage += "Parsing Error | Inequality\n";
+                        }
                     }
             }
 
@@ -153,13 +158,20 @@ void InequalityLoader::loadCase(string filename){
                                 if (getline (iss, token_var, '"'))
                                     if (getline (iss, token_var, '"')) {
                                         sDetails += "Units: " + token_var + "\t"; nCount++;
-                                        if (nCount != 5)
+                                        if (nCount != 5){
                                             flag_problem = true;
+                                            sErrorMessage += "Parsing Error | Variable\n";
+                                        }
+                                    }
+                            if (token_var == "axis" )
+                                if (getline (iss, token_var, '"'))
+                                    if (getline (iss, token_var, '"')){
+                                        sDetails += "{" + token_var + "-axis}";
                                     }
                             if (token_var == "slider point" )
                                 if (getline (iss, token_var, ':'))
-                                    if (getline (iss, token_var, ',')){
-                                        sDetails += "Step chosen as constant: " + token_var;
+                                    if (getline (iss, token_var, '}')){
+                                        sDetails += "{const: " + token_var + "}";
                                     }
                         }
                     }
@@ -193,8 +205,10 @@ void InequalityLoader::loadCase(string filename){
             }	// plot data
         }	// end of file
 
-        if (_XResults.empty() || _YResults.empty() || (_YResults.size() != _XResults.size()))
+        if (_XResults.empty() || _YResults.empty() || (_YResults.size() != _XResults.size())){
             flag_problem = true;
+            sErrorMessage += "Parsing Error | Plot data\n";
+        }
 
         //	if input was invalid, kill the widget
         if (flag_problem)
@@ -231,6 +245,8 @@ QVector<double> InequalityLoader::getY(){
 }
 
 string InequalityLoader::getFile(){ return sFileName; }
+
+string InequalityLoader::getErrors(){ return sErrorMessage; }
 
 
 //	Parsers
@@ -276,7 +292,7 @@ void InequalityLoader::enablePositionButtons (bool flag_enable){
 
 void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBoxInteract->setEnabled(flag_enable); }
 
-void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(0); }
+void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE); }
 
 
 ///	Private Functions

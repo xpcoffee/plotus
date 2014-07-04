@@ -73,7 +73,7 @@ InequalityInput::~InequalityInput()
 
 void InequalityInput::setNumber(int nNumber){
     nInequalityInputNumber = nNumber;
-        ui->label_Index->setNum(static_cast<double>(nNumber));
+        ui->label_Index->setNum(nNumber+1);
 }
 
 void InequalityInput::setXYVariables(Variable mX, Variable mY){
@@ -119,10 +119,30 @@ void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex
 
 string InequalityInput::toJSON() {
     ostringstream buffer;
-    buffer <<	"{\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
+    buffer <<	"\"inequality\":{" <<
+                "\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
                 "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\"," <<
                 "\"right expression\":" << "\"" << getRightExpression() << "\"," <<
-                "\"combination\":" << "\"" <<getCombination() << "\"}";
+                "\"combination\":" << "\"" <<getCombination() <<
+                "\"}";
+
+                if (getCombination() == COMBINE_NONE){ // save only combined results
+                    // plotting, close expressions
+                    buffer << "\n},\n";
+                    // plot data
+                    buffer << "\"data\":[\n";
+                    for (int j = 0; j < qvX.size(); j++){
+                        buffer << "{"
+                                   "\"x\":"<< qvX[j] << ","
+                                   "\"y\":" << qvY[j] <<
+                                   "}";
+                        if (j != qvX.size()-1)
+                            buffer << ",";
+                        buffer << "\n";
+                    }
+                    // close plot data
+                    buffer << "\n]";
+                }
     return buffer.str();
 }
 

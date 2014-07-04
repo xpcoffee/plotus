@@ -170,6 +170,10 @@ string VariableInput::toJSON(){
             "\"units\":\"" << getUnits() << "\"";
     if (ui->comboBoxAxes->currentIndex() == MODE_POINT)
         buffer << ",\"slider point\":" << ui->horizontalSliderPoint->value();
+    if (ui->comboBoxAxes->currentIndex() == MODE_X_AXIS)
+        buffer << ",\"axis\":\"x\"";
+    if (ui->comboBoxAxes->currentIndex() == MODE_Y_AXIS)
+        buffer << ",\"axis\":\"y\"";
     buffer << "}";
     return buffer.str();
 }
@@ -224,6 +228,14 @@ void VariableInput::fromJSON(string sInput){
                     double dSelectedValue = mVariable.getMin() + value*(mVariable.getMax()-mVariable.getMin())/mVariable.getElements();
                     ui->labelPoint->setNum(dSelectedValue);
                 }
+        if (token == "axis")
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"')){
+                    if (token == "x")
+                        ui->comboBoxAxes->setCurrentIndex(MODE_X_AXIS);
+                    if (token == "y")
+                        ui->comboBoxAxes->setCurrentIndex(MODE_Y_AXIS);
+                }
     }
 }
 
@@ -275,6 +287,16 @@ void VariableInput::resetSlider(){
        ui->labelPoint->setText("-");
        ui->horizontalSliderPoint->setEnabled(false);
 }
+
+
+//	"""""""""""""""""""""""""""""""""
+//	"		Public Slots			"
+//	"""""""""""""""""""""""""""""""""
+
+void VariableInput::splitterResize(QList<int> sizes){
+    ui->splitter->setSizes(sizes);
+}
+
 
 //	"""""""""""""""""""""""""""""""""
 //	"		Private Slots			"

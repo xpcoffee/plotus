@@ -41,6 +41,7 @@ public:
     QVector<double> getX();
     QVector<double> getY();
     string getFile();
+    string getErrors();
     // parsers
     string toJSON();
     // evaluation
@@ -75,6 +76,7 @@ private:
     int nInequalityInputNumber;
     bool flag_skip;
     string sFileName;
+    string sErrorMessage;
     // evaluation
     unsigned int nCurrentPlot;
 
