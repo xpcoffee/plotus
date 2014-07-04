@@ -5,6 +5,7 @@
 //	"			Includes			"
 //	"""""""""""""""""""""""""""""""""
 #include <QWidget>
+#include <QSplitter>
 #include <qvalidator.h>
 #include "../deplot/include/variable.h"
 
@@ -73,15 +74,12 @@ signals:
     void axisModeChanged(int nVarInputNumber);
     void killThis(int nVariableInputNumber);
 
+public slots:
+    void splitterResize(QList<int>);
+
 private slots:
     void on_comboBoxAxes_currentIndexChanged(int index);
     void on_horizontalSliderPoint_sliderMoved(int position);
-
-//    void on_lineEditElements_editingFinished();
-//    void on_lineEditMax_editingFinished();
-//    void on_lineEditMin_editingFinished();
-//    void on_lineEditName_editingFinished();
-
     void on_lineEditElements_textChanged(const QString &arg1);
     void on_lineEditMax_textChanged(const QString &arg1);
     void on_lineEditMin_textChanged(const QString &arg1);

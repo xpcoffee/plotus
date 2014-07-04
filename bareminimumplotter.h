@@ -64,6 +64,9 @@ public:
     //	parsing and file i/o
     void save_JSON(QString);
 
+signals:
+    void variableSplitterMoved(QList<int>);
+
 public slots:
     void checkAxisMode(int);
     void removeVariableInput(int);
@@ -80,6 +83,9 @@ private slots:
     void on_button_AddVariable_clicked();
     void on_button_AddInequality_clicked();
     void on_pushButton_AddInequalityLoader_clicked();
+
+
+    void on_splitter_variable_splitterMoved(int pos, int index);
 
 private:
     Ui::BareMinimumPlotter *ui;
