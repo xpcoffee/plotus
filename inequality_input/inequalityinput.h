@@ -42,7 +42,8 @@ public:
     void enableCombinations(bool);
     void resetCombinations();
     // 	parsers
-    string toJSON();
+    string expressionToJSON();
+    string dataToJSON();
     void fromJSON(string);
     //	getters
     int getNumber();

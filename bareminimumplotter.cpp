@@ -119,29 +119,29 @@ BareMinimumPlotter::~BareMinimumPlotter()
 void BareMinimumPlotter::plot()
 {
     clearFormatting();
-    int nProgress = 0; // progress bar counter
+    int progress = 0; // progress bar counter
 
     // reload loaders (in case previous plotting changed its data through combinations)
     for (int i = 0; i < static_cast<int>(vInequalityLoaders.size()); i++){
-        cout << "minus one" << endl;
         vInequalityLoaders[i]->loadCase(vInequalityLoaders[i]->getFile());
     }
 
     // 	determine plotting variables
-    string sUnitsX, sUnitsY;
-    int tmpCheck = 0;
+    string x_units, y_units;
+    int check = 0;
     for (int i = 0; i < static_cast<int>(vVariableInputs.size()); i++){
-        if (vVariableInputs[i]->getAxisMode() == MODE_X_AXIS){
-            mVariableX = vVariableInputs[i]->getVariable();
-            sUnitsX = vVariableInputs[i]-> getUnits();
-            tmpCheck++;
-        } else if (vVariableInputs[i]->getAxisMode() == MODE_Y_AXIS){
-            mVariableY = vVariableInputs[i]->getVariable();
-            sUnitsY = vVariableInputs[i]-> getUnits();
-            tmpCheck++;
+        VariableInput *varinput = vVariableInputs[i];
+        if (varinput->getAxisMode() == MODE_X_AXIS){
+            mVariableX = varinput->getVariable();
+            x_units = varinput-> getUnits();
+            check++;
+        } else if (varinput->getAxisMode() == MODE_Y_AXIS){
+            mVariableY = varinput->getVariable();
+            y_units = varinput-> getUnits();
+            check++;
         }
     }
-    if (tmpCheck != 2){
+    if (check != 2){
         sErrorMessage =+ "Internal Check | Problem getting variables for horizontal and vertical axes. Please report this to:\n emerick.bosch+bugmail@gmail.com\n";
         printError();
         return;
@@ -159,14 +159,13 @@ void BareMinimumPlotter::plot()
         for (int j = 0; j < static_cast<int>(vInequalityInputs.size()); j++){
             if(vInequalityInputs[j]->getNumber() == i){
                 if (vInequalityInputs[j]->getSkip()) { flag_skip = true; break; }
-                plotNew(j, sUnitsX, sUnitsY, nProgress);
+                plotNew(j, x_units, y_units, progress);
             }
         }
         for (int j = 0; j < static_cast<int>(vInequalityLoaders.size()); j++){
             if(vInequalityLoaders[j]->getNumber() == i){
-                cout << "zero" << endl;
                 if (vInequalityLoaders[j]->getSkip()) { flag_skip = true; break; }
-                plotOld(j, sUnitsX, sUnitsY, nProgress);
+                plotOld(j, x_units, y_units, progress);
             }
         }
         if (flag_skip)
@@ -272,71 +271,67 @@ void BareMinimumPlotter::plotNew(int nIneq, string sUnitsX, string sUnitsY, int 
 }
 
 
-void BareMinimumPlotter::plotOld(int nIneq, string sUnitsX, string sUnitsY, int nProgress){
-    vInequalityLoaders[nIneq]->beginPlot();
-    cout << "one" << endl;
+void BareMinimumPlotter::plotOld(int nIneq, string x_units, string y_units, int nProgress){
+    InequalityLoader* loader = vInequalityLoaders[nIneq];
+    loader->setPlot();
 
-    while (!vInequalityLoaders[nIneq]->isEnd()){
-        cout << "two" << endl;
-        nProgress = floor((0.6+nGraphIndex)/ui->layout_Inequality->count()*100);
-        ui->progressBar->setValue(nProgress);
-        ui->progressBar->setFormat("Combining results...");
+    nProgress = floor((0.6+nGraphIndex)/ui->layout_Inequality->count()*100);
+    ui->progressBar->setValue(nProgress);
+    ui->progressBar->setFormat("Combining results...");
 
-        // get plotting vectors
-        switch(nPrevCombination){
-        case COMBINE_NONE:
-            vectorCombineNone(vInequalityLoaders[nIneq]->getNumber());
-            break;
-        case COMBINE_INTERSECTION:
-            vectorCombineIntersection(vInequalityLoaders[nIneq]->getNumber());
-            break;
-        case COMBINE_UNION:
-            vectorCombineUnion(vInequalityLoaders[nIneq]->getNumber());
-            break;
-        case COMBINE_SUBTRACTION:
-            vectorCombineSubtraction(vInequalityLoaders[nIneq]->getNumber());
-            break;
-        }
-        nPrevCombination = vInequalityLoaders[nIneq]->getCombination();
-        if (nPrevCombination != COMBINE_NONE)
-            return;
-
-        nProgress = floor((0.8+nGraphIndex)/ui->layout_Inequality->count()*100);
-        ui->progressBar->setValue(nProgress);
-        ui->progressBar->setFormat("Plotting results...");
-
-        // add normal graph
-        ui->plotter->addGraph();
-        formatGraph(vInequalityLoaders[nIneq]->getShapeIndex(), vInequalityLoaders[nIneq]->getColorIndex());
-        nGraphIndex++;
-
-        // add problem graph (if needed)
-        if (!qvX_problem.isEmpty()){
-            ui->plotter->addGraph();
-            formatErrorGraph();
-            nGraphIndex++;
-        }
-
-        // set general options, plot
-        if (!sUnitsX.empty())
-            sUnitsX = " [" + sUnitsX + "]";
-        if (!sUnitsY.empty())
-            sUnitsY = " [" + sUnitsY + "]";
-
-        ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + sUnitsX));
-        ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + sUnitsY));
-        ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
-        ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
-        ui->plotter->replot();
-
-        printError();
-        nProgress = floor((1+nGraphIndex)/ui->layout_Inequality->count()*100);
-        ui->progressBar->setValue(nProgress);
-        ui->progressBar->setFormat("Done.");
-        flag_Empty = false;
-
-        vInequalityLoaders[nIneq]->nextPlot();
+    // get plotting vectors
+    switch(nPrevCombination){
+    case COMBINE_NONE:
+        vectorCombineNone(loader->getNumber());
+        break;
+    case COMBINE_INTERSECTION:
+        vectorCombineIntersection(loader->getNumber());
+        break;
+    case COMBINE_UNION:
+        vectorCombineUnion(loader->getNumber());
+        break;
+    case COMBINE_SUBTRACTION:
+        vectorCombineSubtraction(loader->getNumber());
+        break;
     }
+    nPrevCombination = loader->getCombination();
+    if (nPrevCombination != COMBINE_NONE)
+        return;
+
+    nProgress = floor((0.8+nGraphIndex)/ui->layout_Inequality->count()*100);
+    ui->progressBar->setValue(nProgress);
+    ui->progressBar->setFormat("Plotting results...");
+
+    // add normal graph
+    ui->plotter->addGraph();
+    formatGraph(loader->getShapeIndex(), loader->getColorIndex());
+    nGraphIndex++;
+
+    // add problem graph (if needed)
+    if (!qvX_problem.isEmpty()){
+        ui->plotter->addGraph();
+        formatErrorGraph();
+        nGraphIndex++;
+    }
+
+    // set general options, plot
+    if (!x_units.empty())
+        x_units = " [" + x_units + "]";
+    if (!y_units.empty())
+        y_units = " [" + y_units + "]";
+
+    ui->plotter->xAxis->setLabel(QString::fromStdString(mVariableX.getName() + x_units));
+    ui->plotter->yAxis->setLabel(QString::fromStdString(mVariableY.getName() + y_units));
+    ui->plotter->xAxis->setRange(mVariableX.getMin(), mVariableX.getMax());
+    ui->plotter->yAxis->setRange(mVariableY.getMin(), mVariableY.getMax());
+    ui->plotter->replot();
+
+    printError();
+    nProgress = floor((1+nGraphIndex)/ui->layout_Inequality->count()*100);
+    ui->progressBar->setValue(nProgress);
+    ui->progressBar->setFormat("Done.");
+    flag_Empty = false;
+
 }
 
 void BareMinimumPlotter::vectorCombineNone(int nIndex){
@@ -706,23 +701,19 @@ void BareMinimumPlotter::setCombinationInputs(){
     }
     // disable the combinations of last item
     if(ui->layout_Inequality->itemAt(nSize)->widget()->accessibleDescription() == "input"){
-        cout << "last item is input" << endl;
         qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->enableCombinations(false);
         qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->resetCombinations();
     }
     if(ui->layout_Inequality->itemAt(nSize)->widget()->accessibleDescription() == "loader"){
-        cout << "last item is loader" << endl;
         qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nSize)->widget())->enableCombinations(false);
         qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nSize)->widget())->resetCombinations();
     }
     // enable combinations of second last item
     if (ui->layout_Inequality->count() > 1){
         if(ui->layout_Inequality->itemAt(nSize-1)->widget()->accessibleDescription() == "input"){
-            cout << "second last item is input" << endl;
             qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize-1)->widget())->enableCombinations(true);
         }
         if(ui->layout_Inequality->itemAt(nSize-1)->widget()->accessibleDescription() == "loader"){
-            cout << "second last item is loader" << endl;
             qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nSize-1)->widget())->enableCombinations(true);
         }
     }
@@ -778,35 +769,57 @@ void BareMinimumPlotter::save_JSON(QString filename){
     case_buffer << "\"variables\":[\n" << case_element_buffer.str() << "],\n";
     case_element_buffer.str("");
 
-
     // 	- plots
-    //	[BREAK] 4 July 2014 | Redefining JSON format, changing saving sequence to include buffers (neatening)
     for (int i = 0; i < ui->layout_Inequality->count(); i++){
         if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "input"){
             InequalityInput *mCurrentInequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget());
             // expression
-            case_subelement_buffer << mCurrentInequality->toJSON();
-
+            case_subelement_buffer << mCurrentInequality->expressionToJSON();
             if (mCurrentInequality->getCombination() == COMBINE_NONE){ // save only combined results
-                // encapsulate plot
-                case_element_buffer << "{\"expressions\":{\n" <<  case_subelement_buffer.str()<< "}\n";
+                // start plot brace
+                case_element_buffer << "{";
+                // encapsulate expressions
+                case_element_buffer << "\"expressions\":{\n" <<  case_subelement_buffer.str()<< "\n},\n";
                 case_subelement_buffer.str("");
+                // encapsulate plot data
+                case_element_buffer << mCurrentInequality->dataToJSON();
+                // end plot brace
+                case_element_buffer << "}";
+                // comma after plot if not at end
+                if (i != ui->layout_Inequality->count()-1){
+                    case_element_buffer << ",\n";
+                }
+            } else {
+                // new expression
+                case_subelement_buffer << ",\n";
             }
         }
         if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "loader"){
-//            InequalityLoader *mCurrentInequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(i)->widget());
-//            mCurrentInequality->beginPlot();
-//            while (!mCurrentInequality->isEnd()){
-//                mCurrentInequality->nextPlot();
-//            }
-//            outFile << mCurrentInequality->toJSON();
+            InequalityLoader *mCurrentInequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(i)->widget());
+            // expression
+            case_subelement_buffer << mCurrentInequality->expressionToJSON();
+            if (mCurrentInequality->getCombination() == COMBINE_NONE){ // save only combined results
+                // start plot brace
+                case_element_buffer << "{";
+                // encapsulate expressions
+                case_element_buffer << "\"expressions\":{\n" <<  case_subelement_buffer.str()<< "\n},\n";
+                case_subelement_buffer.str("");
+                // encapsulate plot data
+                case_element_buffer << mCurrentInequality->dataToJSON();
+                // end plot brace
+                case_element_buffer << "}";
+                // comma after plot if not at end
+                if (i != ui->layout_Inequality->count()-1){
+                    case_element_buffer << ",\n";
+                }
+            } else {
+                // new expression
+                case_subelement_buffer << ",\n";
+            }
         }
 
-        if(i != static_cast<int>(ui->layout_Inequality->count())-1){ 	// not the end
-            // something will follow, add comma
-            case_subelement_buffer << ",\n";
-        } else {														// end
-            // encapsulate plots
+        // encapsulate plots
+        if(i == static_cast<int>(ui->layout_Inequality->count())-1){ 	// not the end
             case_buffer << "\"plots\":[\n" << case_element_buffer.str() << "\n]\n";
             case_element_buffer.str("");
         }
@@ -1010,7 +1023,6 @@ void BareMinimumPlotter::menu_open(){
 
     string line;
     ifstream inFile(filename.toStdString().c_str());
-
     if(inFile.is_open()){
         while( getline(inFile, line) ){ // x value
             string token;

@@ -117,32 +117,36 @@ void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex
 //	Parsers
 //	-------
 
-string InequalityInput::toJSON() {
-    ostringstream buffer;
+string InequalityInput::expressionToJSON() {
+    stringstream buffer;
     buffer <<	"\"inequality\":{" <<
                 "\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
-                "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\"," <<
-                "\"right expression\":" << "\"" << getRightExpression() << "\"," <<
+                "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\",";
+    if (ui->comboBoxInequality->currentIndex() == SYMBOL_APPROX_EQUAL){
+        buffer << "\"precision\":"	<< ui->lineEdit_Precision->text().toStdString() << ",";
+    }
+    buffer <<  	"\"right expression\":" << "\"" << getRightExpression() << "\"," <<
                 "\"combination\":" << "\"" <<getCombination() <<
                 "\"}";
 
-                if (getCombination() == COMBINE_NONE){ // save only combined results
-                    // plotting, close expressions
-                    buffer << "\n},\n";
-                    // plot data
-                    buffer << "\"data\":[\n";
-                    for (int j = 0; j < qvX.size(); j++){
-                        buffer << "{"
-                                   "\"x\":"<< qvX[j] << ","
-                                   "\"y\":" << qvY[j] <<
-                                   "}";
-                        if (j != qvX.size()-1)
-                            buffer << ",";
-                        buffer << "\n";
-                    }
-                    // close plot data
-                    buffer << "\n]";
-                }
+    return buffer.str();
+}
+
+string InequalityInput::dataToJSON(){
+    stringstream buffer;
+    buffer << "\"data\":[";
+    for (int j = 0; j < qvX.size(); j++){
+        buffer << "{"
+                   "\"x\":"<< qvX[j] << ","
+                   "\"y\":" << qvY[j] <<
+                   "}";
+        if (j != qvX.size()-1){
+            buffer << ",";
+            buffer << "\n";
+        }
+    }
+    // close plot data
+    buffer << "]\n";
     return buffer.str();
 }
 
@@ -160,15 +164,15 @@ void InequalityInput::fromJSON(string sInput){
                 if (getline (iss, token, '"')){
                     int symbol;
                     if (token == "<")
-                        symbol = 0;
+                        symbol = SYMBOL_SMALLER_THAN;
                     if (token == ">")
-                        symbol = 1;
+                        symbol = SYMBOL_GREATER_THAN;
                     if (token == "<=")
-                        symbol = 2;
+                        symbol = SYMBOL_SMALLER_THAN_EQUAL;
                     if (token == ">=")
-                        symbol = 3;
+                        symbol = SYMBOL_GREATER_THAN_EQUAL;
                     if (token == "≈")
-                        symbol = 4;
+                        symbol = SYMBOL_APPROX_EQUAL;
                     ui->comboBoxInequality->setCurrentIndex(symbol);
                 }
         } else if (token == "right expression") {

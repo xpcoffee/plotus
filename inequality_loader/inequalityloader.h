@@ -27,11 +27,11 @@ public:
     explicit InequalityLoader(QWidget *parent = 0);
     ~InequalityLoader();
     //	setters
-    void setNumber(int);
-    void setCase(string);
-    void loadCase(string);
-    void setX(QVector<double>);
-    void setY(QVector<double>);
+    void setNumber(int number);
+    void setCaseName(string value);
+    void loadCase(string filename);
+    void setX(QVector<double> vector);
+    void setY(QVector<double> vector);
     // getters
     int getNumber();
     int getColorIndex();
@@ -43,42 +43,45 @@ public:
     string getFile();
     string getErrors();
     // parsers
-    string toJSON();
+    string expressionToJSON();
+    string dataToJSON();
     // evaluation
-    void beginPlot();
-    void nextPlot();
-    bool isEnd();
+    void setPlot();
     // gui
-    void enablePositionButtons(bool);
-    void enableCombinations(bool);
+    void enablePositionButtons(bool flag_enable);
+    void enableCombinations(bool flag_enable);
     void resetCombinations();
 
 signals:
-    void moveUp(int nNumber);
-    void moveDown (int nNumber);
-    void killThis (int nNumber);
+    void moveUp(int guiNumber);
+    void moveDown (int guiNumber);
+    void killThis (int guiNumber);
 
 private slots:
     void on_pushButton_Details_clicked();
     void on_pushButton_Remove_clicked();
-    void on_pushButtonUp_clicked();
-    void on_pushButtonDown_clicked();
-    void on_checkBoxSkip_toggled(bool checked);
-    void on_comboBoxInteract_currentIndexChanged(int index);
+    void on_pushButton_Up_clicked();
+    void on_pushButton_Down_clicked();
+    void on_checkBox_Skip_toggled(bool checked);
+    void on_comboBox_Interact_currentIndexChanged(int index);
+
+    void on_comboBox_Plot_currentIndexChanged(int index);
 
 private:
     Ui::InequalityLoader *ui;
     // data
-    vector<QVector<double> > _XResults;
-    vector<QVector<double> > _YResults;
+    vector<QVector<double> > m_x_results;
+    vector<QVector<double> > m_y_results;
+    vector<string> m_details;
+    vector<string> m_expressions;
     string sDetails;
     // meta
-    int nInequalityInputNumber;
+    int m_gui_number;
     bool flag_skip;
-    string sFileName;
-    string sErrorMessage;
+    string m_filename;
+    string m_error_message;
     // evaluation
-    unsigned int nCurrentPlot;
+    unsigned int m_current_plot;
 
     // functions
 

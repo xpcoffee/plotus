@@ -77,6 +77,9 @@
     </spacer>
    </item>
    <item>
+    <widget class="QComboBox" name="comboBox_Plot"/>
+   </item>
+   <item>
     <widget class="QPushButton" name="pushButton_Details">
      <property name="minimumSize">
       <size>
@@ -96,7 +99,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxShape">
+    <widget class="QComboBox" name="comboBox_Shape">
      <property name="minimumSize">
       <size>
        <width>80</width>
@@ -132,7 +135,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxColor">
+    <widget class="QComboBox" name="comboBox_Color">
      <property name="minimumSize">
       <size>
        <width>95</width>
@@ -188,7 +191,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButtonUp">
+    <widget class="QPushButton" name="pushButton_Up">
      <property name="minimumSize">
       <size>
        <width>30</width>
@@ -210,7 +213,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButtonDown">
+    <widget class="QPushButton" name="pushButton_Down">
      <property name="minimumSize">
       <size>
        <width>30</width>
@@ -232,7 +235,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxInteract">
+    <widget class="QComboBox" name="comboBox_Interact">
      <property name="minimumSize">
       <size>
        <width>80</width>
@@ -311,7 +314,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBoxSkip">
+    <widget class="QCheckBox" name="checkBox_Skip">
      <property name="text">
       <string/>
      </property>
