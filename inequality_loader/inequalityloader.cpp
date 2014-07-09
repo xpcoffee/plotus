@@ -299,6 +299,8 @@ string InequalityLoader::getFile() { return m_filename; }
 
 string InequalityLoader::getErrors() { return m_error_message; }
 
+string InequalityLoader::getErrors(){ return sErrorMessage; }
+
 
 //	Parsers
 //	--------
@@ -350,7 +352,11 @@ void InequalityLoader::enablePositionButtons (bool flag_enable)
 
 void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBox_Interact->setEnabled(flag_enable); }
 
+<<<<<<< HEAD
 void InequalityLoader::resetCombinations() { ui->comboBox_Interact->setCurrentIndex(COMBINE_NONE); }
+=======
+void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE); }
+>>>>>>> f18c2b6ef4c7439ec9a6b67ee46de0067649baad
 
 
 ///	Private Functions

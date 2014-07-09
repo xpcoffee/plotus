@@ -123,6 +123,7 @@ void BareMinimumPlotter::plot()
 
     // reload loaders (in case previous plotting changed its data through combinations)
     for (int i = 0; i < static_cast<int>(vInequalityLoaders.size()); i++){
+        cout << "minus one" << endl;
         vInequalityLoaders[i]->loadCase(vInequalityLoaders[i]->getFile());
     }
 
@@ -164,6 +165,7 @@ void BareMinimumPlotter::plot()
         }
         for (int j = 0; j < static_cast<int>(vInequalityLoaders.size()); j++){
             if(vInequalityLoaders[j]->getNumber() == i){
+                cout << "zero" << endl;
                 if (vInequalityLoaders[j]->getSkip()) { flag_skip = true; break; }
                 plotOld(j, x_units, y_units, progress);
             }
@@ -701,10 +703,12 @@ void BareMinimumPlotter::setCombinationInputs(){
     }
     // disable the combinations of last item
     if(ui->layout_Inequality->itemAt(nSize)->widget()->accessibleDescription() == "input"){
+        cout << "last item is input" << endl;
         qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->enableCombinations(false);
         qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nSize)->widget())->resetCombinations();
     }
     if(ui->layout_Inequality->itemAt(nSize)->widget()->accessibleDescription() == "loader"){
+        cout << "last item is loader" << endl;
         qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nSize)->widget())->enableCombinations(false);
         qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(nSize)->widget())->resetCombinations();
     }
