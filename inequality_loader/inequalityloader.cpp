@@ -6,23 +6,35 @@
 
 // [BREAK] creating a JSON parser to find value of next specified key
 //	need this to be able to pick out JSON data to save (must save the data of stuff being plotted only)
-getNextValue(string key, string text, int start){
+string getNextValue(string key, string text, int start){
     string token;
-    istringstream iss;
-    iss << string.substr(start, text.size()-start);
-    while (getline(iss, token, '"')){
+    stringstream ss;
+    ss << text.substr(start, text.size()-start);
+    while (getline(ss, token, '"')){
         if (token == key){
 
         }
     }
+    return "";
+
+}
+
+static string cropFileName(string filename)
+{
+        string filename_short;
+        stringstream ss_name;
+        ss_name << filename;
+
+        while (getline(ss_name, filename_short, '/')){}
+        return filename_short;
 
 }
 
 ///	Public Functions
 ///	=================
 
-//	Constructor
-//	-----------
+//	Constructors
+//	-------------
 
 InequalityLoader::InequalityLoader(QWidget *parent) :
     QWidget(parent),
@@ -35,7 +47,6 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     ui->setupUi(this);
     setAccessibleDescription("loader");
 }
-
 
 //	Destructor
 //	-----------
@@ -169,102 +180,132 @@ void InequalityLoader::loadCase(string filename)
 {
     if (filename.empty())
         return;
-    m_filename = filename;
 
+    m_filename = filename;
     string token;
     ifstream ss(filename.c_str());
 
-    if(ss.is_open()){
-        bool flag_problem = false;
-        sDetails = "";
-        string JSON_string = "";
-        m_x_results.clear();
-        m_y_results.clear();
-        QVector<double> qvX;
-        QVector<double> qvY;
+    if(!ss.is_open())
+        return;
 
-        string filename_short;
-        stringstream ss_name;
-        ss_name << filename;
+    bool flag_problem = false;
+    bool flag_newplot = true;
+    bool flag_case = false;
+    bool flag_bracket = false;
+    sDetails = "";
+    m_details.clear();
+    string JSON_string;
+    string JSON_string_variables;
+    m_x_results.clear();
+    m_y_results.clear();
 
-                    // crop file name [not really necessary]
-                    while (getline(ss_name, filename_short, '/')){}
-                    ss_name << filename_short;
-                    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + filename_short +"<i\\><b\\>"));
+    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + cropFileName(filename) +"<i\\><b\\>"));
 
-        while ( getline(ss, token, '"')){
-            // inequalities
-            if (token == "inequality") {			// beginning of inequality
-                sDetails += "Inequality:\n";
-                if (getline(ss, token, '{'))
-                    if (getline(ss, token, '}')){
-                        sDetails += extractExpression(token, flag_problem, m_error_message);
-                        InequalityInput tmp = new InequalityInput();
-                        tmp.fromJSON(token);
-                        JSON_string += tmp.expressionToJSON();
+    while ( getline(ss, token, '"')){
+        // variables
+        if (token == "variables") {			// beginning of inequality
+            sDetails += "Variables:";
+            if (getline (ss, token, '['))
+                if (getline (ss, token, ']')){
+                    sDetails += extractVariables(token, flag_problem, m_error_message);
+                    if (!flag_case){
+                        JSON_string_variables += "\"variables\":[" + token + "],\n";
+                    } else {
+                        JSON_string += "\"variables\":[" + token + "],\n";
                     }
-            }
-
-            // variables
-            if (token == "variables") {			// beginning of inequality
-                sDetails += "Variables:";
-                if (getline (ss, token, '['))
-                    if (getline (ss, token, ']')){
-                        sDetails += extractVariables(token, flag_problem, m_error_message);
-                    }
-            }
-
-            // plot data
-            if (token == "data"){				// beginning of plot data
-                if (getline(ss, token,'['))
-                    if (getline(ss, token,']')){
-                       string token_plot;
-                       stringstream iss;
-                       iss << token;
-                       while (getline(iss, token_plot, '"')){
-                            if (token_plot == "x")
-                                if (getline (iss, token_plot, ':'))
-                                    if (getline (iss, token_plot, ',')){
-                                        qvX.push_back(atof(token_plot.c_str()));
-                                    }
-
-                            if (token_plot == "y")
-                                if (getline (iss, token_plot, ':'))
-                                    if (getline (iss, token_plot,'}')){
-                                        qvY.push_back(atof(token_plot.c_str()));
-                                    }
-                        }
-                        if (!qvX.empty()){
-                            m_x_results.push_back(qvX);
-                            m_y_results.push_back(qvY);
-                        }
-                        // push plot details
-                        m_details.push_back(sDetails);
-                        sDetails = "";
-                    }
-            }	// plot data
-        }	// end of file
-
-        if (m_x_results.empty() || m_y_results.empty() || (m_y_results.size() != m_x_results.size())){
-            flag_problem = true;
-            m_error_message += "Parsing Error | Plot data\n";
+                }
+        }
+        // [BREAK] working on loading pre-saved cases. may require json parser.
+        if (token == "case"){
+            flag_case = true;
+            JSON_string += "\"case\":{\n";
         }
 
-        //	if input was invalid, kill the widget
-        if (flag_problem)
-            emit killThis(m_gui_number);
+        if (token == "}\n}\n},"){
+            flag_case = false;
+            JSON_string += "}\n";
+        }
 
+        // inequalities
+        if (token == "expressions"){
+            JSON_string += "\"expressions\":{\n";
+
+        }
+        if (token == "inequality") {			// beginning of inequality
+            if (flag_newplot)
+            flag_newplot = false;
+
+            sDetails += "Inequality:\n";
+            if (getline(ss, token, '{'))
+                if (getline(ss, token, '}')){
+                    sDetails += extractExpression(token, flag_problem, m_error_message);
+                    JSON_string += "\"inequality\":{" + token + "}\n";
+                }
+        }
+
+        // plot data
+        if (token == "data"){
+            JSON_string +=	"}\n"; 	// close expressions
+            flag_newplot = true;
+
+            if (getline(ss, token,'['))
+                if (getline(ss, token,']')){
+                    QVector<double> qvX;
+                    QVector<double> qvY;
+                    string token_plot;
+                    stringstream iss;
+                    iss << token;
+                    while (getline(iss, token_plot, '"')){
+                         if (token_plot == "x")
+                             if (getline (iss, token_plot, ':'))
+                                 if (getline (iss, token_plot, ',')){
+                                     qvX.push_back(atof(token_plot.c_str()));
+                                 }
+
+                         if (token_plot == "y")
+                             if (getline (iss, token_plot, ':'))
+                                 if (getline (iss, token_plot,'}')){
+                                     qvY.push_back(atof(token_plot.c_str()));
+                                 }
+                     }
+                     if (!qvX.empty()){
+                         m_x_results.push_back(qvX);
+                         m_y_results.push_back(qvY);
+                     }
+                     // push plot details
+                     m_details.push_back(sDetails);
+                     JSON_string = "\"case\":{\n" + JSON_string_variables + JSON_string + "}\n";
+                     cout << JSON_string;
+                     m_expressions.push_back(JSON_string);
+                     JSON_string = "";
+                     sDetails = "";
+                }
+        }
+    }	// while loop
+
+   cout << JSON_string << endl;
+
+    if (m_x_results.empty() || m_y_results.empty() || (m_y_results.size() != m_x_results.size())){
+        flag_problem = true;
+        m_error_message += "Parsing Error | Plot data\n";
+    }
+
+    //	if input was invalid, kill the widget
+    if (flag_problem){
+        emit killThis(m_gui_number);
+        return;
+    }
+
+    if (ui->comboBox_Plot->count() == 0){
         QStringList combo_data;
         for (unsigned int i = 0; i < m_x_results.size(); i++){
             stringstream buffer;
             buffer << "Plot " << i;
             combo_data << QString::fromStdString(buffer.str());
         }
-
         ui->comboBox_Plot->clear();
         ui->comboBox_Plot->insertItems(0, combo_data);
-    }	// open file
-
+    }
 }
 
 void InequalityLoader::setX(QVector<double> vector) { m_x_results[m_current_plot] = vector; }
@@ -299,7 +340,6 @@ string InequalityLoader::getFile() { return m_filename; }
 
 string InequalityLoader::getErrors() { return m_error_message; }
 
-string InequalityLoader::getErrors(){ return sErrorMessage; }
 
 
 //	Parsers
@@ -352,11 +392,7 @@ void InequalityLoader::enablePositionButtons (bool flag_enable)
 
 void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBox_Interact->setEnabled(flag_enable); }
 
-<<<<<<< HEAD
 void InequalityLoader::resetCombinations() { ui->comboBox_Interact->setCurrentIndex(COMBINE_NONE); }
-=======
-void InequalityLoader::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE); }
->>>>>>> f18c2b6ef4c7439ec9a6b67ee46de0067649baad
 
 
 ///	Private Functions
