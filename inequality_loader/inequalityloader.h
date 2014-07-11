@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include "inequality_input/inequalityinput.h"
+#include "bluejson.h"
 
 //	Namespace
 using namespace std;
@@ -43,6 +44,7 @@ public:
     string getFile();
     string getErrors();
     // parsers
+    void parsePlotData(string json);
     string expressionToJSON();
     string dataToJSON();
     // evaluation
@@ -51,6 +53,7 @@ public:
     void enablePositionButtons(bool flag_enable);
     void enableCombinations(bool flag_enable);
     void resetCombinations();
+    void setComboBoxPlot();
 
 signals:
     void moveUp(int guiNumber);
@@ -78,6 +81,7 @@ private:
     // meta
     int m_gui_number;
     bool flag_skip;
+    bool flag_problem;
     string m_filename;
     string m_error_message;
     // evaluation

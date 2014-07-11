@@ -20,6 +20,7 @@
 #include "variable_input/variableinput.h"
 #include "inequality_input/inequalityinput.h"
 #include "inequality_loader/inequalityloader.h"
+#include "bluejson.h"
 
 #ifndef APPROX_EQUAL_PRECISION
 #define APPROX_EQUAL_PRECISION	1E-5
@@ -90,24 +91,24 @@ private slots:
 private:
     Ui::BareMinimumPlotter *ui;
     //	plotter elements
-    vector<VariableInput*> vVariableInputs;
-    vector<InequalityInput*> vInequalityInputs;
-    vector<InequalityLoader*> vInequalityLoaders;
+    vector<VariableInput*> m_VariableInputs;
+    vector<InequalityInput*> m_InequalityInputs;
+    vector<InequalityLoader*> m_InequalityLoaders;
     //	plotting
-    int nGraphIndex;
-    int nPrevCombination;
+    int m_graph_count;
+    int m_prev_combination;
     bool flag_Combination;
-    Variable mVariableX, mVariableY;
-    QVector<double> qvX, qvY, qvX_problem, qvY_problem;
+    Variable m_XVariable, m_YVariable;
+    QVector<double> x_results, y_results, x_results_problem, y_results_problem;
     //	gui management
-    int nLatestVariableInput;
-    int nLatestInequalityInput;
+    int m_variable_count;
+    int m_inequality_count;
     //	error handling
     bool flag_Problem;
     bool flag_Empty;
-    string sErrorMessage;
+    string m_error_message;
     // 	application context
-    string sDefaultDirectory;
+    string m_default_directory;
     // experimental
 
 };
