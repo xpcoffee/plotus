@@ -47,6 +47,7 @@ public:
     void parsePlotData(string json);
     string formatExpressions(string json);
     string formatVariables(string json);
+    string formatCase(string json);
     string expressionToJSON();
     string dataToJSON();
     // evaluation

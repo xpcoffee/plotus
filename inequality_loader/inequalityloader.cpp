@@ -60,19 +60,15 @@ void InequalityLoader::setCaseName(string value)
 }
 
 
-
-// [BREAK] 11 July 2014 | implementing JSON parser
+//	TODO: insert error checking (flag_problem)
 
 void InequalityLoader::loadCase(string filename)
 {
     if (filename.empty())
         return;
-
     m_filename = filename;
-    m_details.clear();
-
+// read in file
     string token;
-    // Exprimental
     string file = "";
     ifstream iss(filename.c_str());
     if (!iss.is_open())
@@ -81,24 +77,24 @@ void InequalityLoader::loadCase(string filename)
         file += token + "\n";
     }
     iss.close();
-
+// parse
+    m_details.clear();
     string variables, plot, expressions, data;
     BlueJSON parser = BlueJSON(file);
-    // get case variables
-    parser.getNextKeyValue("variables", variables);
-    // get plots
-    while (parser.getNextKeyValue("plot", plot)){
-        // get data and expressions
+    parser.getNextKeyValue("variables", variables); // variables
+    while (parser.getNextKeyValue("plot", plot)){ 	// get plots
         BlueJSON plotparser = BlueJSON(plot);
-        if(plotparser.getNextKeyValue("expressions", expressions)){
-            m_expressions.push_back(variables + expressions);
-            m_details.push_back(formatVariables(variables) +
-                                "<hr>" +
-                                "<table align=\"center\" cellspacing=\"10\">" +
-                                "<tr><th>Type</th><th>Expressions</th><th>Combination</th><tr>" +
-                                formatExpressions(expressions) +
-                                "</table>");
-        }
+        // expressions
+        plotparser.getNextKeyValue("expressions", expressions);
+        m_expressions.push_back("\"variables\":[" + variables + "]\n"		// 	JSON for saving
+                                "\"expressions\":{" + expressions + "}\n");
+        m_details.push_back(formatVariables(variables) +					//	Formatted for display
+                            "<hr>" +
+                            "<table align=\"center\" cellspacing=\"10\">" +
+                            "<tr><th>Expressions</th><th>Combination</th><tr>" +
+                            formatExpressions(expressions) +
+                            "</table>");
+        // data
         plotparser.getNextKeyValue("data", data);
         parsePlotData(data);
     }
@@ -106,7 +102,7 @@ void InequalityLoader::loadCase(string filename)
     setComboBoxPlot();
     return;
 
-    //	if input was invalid, kill the widget
+//	if input was invalid, kill the widget
     if (flag_problem){
         emit killThis(m_gui_number);
         return;
@@ -166,8 +162,17 @@ void InequalityLoader::parsePlotData(string json){
     m_y_results.push_back(y_vector);
 }
 
+string InequalityLoader::formatCase(string json){
+    BlueJSON parser = BlueJSON(json);
+    string variables, expressions;
+    parser.getNextKeyValue("variables", variables);
+    parser.getNextKeyValue("expressions", expressions);
+    return formatVariables(variables) + formatExpressions(expressions);
+}
+
 // [BREAK] 12 July 2014 | formatting nested cases in HTML
 string InequalityLoader::formatExpressions(string json){
+    cout << json << endl;
     stringstream buffer;
     string token;
     BlueJSON parser = BlueJSON(json);
@@ -176,32 +181,34 @@ string InequalityLoader::formatExpressions(string json){
     keys.push_back("case");
     int closest_key;
     while (parser.getNextKeyValue(keys,token, closest_key)){
-            if (closest_key = 1){	 // case found
-                buffer << "<tr><td>case</td><td></td><td></td></tr>";
-                buffer << formatExpressions(token);
-                buffer << "<tr><td>end case</td><td></td><td></td></tr>";
-            }
-            parser.getNextKeyValue("left expression", token);
-            buffer << "<tr>";
-            buffer << "<td align=\"center\">";
-            if(parser.getStringToken(token))
-                buffer << token << " ";
-            if (parser.getNextKeyValue("symbol", token)){
+        cout << token << endl;
+            if (closest_key == 1){	//	case found
+                buffer << "<tr> <td>case</td> <td></td> </tr>";
+                buffer << formatCase(token);
+                buffer << "<tr> <td>end case</td> <td></td> </tr>";
+            } else {				//	inequality found
+                parser.getNextKeyValue("left expression", token);
+                buffer << "<tr>";
+                buffer << "<td align=\"center\">";
                 if(parser.getStringToken(token))
                     buffer << token << " ";
+                if (parser.getNextKeyValue("symbol", token)){
+                    if(parser.getStringToken(token))
+                        buffer << token << " ";
+                }
+                if (parser.getNextKeyValue("right expression", token)){
+                    if(parser.getStringToken(token))
+                        buffer << token << " ";
+                }
+                buffer << "</td>";
+                buffer << "<td align=\"center\">";
+                if (parser.getNextKeyValue("combination", token)){
+                    if(parser.getStringToken(token))
+                        buffer << token;
+                }
+                buffer << "</td>";
+                buffer << "</tr>";
             }
-            if (parser.getNextKeyValue("right expression", token)){
-                if(parser.getStringToken(token))
-                    buffer << token << " ";
-            }
-            buffer << "</td>";
-            buffer << "<td align=\"center\">";
-            if (parser.getNextKeyValue("combination", token)){
-                if(parser.getStringToken(token))
-                    buffer << token;
-            }
-            buffer << "</td>";
-            buffer << "</tr>";
     }
     return buffer.str();
 }
@@ -258,7 +265,8 @@ string InequalityLoader::formatVariables(string json){
 
 string InequalityLoader::expressionToJSON()
 {
-    return m_expressions[m_current_plot];
+    return "\"case\":{\n" + m_expressions[m_current_plot] + "}\n";
+
 }
 
 string InequalityLoader::dataToJSON(){
