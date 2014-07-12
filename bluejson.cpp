@@ -45,12 +45,12 @@ int BlueJSON::getCurrentPos(){ return m_it - m_text.begin(); }
 
 bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
 {
-    if(m_text.empty())
-        return "";
+    if (m_text.empty() || key.empty())
+        return false;
 
-//    if (pos != -1){
-//        setPosition(pos);
-//    }
+    if (pos != -1){
+        setPosition(pos);
+    }
 
     flag_key_found = false;
     flag_in_string = false;
@@ -97,11 +97,69 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
     return false;
 }
 
+bool BlueJSON::getNextKeyValue(vector<string> keys, string &value, int &closest_key)
+{
+    if (m_text.empty() || keys.empty())
+        return false;
+
+//    if (pos != -1){
+//        setPosition(pos);
+//    }
+
+    flag_key_found = false;
+    flag_in_string = false;
+    stringstream buffer;
+
+    for (; m_it != m_text.end(); m_it++){
+        char c = *m_it;
+
+        // find key
+        if (!flag_key_found){
+            if (isStringDelimiter(c)){
+                for (int i = 0; i < keys.size(); i++){
+                    if (buffer.str() == keys[i]){	// key found
+                        flag_key_found = true;
+                        flag_in_string = false;
+                        m_nest_level = 0;
+                        if (closest_key != -1) // if integer was passed
+                            closest_key = i;
+                    }
+                }
+                buffer.str("");
+            } else {
+                buffer << c;
+            }
+        }
+
+        // find value
+        else {
+            if (isValueStart(c)){
+               // start of value
+               if (m_nest_level == 0){
+                    m_value_start = m_it - m_text.begin() + 1;
+               }
+               if (c != ':') { m_nest_level++; }
+            }
+            if (isValueEnd(c)){
+               if (c != ',' && m_nest_level != 0) { m_nest_level--; }
+               if (m_nest_level == 0){	// end of value
+                    unsigned int value_end = m_it - m_text.begin();
+                    value = m_text.substr(m_value_start, value_end - m_value_start);	// return value
+                    m_token = value;
+                    return true;
+               }
+            }
+        }
+    }
+    // key-value not found
+    return false;
+}
+
 bool BlueJSON::getStringToken(string &token)
 {
     if (m_token.empty() || m_token.size() < 2)
         return false;
-    if ((*m_token.begin() != '"') || (*m_token.end() != '"'))
+    if ((*m_token.begin() != '"') || (*(m_token.end()-1) != '"'))
         return false;
     token = m_token.substr(1,m_token.size()-2);
     return true;
@@ -109,24 +167,34 @@ bool BlueJSON::getStringToken(string &token)
 
 bool BlueJSON::getIntToken(int &token)
 {
+    stringstream ss;
     if (m_token.empty())
         return false;
-    if( (token = atoi(m_token.c_str())) )
+    ss << m_token;
+    if(ss >> token)
         return true;
     return false;
 }
 
 bool BlueJSON::getDoubleToken(double &token)
 {
+    stringstream ss;
     if (m_token.empty())
         return false;
-    if( (token = atof(m_token.c_str())) )
+    ss << m_token;
+    if(ss >> token)
         return true;
     return false;
+//    if (m_token.empty())
+//        return false;
+//    if( (token = atof(m_token.c_str())) )
+//        return true;
+//    return false;
 }
 
 bool BlueJSON::getBoolToken(bool &token)
 {
+    cout << m_token << endl;
     if (m_token.empty())
         return false;
     if (m_token == "false"){

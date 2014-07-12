@@ -45,6 +45,8 @@ public:
     string getErrors();
     // parsers
     void parsePlotData(string json);
+    string formatExpressions(string json);
+    string formatVariables(string json);
     string expressionToJSON();
     string dataToJSON();
     // evaluation

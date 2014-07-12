@@ -765,7 +765,6 @@ void BareMinimumPlotter::clearGUI(){
 
 void BareMinimumPlotter::save_JSON(QString filename){
     stringstream case_buffer, case_element_buffer, case_subelement_buffer;
-
     if (filename.isEmpty())
         return;
 
@@ -783,13 +782,14 @@ void BareMinimumPlotter::save_JSON(QString filename){
 
     // 	- plots
     for (int i = 0; i < ui->layout_Inequality->count(); i++){
+        cout << "three" << endl;
         if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "input"){
             InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget());
             // expression
             case_subelement_buffer << current_inequality->expressionToJSON();
             if (current_inequality->getCombination() == COMBINE_NONE){ // save only combined results
                 // start plot brace
-                case_element_buffer << "{";
+                case_element_buffer << "\"plot\":{";
                 // encapsulate expressions
                 case_element_buffer << "\"expressions\":{\n" <<  case_subelement_buffer.str()<< "\n},\n";
                 case_subelement_buffer.str("");
@@ -832,14 +832,16 @@ void BareMinimumPlotter::save_JSON(QString filename){
 
         // encapsulate plots
         if(i == static_cast<int>(ui->layout_Inequality->count())-1){ 	// not the end
-            case_buffer << "\"plots\":[\n" << case_element_buffer.str() << "\n]\n";
+            case_buffer << case_element_buffer.str() << "\n";
             case_element_buffer.str("");
         }
     }
 
+
     // encapsulate case, write to file
     ofstream outFile(filename.toStdString().c_str());
     if (outFile.is_open()){
+        cout << case_buffer.str() << endl;
         outFile << "{" << case_buffer.str() << "}";
         outFile.close();
     }

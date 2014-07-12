@@ -50,7 +50,7 @@ void InequalityLoader::setNumber(int number = -1)
 {
     if (number > -1)
         m_gui_number = number;
-    ui->label_Number->setNum(number+1);
+    ui->label_Number->setNum(number + 1);
 }
 
 void InequalityLoader::setCaseName(string value)
@@ -59,64 +59,6 @@ void InequalityLoader::setCaseName(string value)
         ui->label_CaseOut->setText(QString::fromStdString(value));
 }
 
-static string formatExpressions(string json){
-    stringstream buffer;
-    string token;
-    BlueJSON parser = BlueJSON(json);
-    while (parser.getNextKeyValue("left expression", token)){
-            buffer << "<b>Inequality<\\b>: ";
-            if(parser.getStringToken(token))
-                buffer << token << " ";
-            if (parser.getNextKeyValue("symbol", token)){
-                if(parser.getStringToken(token))
-                    buffer << token << " ";
-            }
-            if (parser.getNextKeyValue("right expression", token)){
-                if(parser.getStringToken(token))
-                    buffer << token << " ";
-            }
-            if (parser.getNextKeyValue("combination", token)){
-                if(parser.getStringToken(token))
-                    buffer << "combination: " << token;
-            }
-            buffer << "<br>";
-    }
-    return buffer.str();
-}
-
-static string formatVariables(string json){
-    stringstream buffer;
-    string token;
-    int int_token;
-    BlueJSON parser = BlueJSON(json);
-    while (parser.getNextKeyValue("name", token)){
-            buffer << "<b>Variable<\\b>: ";
-            if(parser.getStringToken(token))
-                buffer << token << " ";
-            if (parser.getNextKeyValue("min", token)){
-                if(parser.getIntToken(int_token))
-                    buffer << "Min:<i>" << int_token << "<\\i> ";
-            }
-            if (parser.getNextKeyValue("max", token)){
-                if(parser.getIntToken(int_token))
-                    buffer << "Max:<i>" << int_token << "<\\i> ";
-            }
-            if (parser.getNextKeyValue("elements", token)){
-                if(parser.getIntToken(int_token))
-                    buffer << "Steps:<i>" << int_token << "<\\i> ";
-            }
-            if (parser.getNextKeyValue("units", token)){
-                if(parser.getStringToken(token))
-                    buffer << "Units: <i>" << token << "<\\i>";
-            }
-            if (parser.getNextKeyValue("axis", token)){
-                if(parser.getStringToken(token))
-                    buffer << "Axis: <i>" << token << "<\\i>";
-            }
-            buffer << "<br>";
-    }
-    return buffer.str();
-}
 
 
 // [BREAK] 11 July 2014 | implementing JSON parser
@@ -127,6 +69,7 @@ void InequalityLoader::loadCase(string filename)
         return;
 
     m_filename = filename;
+    m_details.clear();
 
     string token;
     // Exprimental
@@ -135,7 +78,7 @@ void InequalityLoader::loadCase(string filename)
     if (!iss.is_open())
         return;
     while (getline(iss, token)){
-        file += token;
+        file += token + "\n";
     }
     iss.close();
 
@@ -148,10 +91,13 @@ void InequalityLoader::loadCase(string filename)
         // get data and expressions
         BlueJSON plotparser = BlueJSON(plot);
         if(plotparser.getNextKeyValue("expressions", expressions)){
-            m_details.push_back("<b><i>Variables<\\b><\\i><br>" +
-                                formatVariables(variables) +
-                                "<br>" +
-                                formatExpressions(expressions));
+            m_expressions.push_back(variables + expressions);
+            m_details.push_back(formatVariables(variables) +
+                                "<hr>" +
+                                "<table align=\"center\" cellspacing=\"10\">" +
+                                "<tr><th>Type</th><th>Expressions</th><th>Combination</th><tr>" +
+                                formatExpressions(expressions) +
+                                "</table>");
         }
         plotparser.getNextKeyValue("data", data);
         parsePlotData(data);
@@ -218,6 +164,96 @@ void InequalityLoader::parsePlotData(string json){
     }
     m_x_results.push_back(x_vector);
     m_y_results.push_back(y_vector);
+}
+
+// [BREAK] 12 July 2014 | formatting nested cases in HTML
+string InequalityLoader::formatExpressions(string json){
+    stringstream buffer;
+    string token;
+    BlueJSON parser = BlueJSON(json);
+    vector<string> keys;
+    keys.push_back("inequality");
+    keys.push_back("case");
+    int closest_key;
+    while (parser.getNextKeyValue(keys,token, closest_key)){
+            if (closest_key = 1){	 // case found
+                buffer << "<tr><td>case</td><td></td><td></td></tr>";
+                buffer << formatExpressions(token);
+                buffer << "<tr><td>end case</td><td></td><td></td></tr>";
+            }
+            parser.getNextKeyValue("left expression", token);
+            buffer << "<tr>";
+            buffer << "<td align=\"center\">";
+            if(parser.getStringToken(token))
+                buffer << token << " ";
+            if (parser.getNextKeyValue("symbol", token)){
+                if(parser.getStringToken(token))
+                    buffer << token << " ";
+            }
+            if (parser.getNextKeyValue("right expression", token)){
+                if(parser.getStringToken(token))
+                    buffer << token << " ";
+            }
+            buffer << "</td>";
+            buffer << "<td align=\"center\">";
+            if (parser.getNextKeyValue("combination", token)){
+                if(parser.getStringToken(token))
+                    buffer << token;
+            }
+            buffer << "</td>";
+            buffer << "</tr>";
+    }
+    return buffer.str();
+}
+
+string InequalityLoader::formatVariables(string json){
+    stringstream buffer;
+    string token;
+    int int_token;
+    BlueJSON parser = BlueJSON(json);
+    buffer << "<table cellspacing=\"10\">";
+    buffer << "<style></style>";
+    buffer << "<tr> <th>Variable</th> <th>Min</th> <th>Max</th> <th>Steps</th> <th>Units</th> <th>Axis</th></tr>";
+    while (parser.getNextKeyValue("name", token)){
+            buffer << "<tr>";
+            buffer << "<td align=\"center\">";
+            if(parser.getStringToken(token))
+                buffer<< token;
+            buffer << "</td>";
+            buffer << "<td align=\"center\">";
+            if (parser.getNextKeyValue("min", token)){
+                if(parser.getIntToken(int_token))
+                    buffer<< int_token;
+            }
+            buffer << "</td>";
+            buffer << "<td align=\"center\">";
+            if (parser.getNextKeyValue("max", token)){
+                if(parser.getIntToken(int_token))
+                    buffer << int_token;
+            }
+            buffer << "</td>";
+            buffer << "<td align=\"center\">";
+            if (parser.getNextKeyValue("elements", token)){
+                if(parser.getIntToken(int_token))
+                    buffer << int_token;
+            }
+            buffer << "</td>";
+            buffer << "<td align=\"center\">";
+            if (parser.getNextKeyValue("units", token)){
+                if(parser.getStringToken(token))
+                    buffer << token ;
+            }
+            buffer << "</td>";
+            buffer << "<td align=\"center\">";
+            if (parser.getNextKeyValue("axis", token)){
+                if(parser.getStringToken(token))
+                    buffer << token;
+            }
+            buffer << "</td>";
+            buffer << "</tr>";
+    }
+    buffer << "</table>";
+    return buffer.str();
 }
 
 string InequalityLoader::expressionToJSON()
@@ -296,7 +332,7 @@ void InequalityLoader::on_pushButton_Details_clicked()
     QString message = "";
     for (int i = 0; i < static_cast<int>(m_details.size()); i++){
         stringstream buffer;
-        buffer << "Plot " << i << "\n-----------\n" << m_details[i];
+        buffer << "<b>Plot " << i << "</b><hr>" << m_details[i];
         message.append(QString::fromStdString(buffer.str()));
     }
     dialog->setText(message);

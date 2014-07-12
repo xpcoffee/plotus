@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <vector>
+#include <cassert>
 
 using namespace std;
 
@@ -35,6 +37,7 @@ public:
     int getCurrentPos();
 //	features
     bool getNextKeyValue(string key, string &value, int pos = -1);
+    bool getNextKeyValue(vector<string> keys, string &value, int &closest_key);
     bool getStringToken(string &token);
     bool getIntToken(int &token);
     bool getDoubleToken(double &token);
