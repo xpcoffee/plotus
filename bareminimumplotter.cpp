@@ -653,7 +653,7 @@ void BareMinimumPlotter::addInequalityInput(){
     setCombinationInputs();
 }
 
-void BareMinimumPlotter::addInequalityLoader(){
+void BareMinimumPlotter::addInequalityLoader(string filename){
     m_InequalityLoaders.push_back(new InequalityLoader);
     InequalityLoader *new_inequality = m_InequalityLoaders.back();
     //	add to gui
@@ -667,8 +667,10 @@ void BareMinimumPlotter::addInequalityLoader(){
     QObject::connect(new_inequality, SIGNAL(moveDown(int)),
                         this, SLOT(moveInequalityInputDown(int)));
     // load data
-    QString filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)");
-    new_inequality->loadCase(filename.toStdString());
+    if (filename == ""){
+        filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)").toStdString();
+    }
+    new_inequality->loadCase(filename);
     // enable/disable combination menu
     setCombinationInputs();
 }
@@ -763,7 +765,8 @@ void BareMinimumPlotter::clearGUI(){
 //	Parsing and File IO
 //	--------------------
 
-void BareMinimumPlotter::save_JSON(QString filename){
+void BareMinimumPlotter::save_JSON(QString filename)
+{
     stringstream case_buffer, case_element_buffer, case_subelement_buffer;
     if (filename.isEmpty())
         return;
@@ -782,7 +785,6 @@ void BareMinimumPlotter::save_JSON(QString filename){
 
     // 	- plots
     for (int i = 0; i < ui->layout_Inequality->count(); i++){
-        cout << "three" << endl;
         if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "input"){
             InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget());
             // expression
@@ -841,9 +843,25 @@ void BareMinimumPlotter::save_JSON(QString filename){
     // encapsulate case, write to file
     ofstream outFile(filename.toStdString().c_str());
     if (outFile.is_open()){
-        cout << case_buffer.str() << endl;
         outFile << "{" << case_buffer.str() << "}";
         outFile.close();
+    }
+}
+
+void BareMinimumPlotter::open_variables(string json)
+{
+    string token;
+    stringstream ss;
+    unsigned int nVar = 0;
+    ss << json;
+    while ( getline (ss, token, '{')){
+        if ( getline (ss, token, '}')){
+            if ((nVar+1) > m_VariableInputs.size()){
+                addVariableInput();
+            }
+            m_VariableInputs[nVar]->fromJSON(token);
+        }
+        nVar++;
     }
 }
 
@@ -851,7 +869,8 @@ void BareMinimumPlotter::save_JSON(QString filename){
 ///	Public Slots
 /// =============
 
-void BareMinimumPlotter::checkAxisMode(int gui_number){
+void BareMinimumPlotter::checkAxisMode(int gui_number)
+{
     int xcount = 0, ycount = 0, xpos, ypos;
     for (int i = 0; i < static_cast<int>(m_VariableInputs.size()); i++){ 	// find x-axis and y-axis labels
        if(m_VariableInputs[i]->getAxisMode() == MODE_X_AXIS) {
@@ -1027,51 +1046,40 @@ void BareMinimumPlotter::menu_about(){
     QMessageBox::about(ui->centralWidget, title, info);
 }
 
+// [BREAK] 14 July 2014 | finished primitive file open. Time to work on GUI.
 void BareMinimumPlotter::menu_open(){
     QString filename = QFileDialog::getOpenFileName(this, "Open plot", QString::fromStdString(m_default_directory), "JSON (*.json)");
     if (filename.isEmpty())
         return;
 
     clearGUI();
-    unsigned int nIneq = 0;
 
-    string line;
-    ifstream inFile(filename.toStdString().c_str());
-    if(inFile.is_open()){
-        while( getline(inFile, line) ){ // x value
-            string token;
-            stringstream ss;
-            ss << line;
-            while ( getline(ss,token, '"') ){
-                if (token == "inequality"){
-                    if ((nIneq + 1) > m_InequalityInputs.size())
-                        addInequalityInput();
-                    nIneq++;
-                }
-                if (token == "expression"){
-                    if(getline(ss, token,'{'))
-                        if(getline(ss, token,'}'))
-                            m_InequalityInputs.back()->fromJSON(token);
-                }
-                if (token =="variables"){
-                    unsigned int nVar = 0;
-                    if(getline(ss, token, '['))
-                        if(getline(inFile, token, ']')){
-                            string var_token;
-                            stringstream var_ss;
-                            var_ss << token;
-                            while ( getline (var_ss, var_token, '{')){
-                                if ( getline (var_ss, var_token, '}')){
-                                    if ((nVar+1) > m_VariableInputs.size()){
-                                        addVariableInput();
-                                    }
-                                    m_VariableInputs[nVar]->fromJSON(var_token);
-                                }
-                                nVar++;
-                            }
-                        }
-                }
-            }
+    BlueJSON parser;
+    parser.readInFile(filename.toStdString());
+
+    string token;
+    parser.getNextKeyValue("variables", token);
+    open_variables(token);
+
+
+    int gui_number = 0;
+    vector<string> keys;
+    keys.push_back("inequality");
+    keys.push_back("case");
+    int closest_key;
+    while (parser.getNextKeyValue(keys,token, closest_key)){
+        if (closest_key == 1){	//	case found
+            BlueJSON subparser = BlueJSON(token);
+            string file;
+            subparser.getNextKeyValue("file", file);
+            subparser.getStringToken(file);
+            addInequalityLoader(file);
+            gui_number++;
+        } else {				//	inequality found
+            if ((gui_number + 1) > ui->layout_Inequality->count())
+                addInequalityInput();
+            gui_number++;
+            m_InequalityInputs.back()->fromJSON(token);
         }
     }
 

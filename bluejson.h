@@ -1,8 +1,9 @@
 #ifndef BLUEJSON_H
 #define BLUEJSON_H
 
-#include <iostream>
 #include <string>
+#include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cstdlib>
 #include <vector>
@@ -32,6 +33,7 @@ public:
     BlueJSON(string text = "");
 //	setters
     void setText(string text);
+    void readInFile(string filename);
     void setPosition(int pos);
 //	getters
     int getCurrentPos();

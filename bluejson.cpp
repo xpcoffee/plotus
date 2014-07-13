@@ -26,10 +26,26 @@ void BlueJSON::setText(string text)
     m_it = m_text.begin();
 }
 
-void BlueJSON::setPosition(int pos){
-    if ( (m_text.empty()) || (pos > m_text.size()-1) )
+void BlueJSON::readInFile(string filename)
+{
+    if (filename.empty())
         return;
-    cout << "init" << endl;
+// read in file
+    string token;
+    string file = "";
+    ifstream iss(filename.c_str());
+    if (!iss.is_open())
+        return;
+    while (getline(iss, token)){
+        file += token + "\n";
+    }
+    iss.close();
+    setText(file);
+}
+
+void BlueJSON::setPosition(int pos){
+    if ( (m_text.empty()) || (pos > static_cast<int>(m_text.size()-1)) )
+        return;
     m_it = m_text.begin() + pos;
 }
 
@@ -116,7 +132,7 @@ bool BlueJSON::getNextKeyValue(vector<string> keys, string &value, int &closest_
         // find key
         if (!flag_key_found){
             if (isStringDelimiter(c)){
-                for (int i = 0; i < keys.size(); i++){
+                for (unsigned int i = 0; i < keys.size(); i++){
                     if (buffer.str() == keys[i]){	// key found
                         flag_key_found = true;
                         flag_in_string = false;
@@ -194,7 +210,6 @@ bool BlueJSON::getDoubleToken(double &token)
 
 bool BlueJSON::getBoolToken(bool &token)
 {
-    cout << m_token << endl;
     if (m_token.empty())
         return false;
     if (m_token == "false"){

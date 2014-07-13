@@ -11,8 +11,7 @@ static string cropFileName(string filename)
         ss_name << filename;
 
         while (getline(ss_name, filename_short, '/')){}
-        return filename_short;
-
+        return filename_short.substr(0, filename_short.size() - 5); // .json is 5 characters long
 }
 
 ///	Public Functions
@@ -64,23 +63,19 @@ void InequalityLoader::setCaseName(string value)
 
 void InequalityLoader::loadCase(string filename)
 {
-    if (filename.empty())
+    if (filename.empty()){
+        emit killThis(m_gui_number);
         return;
-    m_filename = filename;
-// read in file
-    string token;
-    string file = "";
-    ifstream iss(filename.c_str());
-    if (!iss.is_open())
-        return;
-    while (getline(iss, token)){
-        file += token + "\n";
     }
-    iss.close();
-// parse
+//	read in file
+    m_filename = filename;
+    m_name = cropFileName(filename);
+    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_name + "</b></i>"));
+    BlueJSON parser;
+    parser.readInFile(filename);
+//	parse
     m_details.clear();
     string variables, plot, expressions, data;
-    BlueJSON parser = BlueJSON(file);
     parser.getNextKeyValue("variables", variables); // variables
     while (parser.getNextKeyValue("plot", plot)){ 	// get plots
         BlueJSON plotparser = BlueJSON(plot);
@@ -91,7 +86,7 @@ void InequalityLoader::loadCase(string filename)
         m_details.push_back(formatVariables(variables) +					//	Formatted for display
                             "<hr>" +
                             "<table align=\"center\" cellspacing=\"10\">" +
-                            "<tr><th>Expressions</th><th>Combination</th><tr>" +
+                            "<tr><th>Expressions</th><th>Combination</th></tr>" +
                             formatExpressions(expressions) +
                             "</table>");
         // data
@@ -141,7 +136,8 @@ string InequalityLoader::getErrors() { return m_error_message; }
 //	Parsers
 //	--------
 
-void InequalityLoader::parsePlotData(string json){
+void InequalityLoader::parsePlotData(string json)
+{
     string token;
     double point;
     QVector<double> x_vector, y_vector;
@@ -162,58 +158,13 @@ void InequalityLoader::parsePlotData(string json){
     m_y_results.push_back(y_vector);
 }
 
-string InequalityLoader::formatCase(string json){
-    BlueJSON parser = BlueJSON(json);
-    string variables, expressions;
-    parser.getNextKeyValue("variables", variables);
-    parser.getNextKeyValue("expressions", expressions);
-    return formatVariables(variables) + formatExpressions(expressions);
+void InequalityLoader::parseProblem(string problem)
+{
+    m_error_message += "Error | Parsing| " + problem + "\n";
 }
 
-// [BREAK] 12 July 2014 | formatting nested cases in HTML
-string InequalityLoader::formatExpressions(string json){
-    cout << json << endl;
-    stringstream buffer;
-    string token;
-    BlueJSON parser = BlueJSON(json);
-    vector<string> keys;
-    keys.push_back("inequality");
-    keys.push_back("case");
-    int closest_key;
-    while (parser.getNextKeyValue(keys,token, closest_key)){
-        cout << token << endl;
-            if (closest_key == 1){	//	case found
-                buffer << "<tr> <td>case</td> <td></td> </tr>";
-                buffer << formatCase(token);
-                buffer << "<tr> <td>end case</td> <td></td> </tr>";
-            } else {				//	inequality found
-                parser.getNextKeyValue("left expression", token);
-                buffer << "<tr>";
-                buffer << "<td align=\"center\">";
-                if(parser.getStringToken(token))
-                    buffer << token << " ";
-                if (parser.getNextKeyValue("symbol", token)){
-                    if(parser.getStringToken(token))
-                        buffer << token << " ";
-                }
-                if (parser.getNextKeyValue("right expression", token)){
-                    if(parser.getStringToken(token))
-                        buffer << token << " ";
-                }
-                buffer << "</td>";
-                buffer << "<td align=\"center\">";
-                if (parser.getNextKeyValue("combination", token)){
-                    if(parser.getStringToken(token))
-                        buffer << token;
-                }
-                buffer << "</td>";
-                buffer << "</tr>";
-            }
-    }
-    return buffer.str();
-}
-
-string InequalityLoader::formatVariables(string json){
+string InequalityLoader::formatVariables(string json)
+{
     stringstream buffer;
     string token;
     int int_token;
@@ -263,13 +214,90 @@ string InequalityLoader::formatVariables(string json){
     return buffer.str();
 }
 
-string InequalityLoader::expressionToJSON()
+string InequalityLoader::formatInequality(string json)
 {
-    return "\"case\":{\n" + m_expressions[m_current_plot] + "}\n";
-
+    BlueJSON parser = BlueJSON(json + ","); // comma allows final value to be parsed
+    stringstream buffer;
+    string token;
+//	left expression
+    if (!parser.getNextKeyValue("left expression", token)){
+        parseProblem("Inequality | left expression");
+        return "";
+    }
+    buffer << "<td align=\"center\">";
+    parser.getStringToken(token);
+    buffer << token << " ";
+//	symbol
+    if (!parser.getNextKeyValue("symbol", token)){
+        parseProblem("Inequality | symbol");
+        return "";
+    }
+    parser.getStringToken(token);
+    buffer << token << " ";
+//	right expression
+    if (!parser.getNextKeyValue("right expression", token)){
+        parseProblem("Inequality | right expression");
+        return "";
+    }
+    parser.getStringToken(token);
+    buffer << token << " ";
+    buffer << "</td>";
+//	combination
+    buffer << "<td align=\"center\">";
+    if (!parser.getNextKeyValue("combination", token)){
+        parseProblem("Inequality | combination");
+        return "";
+    }
+    parser.getStringToken(token);
+    buffer << token;
+    buffer << "</td>";
+//	return
+    return buffer.str();
 }
 
-string InequalityLoader::dataToJSON(){
+string InequalityLoader::formatCase(string json)
+{
+    BlueJSON parser = BlueJSON(json);
+    string variables, expressions;
+    parser.getNextKeyValue("variables", variables);
+    parser.getNextKeyValue("expressions", expressions);
+    return formatVariables(variables) + formatExpressions(expressions);
+}
+
+string InequalityLoader::formatExpressions(string json)
+{
+    stringstream buffer;
+    string token;
+    BlueJSON parser = BlueJSON(json);
+    vector<string> keys;
+    keys.push_back("inequality");
+    keys.push_back("case");
+    int closest_key;
+    while (parser.getNextKeyValue(keys,token, closest_key)){
+            if (closest_key == 1){	//	case found
+                buffer << "<tr> <td>case</td> <td></td> </tr>";
+                buffer << formatCase(token);
+                buffer << "<tr> <td>end case</td> <td></td> </tr>";
+            } else {				//	inequality found
+                buffer << "<tr>";
+                buffer << formatInequality(token);
+                buffer << "</tr>";
+            }
+    }
+    return buffer.str();
+}
+
+string InequalityLoader::expressionToJSON()
+{
+    return 	"\"case\":{\n"
+            "\"name\": \"" + m_name + "\",\n"
+            "\"file\": \"" + m_filename + "\",\n" +
+            m_expressions[m_current_plot] +
+            "}\n";
+}
+
+string InequalityLoader::dataToJSON()
+{
     stringstream buffer;
     QVector<double> x_vector = m_x_results[m_current_plot];
     QVector<double> y_vector = m_y_results[m_current_plot];
@@ -294,7 +322,8 @@ string InequalityLoader::dataToJSON(){
 //	Evaluation
 //	-----------
 
-void InequalityLoader::setPlot() {
+void InequalityLoader::setPlot()
+{
     m_current_plot = ui->comboBox_Plot->currentIndex();
 }
 
@@ -313,7 +342,8 @@ void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBox_Inter
 
 void InequalityLoader::resetCombinations() { ui->comboBox_Interact->setCurrentIndex(COMBINE_NONE); }
 
-void InequalityLoader::setComboBoxPlot(){
+void InequalityLoader::setComboBoxPlot()
+{
     if (ui->comboBox_Plot->count() == 0){
         QStringList combo_data;
         for (unsigned int i = 0; i < m_x_results.size(); i++){

@@ -57,13 +57,14 @@ public:
     // 	gui
     void addVariableInput();
     void addInequalityInput();
-    void addInequalityLoader();
+    void addInequalityLoader(string filename = "");
     void reOrderInequalityInputs();
     void setCombinationInputs();
     void clearFormatting();
     void clearGUI();
     //	parsing and file i/o
     void save_JSON(QString);
+    void open_variables(string json);
 
 signals:
     void variableSplitterMoved(QList<int>);
