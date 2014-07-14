@@ -101,6 +101,11 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui->layout_groupBox_Inequalities->setAlignment(Qt::AlignTop);
     addInequalityInput();
     m_InequalityInputs.front()->enablePositionButtons(false);
+    //	exprimental
+    int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+    QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
+    QSize old_size = scroll_bar_spacer->sizeHint();
+    scroll_bar_spacer->changeSize(new_size+3, old_size.height());
 }
 
 
