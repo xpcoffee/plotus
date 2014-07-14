@@ -76,6 +76,7 @@ public slots:
     void moveInequalityInputUp(int);
     void moveInequalityInputDown(int);
     void on_button_Plot_clicked();
+    void quit();
 
 private slots:
     void menu_about();
@@ -104,6 +105,7 @@ private:
     //	gui management
     int m_variable_count;
     int m_inequality_count;
+    bool flag_Saved;
     //	error handling
     bool flag_Problem;
     bool flag_Empty;

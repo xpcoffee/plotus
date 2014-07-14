@@ -63,6 +63,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     flag_Combination (false),
     m_variable_count(0),
     m_inequality_count(0),
+    flag_Saved(true),
     flag_Empty (true),
     m_default_directory ("~/Documents/code/qt/proto/bare_minimum_plotter/")
 {
@@ -106,6 +107,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
     QSize old_size = scroll_bar_spacer->sizeHint();
     scroll_bar_spacer->changeSize(new_size+3, old_size.height());
+    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size+3, old_size.height());
 }
 
 
@@ -177,6 +179,8 @@ void BareMinimumPlotter::plot()
             continue;
 
     }
+    ui->tabWidget->setCurrentIndex(1);
+    flag_Saved = false;
 }
 
 //	TODO: nProgress might roll back (m_graph_count will stay the same for combined graphs)
@@ -639,6 +643,9 @@ void BareMinimumPlotter::addVariableInput(){
         m_VariableInputs[0]->enableRemoveButton(true);
         m_VariableInputs[1]->enableRemoveButton(true);
     }
+    //	resize according to splitter
+    variableSplitterMoved(ui->splitter_variable->sizes());
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::addInequalityInput(){
@@ -656,6 +663,7 @@ void BareMinimumPlotter::addInequalityInput(){
                         this, SLOT(moveInequalityInputDown(int)));
     //	enable/disable combination menu
     setCombinationInputs();
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::addInequalityLoader(string filename){
@@ -678,6 +686,7 @@ void BareMinimumPlotter::addInequalityLoader(string filename){
     new_inequality->loadCase(filename);
     // enable/disable combination menu
     setCombinationInputs();
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::reOrderInequalityInputs(){
@@ -938,12 +947,14 @@ void BareMinimumPlotter::removeVariableInput(int gui_number){
                 m_VariableInputs.front()->enableRemoveButton(false);
                 m_VariableInputs.back()->enableRemoveButton(false);
             }
+            flag_Saved = false;
             return;
         }
     }
 }
 
-void BareMinimumPlotter::removeInequalityInput(int gui_number){
+void BareMinimumPlotter::removeInequalityInput(int gui_number)
+{
     if (ui->layout_Inequality->count() < 2) // at least 1 inequality input needed
         return;
 
@@ -959,6 +970,7 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number){
             // enable/disable position buttons
             reOrderInequalityInputs();
             setCombinationInputs();
+            flag_Saved = false;
             return;
         }
     }
@@ -974,10 +986,10 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number){
             // enable/disable position buttons
             reOrderInequalityInputs();
             setCombinationInputs();
+            flag_Saved = false;
             return;
         }
     }
-
 }
 
 void BareMinimumPlotter::moveInequalityInputUp (int gui_number){
@@ -991,6 +1003,8 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number){
                 ui->layout_Inequality->insertWidget(--pos, m_InequalityInputs[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                flag_Saved = false;
+                return;
             }
         }
     if (ui->layout_Inequality->itemAt(pos)->widget()->accessibleDescription() == "loader")
@@ -1002,6 +1016,8 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number){
                 ui->layout_Inequality->insertWidget(--pos, m_InequalityLoaders[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                flag_Saved = false;
+                return;
             }
         }
 }
@@ -1017,6 +1033,7 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number){
                 ui->layout_Inequality->insertWidget(++pos, m_InequalityInputs[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                flag_Saved = false;
                 return;
             }
         }
@@ -1029,6 +1046,7 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number){
                 ui->layout_Inequality->insertWidget(++pos, m_InequalityLoaders[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                flag_Saved = false;
                 return;
             }
         }
@@ -1052,7 +1070,8 @@ void BareMinimumPlotter::menu_about(){
 }
 
 // [BREAK] 14 July 2014 | finished primitive file open. Time to work on GUI.
-void BareMinimumPlotter::menu_open(){
+void BareMinimumPlotter::menu_open()
+{
     QString filename = QFileDialog::getOpenFileName(this, "Open plot", QString::fromStdString(m_default_directory), "JSON (*.json)");
     if (filename.isEmpty())
         return;
@@ -1066,7 +1085,6 @@ void BareMinimumPlotter::menu_open(){
     parser.getNextKeyValue("variables", token);
     open_variables(token);
 
-
     int gui_number = 0;
     vector<string> keys;
     keys.push_back("inequality");
@@ -1077,7 +1095,9 @@ void BareMinimumPlotter::menu_open(){
             BlueJSON subparser = BlueJSON(token);
             string file;
             subparser.getNextKeyValue("file", file);
+            cout << file << endl;
             subparser.getStringToken(file);
+            cout << file << endl;
             addInequalityLoader(file);
             gui_number++;
         } else {				//	inequality found
@@ -1087,10 +1107,11 @@ void BareMinimumPlotter::menu_open(){
             m_InequalityInputs.back()->fromJSON(token);
         }
     }
-
+    flag_Saved = false;
 }
 
-void BareMinimumPlotter::menu_saveAs(){
+void BareMinimumPlotter::menu_saveAs()
+{
     if (flag_Empty){
         m_error_message = "Error | Input | Plot not complete. Cannot save.";
         printError();
@@ -1100,9 +1121,22 @@ void BareMinimumPlotter::menu_saveAs(){
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", QString::fromStdString(m_default_directory), "JSON (*.json)");
     save_JSON(filename);
+    flag_Saved = true;
 }
 
-void BareMinimumPlotter::menu_new(){ clearGUI(); }
+void BareMinimumPlotter::menu_new()
+{
+    if (flag_Saved){
+        clearGUI();
+        return;
+    }
+    QString warning = "<b>The current work has not been saved.</b><br>Are you sure you want to start a new case?";
+    QMessageBox *warnbox;
+    int response  = warnbox->warning(this, "New Case", warning, "&Cancel", "&New Case");
+    if (response == 1){
+        clearGUI();
+    }
+}
 
 void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }
 
@@ -1113,3 +1147,16 @@ void BareMinimumPlotter::on_button_AddInequality_clicked() { addInequalityInput(
 void BareMinimumPlotter::on_pushButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
 
 void BareMinimumPlotter::on_splitter_variable_splitterMoved(int /*pos*/, int /*index*/) { emit variableSplitterMoved(ui->splitter_variable->sizes()); }
+
+void BareMinimumPlotter::quit(){
+    if (flag_Saved){
+        this->close();
+        return;
+    }
+    QString warning = "<b>The current work has not been saved.</b><br>Are you sure you want to exit?";
+    QMessageBox *warnbox;
+    int response  = warnbox->warning(this, "Exiting BareMinimumPlotter", warning, "&Cancel", "E&xit");
+    if (response == 1){
+        this->close();
+    }
+}

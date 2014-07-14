@@ -81,7 +81,7 @@ void InequalityLoader::loadCase(string filename)
         BlueJSON plotparser = BlueJSON(plot);
         // expressions
         plotparser.getNextKeyValue("expressions", expressions);
-        m_expressions.push_back("\"variables\":[" + variables + "]\n"		// 	JSON for saving
+        m_expressions.push_back("\"variables\":[" + variables + "],\n"		// 	JSON for saving
                                 "\"expressions\":{" + expressions + "}\n");
         m_details.push_back(formatVariables(variables) +					//	Formatted for display
                             "<hr>" +
@@ -290,8 +290,8 @@ string InequalityLoader::formatExpressions(string json)
 string InequalityLoader::expressionToJSON()
 {
     return 	"\"case\":{\n"
-            "\"name\": \"" + m_name + "\",\n"
-            "\"file\": \"" + m_filename + "\",\n" +
+            "\"name\":\"" + m_name + "\",\n"
+            "\"file\":\"" + m_filename + "\",\n" +
             m_expressions[m_current_plot] +
             "}\n";
 }

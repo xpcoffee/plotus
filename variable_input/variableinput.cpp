@@ -48,6 +48,9 @@ VariableInput::VariableInput(QWidget *parent) :
     ui->lineEditElements->setValidator(iValidator);
     ui->lineEditMax->setValidator(dValidator);
     ui->lineEditMin->setValidator(dValidator);
+    for(int i = 0; i < ui->splitter->count(); i++){
+        ui->splitter->handle(i)->setEnabled(false);
+    }
 }
 
 
