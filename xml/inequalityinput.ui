@@ -40,7 +40,7 @@
      <property name="handleWidth">
       <number>3</number>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="label_Index">
@@ -64,7 +64,7 @@
           <string/>
          </property>
          <property name="frame">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -130,7 +130,7 @@
           <string extracomment="Right-hand-side expression.">Right-hand-side expression</string>
          </property>
          <property name="frame">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -167,7 +167,7 @@
           <string>Prec.</string>
          </property>
          <property name="frame">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>

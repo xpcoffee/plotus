@@ -69,28 +69,12 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
 {
     ui->setupUi(this);
     // format ui elements - things that can't be done in designer
-    QString style_GroupBox = "QGroupBox {\
-                                border-width: 1px;\
-                                border-style: solid;\
-                                border-radius: 10px;\
-                                border-color: lightGray;\
-                                font-weight: bold;\
-                                color: gray;}\
-                             QGroupBox::title {\
-                                 background-color: transparent;}";
-    ui->groupBox_Inequalities->setStyleSheet(style_GroupBox);
-    ui->groupBox_Variables->setStyleSheet(style_GroupBox);
-    QString style_TextEdit = "QTextEdit {\
-                                border-width: 1px;\
-                                border-style: solid;\
-                                border-color: lightGray;\
-                                border-radius: 10px;}";
-    ui->textEditError->setStyleSheet(style_TextEdit);
+    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignVCenter);
+    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignVCenter);
     elideLable(ui->label_VariableElements);
     elideLable(ui->label_VariableChosenPoint);
     // add original x & y variable inputs
     ui->layout_Variable->setAlignment(Qt::AlignTop);
-    ui->layout_groupBox_Variables->setAlignment(Qt::AlignTop);
     addVariableInput();
     addVariableInput();
     m_VariableInputs[0]->setAxisMode(MODE_X_AXIS);
@@ -99,14 +83,13 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     m_VariableInputs[1]->enableRemoveButton(false);
     // add original inequality input
     ui->layout_Inequality->setAlignment(Qt::AlignTop);
-    ui->layout_groupBox_Inequalities->setAlignment(Qt::AlignTop);
     addInequalityInput();
     m_InequalityInputs.front()->enablePositionButtons(false);
     //	exprimental
     int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
     QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
     QSize old_size = scroll_bar_spacer->sizeHint();
-    scroll_bar_spacer->changeSize(new_size+3, old_size.height());
+    scroll_bar_spacer->changeSize(new_size, old_size.height());
     ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size+3, old_size.height());
 }
 
