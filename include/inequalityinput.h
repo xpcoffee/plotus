@@ -6,8 +6,8 @@
 #include <QtWidgets>
 #include <sstream>
 #include <qvalidator.h>
-#include "../deplot/include/inequality.h"
-#include "../deplot/include/expression.h"
+#include "inequality.h"
+#include "expression.h"
 
 // 	Enumerators
 enum COMBINE

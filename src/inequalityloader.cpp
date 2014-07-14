@@ -1,4 +1,4 @@
-#include "inequalityloader.h"
+#include "include/inequalityloader.h"
 #include "ui_inequalityloader.h"
 
 ///	Static Functions

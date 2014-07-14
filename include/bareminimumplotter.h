@@ -14,12 +14,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "deplot/include/variable.h"
-#include "deplot/include/inequality.h"
-#include "deplot/include/expression.h"
-#include "variable_input/variableinput.h"
-#include "inequality_input/inequalityinput.h"
-#include "inequality_loader/inequalityloader.h"
+#include "variable.h"
+#include "inequality.h"
+#include "expression.h"
+#include "variableinput.h"
+#include "inequalityinput.h"
+#include "inequalityloader.h"
 #include "bluejson.h"
 
 #ifndef APPROX_EQUAL_PRECISION

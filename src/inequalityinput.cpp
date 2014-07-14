@@ -2,7 +2,7 @@
 //	"			Includes			"
 //	"""""""""""""""""""""""""""""""""
 
-#include "inequalityinput.h"
+#include "include/inequalityinput.h"
 #include "ui_inequalityinput.h"
 
 

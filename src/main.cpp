@@ -1,7 +1,7 @@
-#include "bareminimumplotter.h"
 #include <QApplication>
 #include <iostream>
 #include <stdlib.h>
+#include "../include/bareminimumplotter.h"
 
 
 int main (int argc, char *argv[]){

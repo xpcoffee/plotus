@@ -13,26 +13,26 @@ TARGET = BareMinimumPlotter
 TEMPLATE = app
 
 
-SOURCES += bareminimumplotter.cpp \
-    qcustomplot.cpp \
-    deplot/src/expression.cpp \
-    main.cpp \
-    variable_input/variableinput.cpp \
-    inequality_input/inequalityinput.cpp \
-    inequality_loader/inequalityloader.cpp \
-    bluejson.cpp
+SOURCES += src/main.cpp \
+    src/bareminimumplotter.cpp \
+    src/bluejson.cpp \
+    src/expression.cpp \
+    src/inequalityinput.cpp \
+    src/inequalityloader.cpp \
+    src/variableinput.cpp \
+    lib/qcustomplot.cpp \
 
-HEADERS  += bareminimumplotter.h \
-    qcustomplot.h \
-    deplot/include/expression.h \
-    deplot/include/inequality.h \
-    deplot/include/variable.h \
-    variable_input/variableinput.h \
-    inequality_input/inequalityinput.h \
-    inequality_loader/inequalityloader.h \
-    bluejson.h
+HEADERS  += include/variableinput.h \
+    include/bareminimumplotter.h \
+    include/bluejson.h \
+    include/expression.h \
+    include/inequality.h \
+    include/inequalityinput.h \
+    include/inequalityloader.h \
+    include/variable.h \
+    lib/qcustomplot.h
 
-FORMS    += bareminimumplotter.ui \
-    inequality_input/inequalityinput.ui \
-    variable_input/variableinput.ui \
-    inequality_loader/inequalityloader.ui
+FORMS    +=  xml/bareminimumplotter.ui \
+    xml/inequalityinput.ui \
+    xml/inequalityloader.ui \
+    xml/variableinput.ui

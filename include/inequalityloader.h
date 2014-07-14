@@ -9,7 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include "inequality_input/inequalityinput.h"
+#include "inequalityinput.h"
 #include "bluejson.h"
 
 //	Namespace

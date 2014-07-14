@@ -7,7 +7,7 @@
 #include <QWidget>
 #include <QSplitter>
 #include <qvalidator.h>
-#include "../deplot/include/variable.h"
+#include "variable.h"
 
 
 //	"""""""""""""""""""""""""""""""""

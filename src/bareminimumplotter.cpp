@@ -6,7 +6,7 @@
 ///	Includes
 /// ========
 
-#include "bareminimumplotter.h"
+#include "include/bareminimumplotter.h"
 #include "ui_bareminimumplotter.h"
 
 
