@@ -51,23 +51,23 @@
 //	"""""""""""""""""""""""""""""""""
     enum READABLILITY_CODES
     {
-        UNINITIALIZED_COUNTER = -1,
+        UninitializedCounter = -1,
     };
 
     enum INPUT_ERROR_CODES
     {
-        INPUT_ERROR_UNINITIALIZED_VARIABLE = 300,
-        INPUT_ERROR_INVALID_EXPRESSION = 301,
-        INPUT_ERROR_PARENTH_EMPTY = 302,
-        INPUT_ERROR_PARENTH_NOT_EMPTY = 303,
+        InputErrorUninitializedVariable 	= 300,
+        InputErrorInvalidExpression 		= 301,
+        InputErrorParenthesesEmpty 		= 302,
+        InputErrorParenthesesNotEmpty 		= 303,
     };
 
     enum MATH_ERROR_CODES
     {
-        MATH_DIVIDE_BY_ZERO = 200,
-        MATH_NAN = 201,
-        MATH_POLE = 202,
-        MATH_COMPLEX = 203,
+        MathDivideByZero = 200,
+        MathNaN = 201,
+        MathPole = 202,
+        MathComplex = 203,
     };
 
 

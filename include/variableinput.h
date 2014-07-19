@@ -65,6 +65,8 @@ public:
     string getUnits();
     string toJSON();
     Variable getVariable();
+    QWidget *getFocusInWidget();
+    QWidget *getFocusOutWidget();
     //	parsers
     void fromJSON(string);
     //	gui

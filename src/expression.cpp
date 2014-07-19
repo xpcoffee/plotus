@@ -324,11 +324,11 @@ bool Expression::doPowers(vector<string> & vExpression) {
                 double dBefore = atof(termBeforeOperator.c_str());
                 double dAfter = atof(termAfterOperator.c_str());
                 if ((dBefore < 0) && (fmod(dBefore, 1) != 0) && (fmod(dAfter, 1) != 0))
-                    throw MATH_COMPLEX;
+                    throw MathComplex;
                 if ((dBefore == 0) && (dAfter == 0))
-                    throw MATH_NAN;
+                    throw MathNaN;
                 if ((dBefore == 0) && (dAfter < 0))
-                    throw MATH_POLE;
+                    throw MathPole;
                 double result =  pow(atof(termBeforeOperator.c_str()), atof(termAfterOperator.c_str()));
                 // update expression - operator and second value filled with special character
                 ostringstream buffer;
@@ -389,7 +389,7 @@ bool Expression::doDivision (vector<string>& vExpression) {
                 assert( !((termAfterOperator.size() == 1) &&
                         charIsOperator(termAfterOperator[0])) );
                 if (atof(termAfterOperator.c_str()) == 0)
-                    throw MATH_DIVIDE_BY_ZERO;
+                    throw MathDivideByZero;
                 double result = atof(termBeforeOperator.c_str()) / atof(termAfterOperator.c_str());
 				// update expression - operator and second value filled with special character 
 				ostringstream buffer;
@@ -505,8 +505,8 @@ bool Expression::compressExpression(vector<string>& vExpression) {
 
 bool Expression::doParenthesis (vector<string>& vExpression) {
     nTerms = vExpression.size();
-    int nOpen = UNINITIALIZED_COUNTER;
-    int nRange = UNINITIALIZED_COUNTER;
+    int nOpen = UninitializedCounter;
+    int nRange = UninitializedCounter;
     string sTerm;
     string sTermBefore, sTermAfter;
     bool flag_EmptyParenth;
@@ -519,7 +519,7 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
                 sTermBefore = vExpression[i-1];
 		}
 		else if (charIsParenthesis(sTerm[0]) && sTerm[0] == ')'){
-            assert(nOpen != UNINITIALIZED_COUNTER); // check for unopened bracket
+            assert(nOpen != UninitializedCounter); // check for unopened bracket
             if (i+1 < nTerms)
                 sTermAfter = vExpression[i+1];
             nRange = i - nOpen;	// closing parentheses found, stop counting range
@@ -570,7 +570,7 @@ bool Expression::doParenthesis (vector<string>& vExpression) {
 			return true;
 		}
 	}
-    assert((nOpen == UNINITIALIZED_COUNTER) && (nRange == UNINITIALIZED_COUNTER)); // check for unclosed bracket
+    assert((nOpen == UninitializedCounter) && (nRange == UninitializedCounter)); // check for unclosed bracket
     // no parenthesis was found
 	return false;
 }
@@ -586,179 +586,179 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     //trig functions
     if (termBeforeParenthesis == "sin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = sin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "cos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = cos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "tan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = tan(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "sinh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = sinh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "cosh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = cosh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "tanh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = tanh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arcsin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = asin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arccos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = acos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arctan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = atan(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arcsinh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = asinh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arccosh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = acosh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "arctanh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = atanh(atof(sEvalTerm.c_str()));
     }
     //	negative
     else if (termBeforeParenthesis == "-sin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -sin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-cos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -cos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-tan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -tan(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-sinh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -sinh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-cosh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -cosh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-tanh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -tanh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arcsin"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -asin(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arccos"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -acos(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arctan"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -atan(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arcsinh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -asinh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arccosh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -acosh(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-arctanh"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -atanh(atof(sEvalTerm.c_str()));
     }
     //	exponential
     else if(termBeforeParenthesis == "exp"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = exp(atof(sEvalTerm.c_str()));
     }
     else if(termBeforeParenthesis == "-exp"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         result = -exp(atof(sEvalTerm.c_str()));
     }
     // logarithmic functions
     else if(termBeforeParenthesis == "log"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         double dEval = atof(sEvalTerm.c_str());
         if (dEval == 0)
-            throw MATH_POLE;
+            throw MathPole;
         result = log10(dEval);
     }
     else if(termBeforeParenthesis == "ln"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         double dEval = atof(sEvalTerm.c_str());
         if (dEval == 0)
-            throw MATH_POLE;
+            throw MathPole;
         result = log(dEval);
     }
     else if(termBeforeParenthesis == "-log"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         double dEval = atof(sEvalTerm.c_str());
         if (dEval == 0)
-            throw MATH_POLE;
+            throw MathPole;
         result = -log10(dEval);
     }
     else if(termBeforeParenthesis == "-ln"){
         if (flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_EMPTY;
+            throw InputErrorParenthesesEmpty;
         double dEval = atof(sEvalTerm.c_str());
         if (dEval == 0)
-            throw MATH_POLE;
+            throw MathPole;
         result = -log(dEval);
     }
     // values
     else if(termBeforeParenthesis == "pi"){
         if (!flag_EmptyParenth){
-            throw INPUT_ERROR_PARENTH_NOT_EMPTY;
+            throw InputErrorParenthesesNotEmpty;
         }
         result = PI;
     }
     else if(termBeforeParenthesis == "-pi"){
         if (!flag_EmptyParenth)
-            throw INPUT_ERROR_PARENTH_NOT_EMPTY;
+            throw InputErrorParenthesesNotEmpty;
         result = -1*PI;
     }
     // no matching function
@@ -769,7 +769,7 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
     ostringstream buffer;
     buffer << result;
     if ((buffer.str() == "nan") || (buffer.str() == "-nan"))
-        throw MATH_NAN;
+        throw MathNaN;
     vExpression[nEvalPos-1] = buffer.str();
     vExpression[nEvalPos] = COMPRESSION_CHAR;
 
@@ -780,7 +780,7 @@ void Expression::doSpecial(vector<string> & vExpression, int nEvalPos, bool flag
 
 double Expression::evaluateExpression(){
     if (!flag_isValid)
-        throw INPUT_ERROR_INVALID_EXPRESSION; // [DOCUMENTATION] invalid expression
+        throw InputErrorInvalidExpression; // [DOCUMENTATION] invalid expression
 
     while (doParenthesis(vExpression)) {}
     // evaluate reduced expression
@@ -793,7 +793,7 @@ double Expression::evaluateExpression(){
 
 void Expression::recEval(){
     if (!flag_isValid)
-        throw INPUT_ERROR_INVALID_EXPRESSION;
+        throw InputErrorInvalidExpression;
     // for all values of the current variable (current variable is global)
 	for (int i = 0; i < vVariables[nCurrentVariable].size(); i++){
 			int j = nCurrentVariable;
@@ -849,22 +849,22 @@ string Expression::getStringArray(vector<string> vExpression){
 void Expression::handleMathException(MATH_ERROR_CODES e){
 
     switch(e){
-    case MATH_DIVIDE_BY_ZERO:
+    case MathDivideByZero:
         if (!flag_DivByZero)
             sErrorMessage += "Warning | Evaluation | Found division(s) by zero.\n";
         flag_DivByZero = true;
         break;
-    case MATH_NAN:
+    case MathNaN:
         if (!flag_Nan)
             sErrorMessage += "Warning | Evaluation | Found occurrence(s) of NaN (not a number). Caused by invalid mathematical operation.\n";
         flag_Nan = true;
         break;
-    case MATH_POLE:
+    case MathPole:
         if (!flag_Pole)
             sErrorMessage += "Warning | Evaluation | Found pole(s).\n";
         flag_Pole = true;
         break;
-    case MATH_COMPLEX:
+    case MathComplex:
         if (!flag_Complex)
             sErrorMessage += "Warning | Evaluation | Found complex number result(s).\n";
         flag_Complex = true;
@@ -941,14 +941,14 @@ void Expression::subVariableValues(){
             vProblemElements_Expression.push_back(j);
             flag_isValid = false;
             sErrorMessage += "Problem | Input | Uninitialized variable: " + sTerm + "\n";
-            throw INPUT_ERROR_UNINITIALIZED_VARIABLE; // [DOCUMENTATION] unitialized variable
+            throw InputErrorUninitializedVariable; // [DOCUMENTATION] unitialized variable
         }
     }
 }
 
 vector<double> Expression::evaluateAll(){
     if (!flag_isValid)
-        throw INPUT_ERROR_INVALID_EXPRESSION; // [DOCUMENTATION] invalid expression
+        throw InputErrorInvalidExpression; // [DOCUMENTATION] invalid expression
 
     resetEvaluation();
 	recEval();

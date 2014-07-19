@@ -16,6 +16,9 @@
     <height>30</height>
    </size>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::TabFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>InequalityInput</string>
   </property>

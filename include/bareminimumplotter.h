@@ -22,10 +22,6 @@
 #include "inequalityloader.h"
 #include "bluejson.h"
 
-#ifndef APPROX_EQUAL_PRECISION
-#define APPROX_EQUAL_PRECISION	1E-5
-#endif
-
 using namespace std;
 
 namespace Ui {
@@ -60,8 +56,11 @@ public:
     void addInequalityLoader(string filename = "");
     void reOrderInequalityInputs();
     void setCombinationInputs();
+    void resetTabOrder();
     void clearFormatting();
     void clearGUI();
+    QWidget *getFocusInWidget(QWidget* widget);
+    QWidget *getFocusOutWidget(QWidget* widget);
     //	parsing and file i/o
     void save_JSON(QString);
     void open_variables(string json);
@@ -75,20 +74,19 @@ public slots:
     void removeInequalityInput(int);
     void moveInequalityInputUp(int);
     void moveInequalityInputDown(int);
-    void on_button_Plot_clicked();
-    void quit();
 
 private slots:
     void menu_about();
     void menu_open();
     void menu_saveAs();
     void menu_new();
+    void menu_quit();
     void on_button_AddVariable_clicked();
     void on_button_AddInequality_clicked();
+    void on_button_Plot_clicked();
     void on_pushButton_AddInequalityLoader_clicked();
-
-
     void on_splitter_variable_splitterMoved(int pos, int index);
+    void on_lineEdit_SettingsTolerance_editingFinished();
 
 private:
     Ui::BareMinimumPlotter *ui;
@@ -110,7 +108,8 @@ private:
     bool flag_Problem;
     bool flag_Empty;
     string m_error_message;
-    // 	application context
+    // 	settings
+    double m_tolerance;
     string m_default_directory;
     // experimental
 
