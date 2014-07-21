@@ -31,9 +31,6 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
 {
     ui->setupUi(this);
     setAccessibleDescription("loader");
-    //	focus
-    setFocusPolicy(Qt::TabFocus);
-    setFocusProxy(ui->comboBox_Plot);
 }
 
 //	Destructor
@@ -136,7 +133,11 @@ string InequalityLoader::getErrors() { return m_error_message; }
 
 QWidget* InequalityLoader::getFocusInWidget() { return ui->comboBox_Plot; }
 
-QWidget* InequalityLoader::getFocusOutWidget() { return ui->pushButton_Details; }
+QWidget* InequalityLoader::getFocusOutWidget()
+{
+    QWidget::setTabOrder(ui->comboBox_Plot, ui->pushButton_Details);
+    return ui->pushButton_Details;
+}
 
 
 //	Parsers

@@ -53,9 +53,6 @@ VariableInput::VariableInput(QWidget *parent) :
     for(int i = 0; i < ui->splitter->count(); i++){
         ui->splitter->handle(i)->setEnabled(false);
     }
-    //	focus
-    setFocusPolicy(Qt::TabFocus);
-    setFocusProxy(ui->lineEditName);
 }
 
 

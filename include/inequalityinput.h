@@ -68,13 +68,16 @@ public:
     void clearFields();
     //	core
     bool createInequality();
-    bool addVariable(Variable);
+    bool addVariable(Variable variable);
     bool evaluate();
 
 signals:
     void moveUp(int nNumber);
     void moveDown (int nNumber);
     void killThis (int nNumber);
+
+public slots:
+    void splitterResize(QList<int> sizes);
 
 private slots:
     void on_pushButtonUp_clicked();
@@ -89,19 +92,19 @@ private slots:
 private:
     Ui::InequalityInput *ui;
     // data
-    Inequality mInequality;
-    Variable mVariableX, mVariableY;
+    Inequality m_Inequality;
+    Variable m_VariableX, m_VariableY;
     // meta
-    int nInequalityInputNumber;
-    int nPrecisionIndex;
+    int m_guiNumber;
+    int m_precisionIndex;
     bool flag_skip;
     // result vectors
-    vector<bool> vPlotSpace;
-    vector<int> vProblemSpace;
-    QVector<double> qvX, qvY, qvX_problem, qvY_problem;
+    vector<bool> m_plotSpace;
+    vector<int> m_problemSpace;
+    QVector<double> m_X, m_Y, m_XProblem, m_YProblem;
     // error handling
-    string sErrorMessage;
-    string sBugMail;
+    string m_error_message;
+    string m_bugmail;
 };
 
 #endif // INEQUALITYINPUT_H

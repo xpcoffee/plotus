@@ -67,6 +67,7 @@ public:
 
 signals:
     void variableSplitterMoved(QList<int>);
+    void inequalitySplitterMoved(QList<int>);
 
 public slots:
     void checkAxisMode(int);
@@ -85,8 +86,9 @@ private slots:
     void on_button_AddInequality_clicked();
     void on_button_Plot_clicked();
     void on_pushButton_AddInequalityLoader_clicked();
-    void on_splitter_variable_splitterMoved(int pos, int index);
     void on_lineEdit_SettingsTolerance_editingFinished();
+    void on_splitter_Variable_splitterMoved(int pos, int index);
+    void on_splitter_Inequality_splitterMoved(int pos, int index);
 
 private:
     Ui::BareMinimumPlotter *ui;

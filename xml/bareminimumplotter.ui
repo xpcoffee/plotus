@@ -13,18 +13,153 @@
   <property name="windowTitle">
    <string>BareMinimumPlotter</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">/*Background*/
+QWidget#centralWidget {
+	background: rgb(80,80,80);
+}
+
+/*Tab Widget*/
+QWidget#tab_input, QWidget#tab_plot, QWidget#tab_settings {
+	background: black;
+}
+
+QTabWidget::tab-bar {
+	alignment: center;
+}
+
+QTabWidget::pane {
+	position: absolute;
+	top: -8px;
+}
+
+QTabBar::tab {
+	color: rgb(80,80,80);
+	font: bold 13px calibri;
+	background: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	height: 20px;
+	width:	80px;
+
+}
+
+QTabBar::tab:selected {
+	background: black;
+	color: white;
+	font: bold 13px calibri;
+}
+
+/*Containers*/
+QFrame#verticalFrame_Inequality {
+	background: transparent;
+}
+
+QScrollArea, QScrollArea &gt; QWidget &gt; QWidget{
+	background:transparent;
+}
+
+QGroupBox{
+	font-weight: bold calibri;
+	color: white;
+	background-color: rgb(80,80,80);
+}
+
+
+
+/*Labels*/
+QLabel {
+	color: white;
+	font: bold 13px calibri;
+}
+
+/*Buttons*/
+QPushButton {
+	color: white;
+	font: bold 13px calibri;
+	background: rgb(100,100,100);
+	border-radius:0px;
+}
+
+/*LineEdits*/
+QLineEdit {
+	background: white;
+	border-radius: 0px;
+}
+
+/*Splitters*/
+QSplitterHandle {
+	background: black;
+}
+
+QSplitter#splitter_Inequality, QSplitter#splitter_Variable {
+	background: rgb(80,80,80);
+}
+
+/*Comboboxes*/
+QComboBox {
+	background: rgb(63, 98, 255);
+	border-radius:0;
+	color: white;
+}
+
+QComboBox::drop-down {
+	border-left: 2px solid black;
+	width: 20px;
+}
+
+QComboBox::down-arrow {
+	image: url(rsc/drop-down-arrow-white.png);
+	width: 15px;
+	height: 15px;
+}
+
+QListView {
+	background: white;
+}
+
+/*Progress Bar*/
+QProgressBar {
+	background: transparent;
+	color: white;
+	font: bold 13px calibri;
+}
+
+QProgressBar::chunk {
+	background: rgb(37, 158, 0);
+	width: 10px;
+}</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
       <widget class="QWidget" name="tab_input">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <attribute name="title">
         <string>Input</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
+        <property name="topMargin">
+         <number>15</number>
+        </property>
         <item row="0" column="0">
          <widget class="QSplitter" name="splitter">
           <property name="orientation">
@@ -95,16 +230,13 @@
             <item>
              <widget class="QFrame" name="verticalFrame_Inequality">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>1</horstretch>
-                <verstretch>0</verstretch>
+                <verstretch>1</verstretch>
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">QFrame#verticalFrame_Inequality {
-	border: 1px solid lightGray;
-	border-radius: 10px;
-}</string>
+               <string notr="true"/>
               </property>
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
@@ -125,9 +257,24 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QSplitter" name="splitter_InequalityHeaders">
+                  <widget class="QSplitter" name="splitter_Inequality">
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="handleWidth">
+                    <number>3</number>
+                   </property>
+                   <property name="childrenCollapsible">
+                    <bool>false</bool>
                    </property>
                    <widget class="QLabel" name="label_Inequality">
                     <property name="minimumSize">
@@ -234,6 +381,9 @@
                  <property name="focusPolicy">
                   <enum>Qt::TabFocus</enum>
                  </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
                  </property>
@@ -257,7 +407,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>640</width>
+                    <width>648</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -268,10 +418,7 @@
                    <bool>false</bool>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">QScrollArea &gt; QWidget &gt; QWidget{
-border-radius:15px;
-background:white;
-}</string>
+                   <string notr="true"/>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout">
                    <property name="leftMargin">
@@ -357,15 +504,14 @@ background:white;
             <item>
              <widget class="QFrame" name="verticalFrame_Variable">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                 <horstretch>1</horstretch>
-                <verstretch>0</verstretch>
+                <verstretch>1</verstretch>
                </sizepolicy>
               </property>
               <property name="styleSheet">
                <string notr="true">QFrame#verticalFrame_Variable {
-	border: 1px solid lightGray;
-	border-radius: 10px;
+	background: transparent;
 }</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_VariableTable">
@@ -403,7 +549,7 @@ background:white;
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QSplitter" name="splitter_variable">
+                  <widget class="QSplitter" name="splitter_Variable">
                    <property name="autoFillBackground">
                     <bool>false</bool>
                    </property>
@@ -414,7 +560,7 @@ background:white;
                     <enum>Qt::Horizontal</enum>
                    </property>
                    <property name="handleWidth">
-                    <number>3</number>
+                    <number>5</number>
                    </property>
                    <property name="childrenCollapsible">
                     <bool>false</bool>
@@ -722,9 +868,7 @@ background:white;
                   <enum>Qt::TabFocus</enum>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">QScrollArea {
-background: transparent;
-}</string>
+                  <string notr="true"/>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
@@ -749,7 +893,7 @@ background: transparent;
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>640</width>
+                    <width>648</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -757,10 +901,7 @@ background: transparent;
                    <bool>false</bool>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">QScrollArea &gt; QWidget &gt; QWidget{
-border-radius:15px;
-background:white;
-}</string>
+                   <string notr="true"/>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_2">
                    <property name="leftMargin">
@@ -800,12 +941,12 @@ background:white;
             </item>
            </layout>
           </widget>
-          <widget class="QTextEdit" name="textEditError">
+          <widget class="QTextEdit" name="textEdit_Error">
            <property name="enabled">
             <bool>true</bool>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -856,8 +997,8 @@ p, li { white-space: pre-wrap; }
            <widget class="QPushButton" name="button_Plot">
             <property name="minimumSize">
              <size>
-              <width>0</width>
-              <height>0</height>
+              <width>90</width>
+              <height>30</height>
              </size>
             </property>
             <property name="baseSize">
@@ -913,6 +1054,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QPushButton" name="pushButton">
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>30</height>
+             </size>
+            </property>
             <property name="text">
              <string>Cancel</string>
             </property>
@@ -955,6 +1102,12 @@ p, li { white-space: pre-wrap; }
        </layout>
       </widget>
       <widget class="QWidget" name="tab_settings">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+	color: white;
+	font: bold 13px calibri;
+}</string>
+       </property>
        <attribute name="title">
         <string>Settings</string>
        </attribute>
@@ -972,6 +1125,9 @@ p, li { white-space: pre-wrap; }
             <width>16777215</width>
             <height>80</height>
            </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
           </property>
           <property name="title">
            <string>Calculations</string>

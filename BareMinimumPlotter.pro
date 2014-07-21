@@ -36,3 +36,5 @@ FORMS    +=  xml/bareminimumplotter.ui \
     xml/inequalityinput.ui \
     xml/inequalityloader.ui \
     xml/variableinput.ui
+
+OTHER_FILES +=

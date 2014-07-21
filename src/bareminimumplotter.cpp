@@ -106,6 +106,9 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     addInequalityInput();
     m_InequalityInputs.front()->enablePositionButtons(false);
 
+    on_splitter_Inequality_splitterMoved(1,1);
+    on_splitter_Variable_splitterMoved(1,1);
+
     flag_Saved = true;
 }
 
@@ -183,7 +186,8 @@ void BareMinimumPlotter::plot()
 }
 
 //	TODO: nProgress might roll back (m_graph_count will stay the same for combined graphs)
-void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units, int progress){
+void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units, int progress)
+{
         InequalityInput *input = m_InequalityInputs[gui_number];
         progress = floor((0.0+m_graph_count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setFormat("Initializing...");
@@ -290,7 +294,8 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
 }
 
 
-void BareMinimumPlotter::plotOld(int nIneq, string x_units, string y_units, int nProgress){
+void BareMinimumPlotter::plotOld(int nIneq, string x_units, string y_units, int nProgress)
+{
     InequalityLoader* loader = m_InequalityLoaders[nIneq];
     loader->setPlot();
 
@@ -353,7 +358,8 @@ void BareMinimumPlotter::plotOld(int nIneq, string x_units, string y_units, int 
 
 }
 
-void BareMinimumPlotter::vectorCombineNone(int nIndex){
+void BareMinimumPlotter::vectorCombineNone(int nIndex)
+{
     if (ui->layout_Inequality->itemAt(nIndex)->widget()->accessibleDescription() == "input"){
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(nIndex)->widget());
         x_results = current_inequality->getX();
@@ -370,7 +376,8 @@ void BareMinimumPlotter::vectorCombineNone(int nIndex){
     }
 }
 
-void BareMinimumPlotter::vectorCombineIntersection(int nIndex){
+void BareMinimumPlotter::vectorCombineIntersection(int nIndex)
+{
     flag_Combination = true;
     QVector<double> x_resultsOld = x_results;
     QVector<double> y_resultsOld = y_results;
@@ -425,7 +432,8 @@ void BareMinimumPlotter::vectorCombineIntersection(int nIndex){
 
 // [TODO] prevent user from changing '-' in last inequality.
 // [TODO] progress bar
-void BareMinimumPlotter::vectorCombineUnion(int nIndex){
+void BareMinimumPlotter::vectorCombineUnion(int nIndex)
+{
     QVector<double> x_resultsOld = x_results;
     QVector<double> y_resultsOld = y_results;
     QVector<double> x_resultsNew;
@@ -483,7 +491,8 @@ void BareMinimumPlotter::vectorCombineUnion(int nIndex){
     }
 }
 
-void BareMinimumPlotter::vectorCombineSubtraction(int index){
+void BareMinimumPlotter::vectorCombineSubtraction(int index)
+{
     flag_Combination = true;
     QVector<double> x_resultsOld = x_results;
     QVector<double> y_resultsOld = y_results;
@@ -539,7 +548,8 @@ void BareMinimumPlotter::vectorCombineSubtraction(int index){
     }
 }
 
-void BareMinimumPlotter::formatGraph(int shape, int color){
+void BareMinimumPlotter::formatGraph(int shape, int color)
+{
         ui->plotter->graph(m_graph_count)->setData(x_results,y_results);
         ui->plotter->graph(m_graph_count)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
         QCPScatterStyle style;
@@ -592,7 +602,8 @@ void BareMinimumPlotter::formatGraph(int shape, int color){
         ui->plotter->graph(m_graph_count)->setScatterStyle(style);
 }
 
-void BareMinimumPlotter::formatErrorGraph(){
+void BareMinimumPlotter::formatErrorGraph()
+{
             ui->plotter->graph(m_graph_count)->setData(x_results_problem,y_results_problem);
             ui->plotter->graph(m_graph_count)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
             QCPScatterStyle style;
@@ -604,17 +615,20 @@ void BareMinimumPlotter::formatErrorGraph(){
 
 //	Validation
 //	----------
-void BareMinimumPlotter::print(string sMessage){
+void BareMinimumPlotter::print(string sMessage)
+{
     m_error_message += sMessage;
-    ui->textEditError->setText(QString::fromStdString(m_error_message));
+    ui->textEdit_Error->setText(QString::fromStdString(m_error_message));
 }
 
-void BareMinimumPlotter::printclr(){
+void BareMinimumPlotter::printclr()
+{
     m_error_message = "";
-    ui->textEditError->setText(QString::fromStdString(m_error_message));
+    ui->textEdit_Error->setText(QString::fromStdString(m_error_message));
 }
 
-void BareMinimumPlotter::printError(){
+void BareMinimumPlotter::printError()
+{
     // show in display
     for (int i = 0; i < static_cast<int>(m_InequalityInputs.size()); i++){
         m_error_message += m_InequalityInputs[i]->getErrors();
@@ -623,7 +637,7 @@ void BareMinimumPlotter::printError(){
         m_error_message += m_InequalityLoaders[i]->getErrors();
     }
 
-    ui->textEditError->setText(QString::fromStdString(m_error_message));
+    ui->textEdit_Error->setText(QString::fromStdString(m_error_message));
     // show on progress bar
     ui->progressBar->setValue(100);
     ui->progressBar->setFormat("Error.");
@@ -633,7 +647,8 @@ void BareMinimumPlotter::printError(){
 //	GUI
 //	---
 
-void BareMinimumPlotter::addVariableInput(){
+void BareMinimumPlotter::addVariableInput()
+{
     m_VariableInputs.push_back(new VariableInput());
     VariableInput *new_variable = m_VariableInputs.back();
     //	add to gui
@@ -653,7 +668,7 @@ void BareMinimumPlotter::addVariableInput(){
         m_VariableInputs[1]->enableRemoveButton(true);
     }
     //	resize according to splitter
-    variableSplitterMoved(ui->splitter_variable->sizes());
+    variableSplitterMoved(ui->splitter_Variable->sizes());
     //	set tab order
     resetTabOrder();
     flag_Saved = false;
@@ -673,6 +688,8 @@ void BareMinimumPlotter::addInequalityInput()
                         this, SLOT(moveInequalityInputUp(int)));
     QObject::connect(new_inequality, SIGNAL(moveDown(int)),
                         this, SLOT(moveInequalityInputDown(int)));
+    QObject::connect(this, SIGNAL(inequalitySplitterMoved(QList<int>)),
+                        new_inequality, SLOT(splitterResize(QList<int>)));
     //	enable/disable combination menu
     setCombinationInputs();
     //	set tab order
@@ -706,7 +723,8 @@ void BareMinimumPlotter::addInequalityLoader(string filename)
     flag_Saved = false;
 }
 
-void BareMinimumPlotter::reOrderInequalityInputs(){
+void BareMinimumPlotter::reOrderInequalityInputs()
+{
     vector<InequalityInput*> tmpVecInput;
     vector<InequalityLoader*> tmpVecLoader;
     for (int i = 0; i < static_cast<int>(ui->layout_Inequality->count()); i++){
@@ -724,7 +742,8 @@ void BareMinimumPlotter::reOrderInequalityInputs(){
     m_InequalityLoaders = tmpVecLoader;
 }
 
-void BareMinimumPlotter::setCombinationInputs(){
+void BareMinimumPlotter::setCombinationInputs()
+{
     int nSize = ui->layout_Inequality->count()-1;
     QWidget *front_item = ui->layout_Inequality->itemAt(0)->widget();
     //	TODO: make this more elegant
@@ -770,7 +789,6 @@ void BareMinimumPlotter::resetTabOrder()
     QWidget *current;
     QWidget *prev;
     prev = ui->tabWidget;
-    cout << "linking tab ";
     for (int i = 0; i < ui->layout_Inequality->count(); i++){
         widget = ui->layout_Inequality->itemAt(i)->widget();
         current = getFocusInWidget(widget);
@@ -783,7 +801,6 @@ void BareMinimumPlotter::resetTabOrder()
         QWidget::setTabOrder(prev, current);
         prev = getFocusOutWidget(widget);
     }
-    cout << "to plot button." << endl;
     QWidget::setTabOrder(prev, ui->button_Plot);
     QWidget::setTabOrder(ui->button_Plot, ui->button_AddInequality);
     QWidget::setTabOrder(ui->button_AddInequality, ui->pushButton_AddInequalityLoader);
@@ -792,7 +809,8 @@ void BareMinimumPlotter::resetTabOrder()
     QWidget::setTabOrder(ui->pushButton, ui->lineEdit_SettingsTolerance);
 }
 
-void BareMinimumPlotter::clearFormatting(){
+void BareMinimumPlotter::clearFormatting()
+{
     m_error_message = "";
     for (int i = 0; i < static_cast<int>(m_InequalityInputs.size()); i++){
        m_InequalityInputs[i]->clearFormatting();
@@ -803,7 +821,8 @@ void BareMinimumPlotter::clearFormatting(){
     ui->progressBar->setValue(0);
 }
 
-void BareMinimumPlotter::clearGUI(){
+void BareMinimumPlotter::clearGUI()
+{
     addInequalityInput();
     while (ui->layout_Inequality->count() > 1){
         removeInequalityInput(0);
@@ -823,13 +842,10 @@ void BareMinimumPlotter::clearGUI(){
 QWidget* BareMinimumPlotter::getFocusInWidget(QWidget* widget)
 {
     if (widget->accessibleDescription() == "input"){
-        cout << "to input" << endl;
         return qobject_cast<InequalityInput*>(widget)->getFocusInWidget();
     } else if (widget->accessibleDescription() == "loader"){
-        cout << "to loader" << endl;
         return qobject_cast<InequalityLoader*>(widget)->getFocusInWidget();
     } else if (widget->accessibleDescription() == "variable-input"){
-        cout << "to var" << endl;
         return qobject_cast<VariableInput*>(widget)->getFocusInWidget();
     }
     return widget;
@@ -838,13 +854,10 @@ QWidget* BareMinimumPlotter::getFocusInWidget(QWidget* widget)
 QWidget* BareMinimumPlotter::getFocusOutWidget(QWidget* widget)
 {
     if (widget->accessibleDescription() == "input"){
-        cout << "linking input ";
         return qobject_cast<InequalityInput*>(widget)->getFocusOutWidget();
     } else if (widget->accessibleDescription() == "loader"){
-        cout << "linking loader ";
         return qobject_cast<InequalityLoader*>(widget)->getFocusOutWidget();
     } else if (widget->accessibleDescription() == "variable-input"){
-        cout << "linking var ";
         return qobject_cast<VariableInput*>(widget)->getFocusOutWidget();
     }
     return widget;
@@ -982,7 +995,8 @@ void BareMinimumPlotter::checkAxisMode(int gui_number)
     else if (xcount == 0 && ycount == 1) { m_VariableInputs[gui_number]->setAxisMode(MODE_X_AXIS); }
 }
 
-void BareMinimumPlotter::removeVariableInput(int gui_number){
+void BareMinimumPlotter::removeVariableInput(int gui_number)
+{
     if (m_VariableInputs.size() < 3) // at least 2 variable inputs needed
         return;
     for (unsigned int i = 0; i < m_VariableInputs.size(); i++){
@@ -1067,7 +1081,8 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number)
     }
 }
 
-void BareMinimumPlotter::moveInequalityInputUp (int gui_number){
+void BareMinimumPlotter::moveInequalityInputUp (int gui_number)
+{
     int pos = gui_number;
     if (ui->layout_Inequality->itemAt(pos)->widget()->accessibleDescription() == "input")
         for (unsigned int i = 0; i < m_InequalityInputs.size(); i++){
@@ -1078,6 +1093,7 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number){
                 ui->layout_Inequality->insertWidget(--pos, m_InequalityInputs[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                resetTabOrder();
                 flag_Saved = false;
                 return;
             }
@@ -1091,13 +1107,15 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number){
                 ui->layout_Inequality->insertWidget(--pos, m_InequalityLoaders[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                resetTabOrder();
                 flag_Saved = false;
                 return;
             }
         }
 }
 
-void BareMinimumPlotter::moveInequalityInputDown (int gui_number){
+void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
+{
     int pos = gui_number;
     if (ui->layout_Inequality->itemAt(pos)->widget()->accessibleDescription() == "input")
         for (unsigned int i = 0; i < m_InequalityInputs.size(); i++){
@@ -1108,6 +1126,7 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number){
                 ui->layout_Inequality->insertWidget(++pos, m_InequalityInputs[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                resetTabOrder();
                 flag_Saved = false;
                 return;
             }
@@ -1121,6 +1140,7 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number){
                 ui->layout_Inequality->insertWidget(++pos, m_InequalityLoaders[i]);
                 reOrderInequalityInputs();
                 setCombinationInputs();
+                resetTabOrder();
                 flag_Saved = false;
                 return;
             }
@@ -1131,7 +1151,8 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number){
 ///	Private Slots
 /// ==============
 
-void BareMinimumPlotter::menu_about(){
+void BareMinimumPlotter::menu_about()
+{
     QString title = "BareMinimumPlotter :: About";
     QString info = "<h1><b>B</b>are<b>M</b>inimum<b>P</b>lotter</h1><br/> \
                     Prototype - build 0.3<br/> \
@@ -1211,7 +1232,8 @@ void BareMinimumPlotter::menu_new()
     }
 }
 
-void BareMinimumPlotter::menu_quit(){
+void BareMinimumPlotter::menu_quit()
+{
     if (flag_Saved){
         this->close();
         return;
@@ -1232,11 +1254,16 @@ void BareMinimumPlotter::on_button_AddInequality_clicked() { addInequalityInput(
 
 void BareMinimumPlotter::on_pushButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
 
-void BareMinimumPlotter::on_splitter_variable_splitterMoved(int /*pos*/, int /*index*/)
+void BareMinimumPlotter::on_splitter_Variable_splitterMoved(int /*pos*/, int /*index*/)
 {
     elideLable(ui->label_VariablePlotMode, "Mode");
     elideLable(ui->label_VariablePointChooser, "Point Chooser");
-    emit variableSplitterMoved(ui->splitter_variable->sizes());
+    emit variableSplitterMoved(ui->splitter_Variable->sizes());
+}
+
+void BareMinimumPlotter::on_splitter_Inequality_splitterMoved(int /*pos*/, int /*index*/)
+{
+    emit inequalitySplitterMoved(ui->splitter_Inequality->sizes());
 }
 
 void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
@@ -1248,4 +1275,5 @@ void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
         m_tolerance = 0;
     edit->clearFocus();
 }
+
 
