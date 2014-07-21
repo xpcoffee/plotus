@@ -112,6 +112,9 @@
        <height>16777215</height>
       </size>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <item>
       <property name="text">
        <string>star</string>
@@ -147,6 +150,9 @@
        <width>95</width>
        <height>16777215</height>
       </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <item>
       <property name="text">
@@ -204,6 +210,9 @@
        <height>16777215</height>
       </size>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="text">
       <string>⋀</string>
      </property>
@@ -226,6 +235,9 @@
        <height>16777215</height>
       </size>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="text">
       <string>⋁</string>
      </property>
@@ -247,6 +259,9 @@
        <width>80</width>
        <height>16777215</height>
       </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <item>
       <property name="text">
@@ -299,6 +314,9 @@
      <property name="mouseTracking">
       <bool>false</bool>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="text">
       <string>⨯</string>
      </property>
@@ -315,6 +333,9 @@
    </item>
    <item>
     <widget class="QCheckBox" name="checkBox_Skip">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="text">
       <string/>
      </property>

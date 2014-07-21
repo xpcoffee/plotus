@@ -36,11 +36,12 @@ static void setQLineEditBackground(QLineEdit* lineEdit, string fg, string bg){
 
 VariableInput::VariableInput(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::VariableInput)
+    ui(new Ui::VariableInput),
+    flag_initialized(false)
 {
     ui->setupUi(this);
     // global variable initialization
-    flag_initialized = false;
+    setAccessibleDescription("variable-input");
     // input validation
     QDoubleValidator *dValidator = new QDoubleValidator;
     QIntValidator *iValidator = new QIntValidator;
@@ -48,9 +49,13 @@ VariableInput::VariableInput(QWidget *parent) :
     ui->lineEditElements->setValidator(iValidator);
     ui->lineEditMax->setValidator(dValidator);
     ui->lineEditMin->setValidator(dValidator);
+    //	splitters
     for(int i = 0; i < ui->splitter->count(); i++){
         ui->splitter->handle(i)->setEnabled(false);
     }
+    //	focus
+    setFocusPolicy(Qt::TabFocus);
+    setFocusProxy(ui->lineEditName);
 }
 
 
@@ -186,6 +191,10 @@ Variable VariableInput::getVariable(){
     else { createVariable(); }
     return mVariable;
 }
+
+QWidget* VariableInput::getFocusInWidget() { return ui->lineEditName; }
+
+QWidget* VariableInput::getFocusOutWidget() { return ui->lineEditUnits; }
 
 
 //	Parsers

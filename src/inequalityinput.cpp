@@ -60,6 +60,9 @@ InequalityInput::InequalityInput(QWidget *parent) :
     // initialize precision line edit
     nPrecisionIndex = ui->horizontalLayout->indexOf(ui->lineEdit_Precision);
     on_comboBoxInequality_currentIndexChanged(0);
+    //	focus
+    setFocusPolicy(Qt::TabFocus);
+    setFocusProxy(ui->lineEditLeft);
 }
 
 InequalityInput::~InequalityInput()
@@ -110,7 +113,7 @@ void InequalityInput::enablePositionButtons(bool flag_enable){
 
 void InequalityInput::enableCombinations(bool flag_enable){ ui->comboBoxInteract->setEnabled(flag_enable); }
 
-void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(COMBINE_NONE); }
+void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(CombinationNone); }
 
 
 
@@ -122,7 +125,7 @@ string InequalityInput::expressionToJSON() {
     buffer <<	"\"inequality\":{" <<
                 "\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
                 "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\",";
-    if (ui->comboBoxInequality->currentIndex() == SYMBOL_APPROX_EQUAL){
+    if (ui->comboBoxInequality->currentIndex() == ApproxEqual){
         buffer << "\"precision\":"	<< ui->lineEdit_Precision->text().toStdString() << ",";
     }
     buffer <<  	"\"right expression\":" << "\"" << getRightExpression() << "\"," <<
@@ -164,15 +167,15 @@ void InequalityInput::fromJSON(string sInput){
                 if (getline (iss, token, '"')){
                     int symbol;
                     if (token == "<")
-                        symbol = SYMBOL_SMALLER_THAN;
+                        symbol = SmallerThan;
                     if (token == ">")
-                        symbol = SYMBOL_GREATER_THAN;
+                        symbol = GreaterThan;
                     if (token == "<=")
-                        symbol = SYMBOL_SMALLER_THAN_EQUAL;
+                        symbol = SmallerThanEqual;
                     if (token == ">=")
-                        symbol = SYMBOL_GREATER_THAN_EQUAL;
+                        symbol = GreaterThanEqual;
                     if (token == "≈")
-                        symbol = SYMBOL_APPROX_EQUAL;
+                        symbol = ApproxEqual;
                     ui->comboBoxInequality->setCurrentIndex(symbol);
                 }
         } else if (token == "right expression") {
@@ -224,10 +227,22 @@ QVector<double> InequalityInput::getXProblem(){ return qvX_problem; }
 
 QVector<double> InequalityInput::getYProblem(){ return qvY_problem; }
 
+QWidget* InequalityInput::getFocusInWidget() { return ui->lineEditLeft; }
+
+QWidget* InequalityInput::getFocusOutWidget()
+{
+    if (ui->comboBoxInequality->currentIndex() == ApproxEqual){
+        return ui->lineEdit_Precision;
+    } else {
+        return ui->lineEditRight;
+    }
+}
+
 //	Validation
 //	----------
 
-bool InequalityInput::highlightInvalidExpressionTerms(){
+bool InequalityInput::highlightInvalidExpressionTerms()
+{
     // Highlights invalid expression terms, returns 1 if highlighting has been done or 0 if no hightlighting has been done.
     bool flag_highlight = false;
     // check LHS
@@ -328,12 +343,12 @@ bool InequalityInput::evaluate(){
     }
     catch(INPUT_ERROR_CODES e){ // catch errors that happen during evaluation
         switch(e){
-        case INPUT_ERROR_INVALID_EXPRESSION:
+        case InputErrorInvalidExpression:
             sErrorMessage += "Input | Invalid expression.\n";
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
-        case INPUT_ERROR_UNINITIALIZED_VARIABLE:
+        case InputErrorUninitializedVariable:
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
@@ -403,7 +418,7 @@ void InequalityInput::on_lineEditRight_textChanged(const QString&) { clearLineEd
 void InequalityInput::on_comboBoxInteract_currentIndexChanged(int index)
 {
    switch (index) {
-    case COMBINE_NONE:
+    case CombinationNone:
        ui->comboBoxColor->setEnabled(true);
        ui->comboBoxShape->setEnabled(true);
        break;
@@ -440,7 +455,7 @@ void InequalityInput::on_checkBoxSkip_toggled(bool checked)
 
 void InequalityInput::on_comboBoxInequality_currentIndexChanged(int index)
 {
-    if (index == SYMBOL_APPROX_EQUAL){
+    if (index == ApproxEqual){
         ui->horizontalLayout->insertWidget(nPrecisionIndex, ui->lineEdit_Precision);
         ui->lineEdit_Precision->setEnabled(true);
         ui->lineEdit_Precision->setVisible(true);

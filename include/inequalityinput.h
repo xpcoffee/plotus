@@ -12,10 +12,10 @@
 // 	Enumerators
 enum COMBINE
 {
-    COMBINE_NONE 			= 0,
-    COMBINE_INTERSECTION 	= 1,
-    COMBINE_UNION 			= 2,
-    COMBINE_SUBTRACTION 	= 3,
+    CombinationNone 		= 0,
+    CombinationIntersect 	= 1,
+    CombinationUnion 		= 2,
+    CombinationSubtract 	= 3,
 
 };
 
@@ -59,6 +59,8 @@ public:
     QVector<double> getY();
     QVector<double> getXProblem();
     QVector<double> getYProblem();
+    QWidget *getFocusInWidget();
+    QWidget *getFocusOutWidget();
     //	validation
     bool highlightInvalidExpressionTerms();
     // 	formatting
@@ -82,7 +84,6 @@ private slots:
     void on_lineEditRight_textChanged(const QString&);
     void on_comboBoxInteract_currentIndexChanged(int index);
     void on_checkBoxSkip_toggled(bool checked);
-
     void on_comboBoxInequality_currentIndexChanged(int index);
 
 private:

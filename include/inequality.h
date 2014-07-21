@@ -35,11 +35,11 @@
 /// =================
 
 enum INEQUALITY_SYMBOL{
-    SYMBOL_SMALLER_THAN 		= 0,
-    SYMBOL_GREATER_THAN 		= 1,
-    SYMBOL_SMALLER_THAN_EQUAL 	= 2,
-    SYMBOL_GREATER_THAN_EQUAL	= 3,
-    SYMBOL_APPROX_EQUAL			= 4,
+    SmallerThan 		= 0,
+    GreaterThan 		= 1,
+    SmallerThanEqual 	= 2,
+    GreaterThanEqual	= 3,
+    ApproxEqual			= 4,
 };
 
 
@@ -191,21 +191,19 @@ public:
 
         for (unsigned int i = 0; i < vEvalArray1.size(); i++){
             switch (nSymbol){
-            case SYMBOL_SMALLER_THAN:
-//                cout << vEvalArray1[i] << " < " << vEvalArray2[i] << ": " << (vEvalArray1[i] < vEvalArray2[i]) << endl;
+            case SmallerThan:
                 vResult.push_back(vEvalArray1[i] < vEvalArray2[i]);
                 break;
-            case SYMBOL_GREATER_THAN:
-//                cout << vEvalArray1[i] << " > " << vEvalArray2[i] << ": " << (vEvalArray1[i] > vEvalArray2[i]) << endl;
+            case GreaterThan:
                 vResult.push_back(vEvalArray1[i] > vEvalArray2[i]);
                 break;
-            case SYMBOL_SMALLER_THAN_EQUAL:
+            case SmallerThanEqual:
                 vResult.push_back(vEvalArray1[i] <= vEvalArray2[i]);
                 break;
-            case SYMBOL_GREATER_THAN_EQUAL:
+            case GreaterThanEqual:
                 vResult.push_back(vEvalArray1[i] >= vEvalArray2[i]);
                 break;
-            case SYMBOL_APPROX_EQUAL:
+            case ApproxEqual:
                 {
                     double diff = (vEvalArray1[i]-vEvalArray2[i])*(vEvalArray1[i]-vEvalArray2[i]);
                     vResult.push_back((dPrecision*dPrecision) >= diff);

@@ -43,6 +43,8 @@ public:
     QVector<double> getY();
     string getFile();
     string getErrors();
+    QWidget *getFocusInWidget();
+    QWidget *getFocusOutWidget();
     // parsers
     void parsePlotData(string json);
     void parseProblem(string problem);
