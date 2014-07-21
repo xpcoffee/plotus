@@ -107,12 +107,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     addInequalityInput();
     m_InequalityInputs.front()->enablePositionButtons(false);
 
-    //	focus
-    ui->scrollArea_InequalityInputs->setFocusPolicy(Qt::TabFocus);
-    ui->scrollArea_InequalityInputs->setFocusProxy(ui->layout_Inequality->itemAt(0)->widget());
-    ui->scrollArea_VariableInputs->setFocusPolicy(Qt::TabFocus);
-    ui->scrollArea_VariableInputs->setFocusProxy(ui->layout_Variable->itemAt(0)->widget());
-
     flag_Saved = true;
 }
 
@@ -662,7 +656,7 @@ void BareMinimumPlotter::addVariableInput(){
     //	resize according to splitter
     variableSplitterMoved(ui->splitter_variable->sizes());
     //	set tab order
-//    resetTabOrder();
+    resetTabOrder();
     flag_Saved = false;
 }
 
@@ -683,7 +677,7 @@ void BareMinimumPlotter::addInequalityInput()
     //	enable/disable combination menu
     setCombinationInputs();
     //	set tab order
-//    resetTabOrder();
+    resetTabOrder();
     flag_Saved = false;
 }
 
@@ -709,7 +703,7 @@ void BareMinimumPlotter::addInequalityLoader(string filename)
     // enable/disable combination menu
     setCombinationInputs();
     //	set tab order
-//    resetTabOrder();
+    resetTabOrder();
     flag_Saved = false;
 }
 

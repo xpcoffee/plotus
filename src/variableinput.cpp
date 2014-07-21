@@ -194,7 +194,14 @@ Variable VariableInput::getVariable(){
 
 QWidget* VariableInput::getFocusInWidget() { return ui->lineEditName; }
 
-QWidget* VariableInput::getFocusOutWidget() { return ui->lineEditUnits; }
+QWidget* VariableInput::getFocusOutWidget()
+{
+    QWidget::setTabOrder(ui->lineEditName, ui->lineEditMin);
+    QWidget::setTabOrder(ui->lineEditMin, ui->lineEditMax);
+    QWidget::setTabOrder(ui->lineEditMax, ui->lineEditElements);
+    QWidget::setTabOrder(ui->lineEditElements, ui->lineEditUnits);
+    return ui->lineEditUnits;
+}
 
 
 //	Parsers

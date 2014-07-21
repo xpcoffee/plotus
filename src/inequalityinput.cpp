@@ -231,7 +231,10 @@ QWidget* InequalityInput::getFocusInWidget() { return ui->lineEditLeft; }
 
 QWidget* InequalityInput::getFocusOutWidget()
 {
+    QWidget::setTabOrder(ui->lineEditLeft, ui->comboBoxInequality);
+    QWidget::setTabOrder(ui->comboBoxInequality, ui->lineEditRight);
     if (ui->comboBoxInequality->currentIndex() == ApproxEqual){
+        QWidget::setTabOrder(ui->lineEditRight, ui->lineEdit_Precision);
         return ui->lineEdit_Precision;
     } else {
         return ui->lineEditRight;
