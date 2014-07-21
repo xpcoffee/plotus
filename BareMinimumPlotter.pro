@@ -20,7 +20,7 @@ SOURCES += src/main.cpp \
     src/inequalityinput.cpp \
     src/inequalityloader.cpp \
     src/variableinput.cpp \
-    lib/qcustomplot.cpp \
+    lib/qcustomplot.cpp
 
 HEADERS  += include/variableinput.h \
     include/bareminimumplotter.h \
