@@ -42,8 +42,7 @@ using namespace std;
 ///	Exprimental Functions
 /// ======================
 
-void elideLable(QLabel *label){
-    QString text = label->text();
+void elideLable(QLabel *label, QString text){
     QFontMetrics metrics(label->font());
     QString elidedText = metrics.elidedText(text, Qt::ElideRight, label->width());
     label->setText(elidedText);
@@ -71,14 +70,14 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     //	SETUP UI CONTINUED
     //	plotter
 
+
     //	general - things that can't be done in designer
     ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignVCenter);
     ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignVCenter);
-    elideLable(ui->label_VariableElements);
-    elideLable(ui->label_VariableChosenPoint);
     QDoubleValidator *dValidator = new QDoubleValidator;
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_SettingsTolerance->setValidator(dValidator);
+
     //	account for scrollbar sizes in ui
     int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
     QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
@@ -1233,7 +1232,12 @@ void BareMinimumPlotter::on_button_AddInequality_clicked() { addInequalityInput(
 
 void BareMinimumPlotter::on_pushButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
 
-void BareMinimumPlotter::on_splitter_variable_splitterMoved(int /*pos*/, int /*index*/) { emit variableSplitterMoved(ui->splitter_variable->sizes()); }
+void BareMinimumPlotter::on_splitter_variable_splitterMoved(int /*pos*/, int /*index*/)
+{
+    elideLable(ui->label_VariablePlotMode, "Mode");
+    elideLable(ui->label_VariablePointChooser, "Point Chooser");
+    emit variableSplitterMoved(ui->splitter_variable->sizes());
+}
 
 void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
 {
