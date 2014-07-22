@@ -80,14 +80,14 @@ public slots:
     void splitterResize(QList<int> sizes);
 
 private slots:
-    void on_pushButtonUp_clicked();
-    void on_pushButtonDown_clicked();
-    void on_pushButtonDelete_clicked();
-    void on_lineEditLeft_textChanged(const QString&);
-    void on_lineEditRight_textChanged(const QString&);
-    void on_comboBoxInteract_currentIndexChanged(int index);
-    void on_checkBoxSkip_toggled(bool checked);
-    void on_comboBoxInequality_currentIndexChanged(int index);
+    void on_pushButton_Up_clicked();
+    void on_pushButton_Down_clicked();
+    void on_pushButton_Delete_clicked();
+    void on_lineEdit_Left_textChanged(const QString&);
+    void on_lineEdit_Right_textChanged(const QString&);
+    void on_comboBox_Interact_currentIndexChanged(int index);
+    void on_checkBox_Skip_toggled(bool checked);
+    void on_comboBox_Inequality_currentIndexChanged(int index);
 
 private:
     Ui::InequalityInput *ui;

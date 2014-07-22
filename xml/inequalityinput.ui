@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
+    <width>554</width>
     <height>30</height>
    </rect>
   </property>
@@ -36,27 +36,36 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QSplitter" name="splitter">
+    <widget class="QSplitter" name="splitter_InequalityInput">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="handleWidth">
-      <number>3</number>
+      <number>5</number>
      </property>
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
      <widget class="QWidget" name="layoutWidget">
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_Inequality">
+       <property name="spacing">
+        <number>5</number>
+       </property>
        <item>
         <widget class="QLabel" name="label_Index">
+         <property name="minimumSize">
+          <size>
+           <width>5</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEditLeft">
+        <widget class="QLineEdit" name="lineEdit_Left">
          <property name="minimumSize">
           <size>
            <width>50</width>
@@ -75,7 +84,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBoxInequality">
+        <widget class="QComboBox" name="comboBox_Inequality">
          <property name="minimumSize">
           <size>
            <width>50</width>
@@ -119,7 +128,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEditRight">
+        <widget class="QLineEdit" name="lineEdit_Right">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -179,352 +188,374 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_4">
-      <layout class="QHBoxLayout" name="horizontalLayout_Options">
+     <widget class="QWidget" name="">
+      <layout class="QHBoxLayout" name="horizontalLayout_Plot">
        <property name="spacing">
+        <number>5</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="comboBox_Shape">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Marker shape.">Marker shape</string>
+         </property>
+         <property name="frame">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>star</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>circle</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>triangle</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>square</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox_Color">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>95</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>95</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Marker colour.">Marker colour</string>
+         </property>
+         <property name="frame">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>blue</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>green</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>red</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>dark blue</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>dark green</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>dark red</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>grey</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>black</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <layout class="QHBoxLayout" name="horizontalLayout_Position">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="pushButton_Down">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Move down.">Move down</string>
+         </property>
+         <property name="text">
+          <string>⋁</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_Up">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Move up.">Move up</string>
+         </property>
+         <property name="text">
+          <string>⋀</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <layout class="QHBoxLayout" name="horizontalLayout_Combination">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="comboBox_Interact">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Choose combination mode.">Choose combination mode</string>
+         </property>
+         <property name="frame">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>⋂</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>⋃</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>-</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_4">
+      <layout class="QHBoxLayout" name="horizontalLayout_SkipRemove">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_PlotOptions">
-         <item>
-          <widget class="QComboBox" name="comboBoxShape">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>80</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Marker shape.">Marker shape</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>star</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>circle</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>triangle</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>square</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBoxColor">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>95</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>95</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Marker colour.">Marker colour</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>blue</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>green</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>red</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>dark blue</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>dark green</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>dark red</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>grey</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>black</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="pushButton_Delete">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Remove">Remove</string>
+         </property>
+         <property name="text">
+          <string>⨯</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_PositionOptions">
-         <item>
-          <widget class="QPushButton" name="pushButtonDown">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>30</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Move down.">Move down</string>
-           </property>
-           <property name="text">
-            <string>⋁</string>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonUp">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>30</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Move up.">Move up</string>
-           </property>
-           <property name="text">
-            <string>⋀</string>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBoxInteract">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Choose combination mode.">Choose combination mode</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>None</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>⋂</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>⋃</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>-</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonDelete">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Remove">Remove</string>
-           </property>
-           <property name="text">
-            <string>⨯</string>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBoxSkip">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string extracomment="Disable">Disable</string>
-           </property>
-           <property name="toolTipDuration">
-            <number>-1</number>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="tristate">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QCheckBox" name="checkBox_Skip">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>15</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string extracomment="Disable">Disable</string>
+         </property>
+         <property name="toolTipDuration">
+          <number>-1</number>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

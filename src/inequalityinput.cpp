@@ -58,8 +58,8 @@ InequalityInput::InequalityInput(QWidget *parent) :
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_Precision->setValidator(dValidator);
     //	initialize precision line edit
-    m_precisionIndex = ui->horizontalLayout->indexOf(ui->lineEdit_Precision);
-    on_comboBoxInequality_currentIndexChanged(0);
+    m_precisionIndex = ui->horizontalLayout_Inequality->indexOf(ui->lineEdit_Precision);
+    on_comboBox_Inequality_currentIndexChanged(0);
     //	center text in comboboxes
     setStyleSheet( 	"QComboBox:!editable, QLabel, QListView, QPushButton{"
                         "text-align: center;"
@@ -95,13 +95,13 @@ void InequalityInput::setY(QVector<double> vY){ m_Y = vY; }
 bool InequalityInput::createInequality(){
     m_error_message = "";
     // input expressions
-    m_Inequality = Inequality(ui->lineEditLeft->text().toStdString(),
-                             ui->comboBoxInequality->currentIndex(),
-                             ui->lineEditRight->text().toStdString());
+    m_Inequality = Inequality(ui->lineEdit_Left->text().toStdString(),
+                             ui->comboBox_Inequality->currentIndex(),
+                             ui->lineEdit_Right->text().toStdString());
     m_Inequality.setPrecision(atof(ui->lineEdit_Precision->text().toStdString().c_str()));
     // remove whitespace
-    ui->lineEditLeft->setText(QString::fromStdString(m_Inequality.getExpressionLHS()));
-    ui->lineEditRight->setText(QString::fromStdString(m_Inequality.getExpressionRHS()));
+    ui->lineEdit_Left->setText(QString::fromStdString(m_Inequality.getExpressionLHS()));
+    ui->lineEdit_Right->setText(QString::fromStdString(m_Inequality.getExpressionRHS()));
     //check expression
     if(highlightInvalidExpressionTerms())
         return false;
@@ -109,15 +109,15 @@ bool InequalityInput::createInequality(){
 }
 
 void InequalityInput::enablePositionButtons(bool flag_enable){
-    ui->pushButtonDown->setEnabled(flag_enable);
-    ui->pushButtonUp->setEnabled(flag_enable);
-    ui->comboBoxInteract->setEnabled(flag_enable);
-    ui->pushButtonDelete->setEnabled(flag_enable);
+    ui->pushButton_Down->setEnabled(flag_enable);
+    ui->pushButton_Up->setEnabled(flag_enable);
+    ui->comboBox_Interact->setEnabled(flag_enable);
+    ui->pushButton_Delete->setEnabled(flag_enable);
 }
 
-void InequalityInput::enableCombinations(bool flag_enable){ ui->comboBoxInteract->setEnabled(flag_enable); }
+void InequalityInput::enableCombinations(bool flag_enable){ ui->comboBox_Interact->setEnabled(flag_enable); }
 
-void InequalityInput::resetCombinations(){ ui->comboBoxInteract->setCurrentIndex(CombinationNone); }
+void InequalityInput::resetCombinations(){ ui->comboBox_Interact->setCurrentIndex(CombinationNone); }
 
 
 
@@ -128,8 +128,8 @@ string InequalityInput::expressionToJSON() {
     stringstream buffer;
     buffer <<	"\"inequality\":{" <<
                 "\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
-                "\"symbol\":" << "\"" << ui->comboBoxInequality->currentText().toStdString() << "\",";
-    if (ui->comboBoxInequality->currentIndex() == ApproxEqual){
+                "\"symbol\":" << "\"" << ui->comboBox_Inequality->currentText().toStdString() << "\",";
+    if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
         buffer << "\"precision\":"	<< ui->lineEdit_Precision->text().toStdString() << ",";
     }
     buffer <<  	"\"right expression\":" << "\"" << getRightExpression() << "\"," <<
@@ -165,7 +165,7 @@ void InequalityInput::fromJSON(string sInput){
         if (token == "left expression")	{
             if (getline (iss, token, '"'))
                 if (getline (iss, token, '"'))
-                    ui->lineEditLeft->setText(QString::fromStdString(token));
+                    ui->lineEdit_Left->setText(QString::fromStdString(token));
         } else if (token == "symbol") {
             if (getline (iss, token, '"'))
                 if (getline (iss, token, '"')){
@@ -180,12 +180,12 @@ void InequalityInput::fromJSON(string sInput){
                         symbol = GreaterThanEqual;
                     if (token == "≈")
                         symbol = ApproxEqual;
-                    ui->comboBoxInequality->setCurrentIndex(symbol);
+                    ui->comboBox_Inequality->setCurrentIndex(symbol);
                 }
         } else if (token == "right expression") {
             if (getline (iss, token, '"'))
                 if (getline (iss, token, '"'))
-                    ui->lineEditRight->setText(QString::fromStdString(token));
+                    ui->lineEdit_Right->setText(QString::fromStdString(token));
 
         } else if (token == "combination") {
             if (getline (iss, token, '"'))
@@ -195,7 +195,7 @@ void InequalityInput::fromJSON(string sInput){
                     ss << token;
                     if(!(ss >> index))
                         index = 0;
-                    ui->comboBoxInteract->setCurrentIndex(index);
+                    ui->comboBox_Interact->setCurrentIndex(index);
                 }
         }
     }
@@ -207,11 +207,11 @@ void InequalityInput::fromJSON(string sInput){
 
 int InequalityInput::getNumber(){ return m_guiNumber; }
 
-int InequalityInput::getColorIndex(){ return ui->comboBoxColor->currentIndex(); }
+int InequalityInput::getColorIndex(){ return ui->comboBox_Color->currentIndex(); }
 
-int InequalityInput::getShapeIndex(){ return ui->comboBoxShape->currentIndex(); }
+int InequalityInput::getShapeIndex(){ return ui->comboBox_Shape->currentIndex(); }
 
-int InequalityInput::getCombination(){ return ui->comboBoxInteract->currentIndex(); }
+int InequalityInput::getCombination(){ return ui->comboBox_Interact->currentIndex(); }
 
 double InequalityInput::getPrecision() { return atof(ui->lineEdit_Precision->text().toStdString().c_str()); }
 
@@ -231,17 +231,17 @@ QVector<double> InequalityInput::getXProblem(){ return m_XProblem; }
 
 QVector<double> InequalityInput::getYProblem(){ return m_YProblem; }
 
-QWidget* InequalityInput::getFocusInWidget() { return ui->lineEditLeft; }
+QWidget* InequalityInput::getFocusInWidget() { return ui->lineEdit_Left; }
 
 QWidget* InequalityInput::getFocusOutWidget()
 {
-    QWidget::setTabOrder(ui->lineEditLeft, ui->comboBoxInequality);
-    QWidget::setTabOrder(ui->comboBoxInequality, ui->lineEditRight);
-    if (ui->comboBoxInequality->currentIndex() == ApproxEqual){
-        QWidget::setTabOrder(ui->lineEditRight, ui->lineEdit_Precision);
+    QWidget::setTabOrder(ui->lineEdit_Left, ui->comboBox_Inequality);
+    QWidget::setTabOrder(ui->comboBox_Inequality, ui->lineEdit_Right);
+    if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
+        QWidget::setTabOrder(ui->lineEdit_Right, ui->lineEdit_Precision);
         return ui->lineEdit_Precision;
     } else {
-        return ui->lineEditRight;
+        return ui->lineEdit_Right;
     }
 }
 
@@ -277,7 +277,7 @@ bool InequalityInput::highlightInvalidExpressionTerms()
             nFormatRangeCounter += sTerm.length();
             formats.append(fr);
         }
-        setLineEditTextFormat(ui->lineEditLeft, formats);
+        setLineEditTextFormat(ui->lineEdit_Left, formats);
     }
 
     // check RHS
@@ -306,7 +306,7 @@ bool InequalityInput::highlightInvalidExpressionTerms()
             formats.append(fr);
         }
 
-        setLineEditTextFormat(ui->lineEditRight, formats);
+        setLineEditTextFormat(ui->lineEdit_Right, formats);
     }
     return flag_highlight;
 }
@@ -316,17 +316,17 @@ bool InequalityInput::highlightInvalidExpressionTerms()
 //	----------
 
 void InequalityInput::clearFormatting(){
-    clearLineEditTextFormat(ui->lineEditLeft);
-    clearLineEditTextFormat(ui->lineEditRight);
+    clearLineEditTextFormat(ui->lineEdit_Left);
+    clearLineEditTextFormat(ui->lineEdit_Right);
 }
 
 void InequalityInput::clearFields(){
-    ui->lineEditLeft->clear();
-    ui->lineEditRight->clear();
-    ui->comboBoxInequality->setCurrentIndex(0);
-    ui->comboBoxShape->setCurrentIndex(0);
-    ui->comboBoxColor->setCurrentIndex(0);
-    ui->comboBoxInteract->setCurrentIndex(0);
+    ui->lineEdit_Left->clear();
+    ui->lineEdit_Right->clear();
+    ui->comboBox_Inequality->setCurrentIndex(0);
+    ui->comboBox_Shape->setCurrentIndex(0);
+    ui->comboBox_Color->setCurrentIndex(0);
+    ui->comboBox_Interact->setCurrentIndex(0);
 }
 
 
@@ -413,7 +413,7 @@ bool InequalityInput::evaluate(){
 //	"""""""""""""""""""""""""""""""""
 
 void InequalityInput::splitterResize(QList<int> sizes){
-    ui->splitter->setSizes(sizes);
+    ui->splitter_InequalityInput->setSizes(sizes);
 }
 
 
@@ -421,64 +421,64 @@ void InequalityInput::splitterResize(QList<int> sizes){
 //	"		Private Slots			"
 //	"""""""""""""""""""""""""""""""""
 
-void InequalityInput::on_pushButtonUp_clicked() { emit moveUp(m_guiNumber); }
+void InequalityInput::on_pushButton_Up_clicked() { emit moveUp(m_guiNumber); }
 
-void InequalityInput::on_pushButtonDown_clicked() { emit moveDown(m_guiNumber); }
+void InequalityInput::on_pushButton_Down_clicked() { emit moveDown(m_guiNumber); }
 
-void InequalityInput::on_pushButtonDelete_clicked() { emit killThis(m_guiNumber); }
+void InequalityInput::on_pushButton_Delete_clicked() { emit killThis(m_guiNumber); }
 
-void InequalityInput::on_lineEditLeft_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEditLeft); }
+void InequalityInput::on_lineEdit_Left_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEdit_Left); }
 
-void InequalityInput::on_lineEditRight_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEditRight); }
+void InequalityInput::on_lineEdit_Right_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEdit_Right); }
 
-void InequalityInput::on_comboBoxInteract_currentIndexChanged(int index)
+void InequalityInput::on_comboBox_Interact_currentIndexChanged(int index)
 {
    switch (index) {
     case CombinationNone:
-       ui->comboBoxColor->setEnabled(true);
-       ui->comboBoxShape->setEnabled(true);
+       ui->comboBox_Color->setEnabled(true);
+       ui->comboBox_Shape->setEnabled(true);
        break;
    default:
-       ui->comboBoxColor->setEnabled(false);
-       ui->comboBoxShape->setEnabled(false);
+       ui->comboBox_Color->setEnabled(false);
+       ui->comboBox_Shape->setEnabled(false);
        break;
    }
 }
 
-void InequalityInput::on_checkBoxSkip_toggled(bool checked)
+void InequalityInput::on_checkBox_Skip_toggled(bool checked)
 {
    if(checked) {
        flag_skip = true;
-       ui->comboBoxColor->setEnabled(false);
-       ui->comboBoxShape->setEnabled(false);
-       ui->lineEditLeft->setEnabled(false);
-       ui->lineEditRight->setEnabled(false);
-       ui->comboBoxInequality->setEnabled(false);
-       ui->comboBoxInteract->setEnabled(false);
+       ui->comboBox_Color->setEnabled(false);
+       ui->comboBox_Shape->setEnabled(false);
+       ui->lineEdit_Left->setEnabled(false);
+       ui->lineEdit_Right->setEnabled(false);
+       ui->comboBox_Inequality->setEnabled(false);
+       ui->comboBox_Interact->setEnabled(false);
 
    }
    else {
        flag_skip = false;
-       ui->comboBoxColor->setEnabled(true);
-       ui->comboBoxShape->setEnabled(true);
-       ui->lineEditLeft->setEnabled(true);
-       ui->lineEditRight->setEnabled(true);
-       ui->comboBoxInequality->setEnabled(true);
-       if(ui->pushButtonDown->isEnabled())
-           ui->comboBoxInteract->setEnabled(true);
+       ui->comboBox_Color->setEnabled(true);
+       ui->comboBox_Shape->setEnabled(true);
+       ui->lineEdit_Left->setEnabled(true);
+       ui->lineEdit_Right->setEnabled(true);
+       ui->comboBox_Inequality->setEnabled(true);
+       if(ui->pushButton_Down->isEnabled())
+           ui->comboBox_Interact->setEnabled(true);
    }
 }
 
-void InequalityInput::on_comboBoxInequality_currentIndexChanged(int index)
+void InequalityInput::on_comboBox_Inequality_currentIndexChanged(int index)
 {
     if (index == ApproxEqual){
-        ui->horizontalLayout->insertWidget(m_precisionIndex, ui->lineEdit_Precision);
+        ui->horizontalLayout_Inequality->insertWidget(m_precisionIndex, ui->lineEdit_Precision);
         ui->lineEdit_Precision->setEnabled(true);
         ui->lineEdit_Precision->setVisible(true);
     }
     else{
         if (ui->lineEdit_Precision->isEnabled()){
-            ui->horizontalLayout->takeAt(m_precisionIndex);
+            ui->horizontalLayout_Inequality->takeAt(m_precisionIndex);
             ui->lineEdit_Precision->setEnabled(false);
             ui->lineEdit_Precision->setVisible(false);
         }

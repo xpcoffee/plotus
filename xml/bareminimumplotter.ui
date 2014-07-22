@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>803</width>
-    <height>393</height>
+    <width>854</width>
+    <height>405</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,8 +65,6 @@ QGroupBox{
 	background-color: rgb(80,80,80);
 }
 
-
-
 /*Labels*/
 QLabel {
 	color: white;
@@ -79,6 +77,16 @@ QPushButton {
 	font: bold 13px calibri;
 	background: rgb(100,100,100);
 	border-radius:0px;
+}
+
+QPushButton#pushButton_Down{
+	color: transparent;
+	image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
+}
+
+QPushButton#pushButton_Up{
+	color: transparent;
+	image: url(../bare_minimum_plotter/rsc/up-arrow-white.png);
 }
 
 /*LineEdits*/
@@ -101,6 +109,7 @@ QComboBox {
 	background: rgb(63, 98, 255);
 	border-radius:0;
 	color: white;
+	font: 13px calibri;
 }
 
 QComboBox::drop-down {
@@ -109,9 +118,9 @@ QComboBox::drop-down {
 }
 
 QComboBox::down-arrow {
-	image: url(rsc/drop-down-arrow-white.png);
-	width: 15px;
-	height: 15px;
+	border-image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
+	width: 10px;
+	height: 10px;
 }
 
 QListView {
@@ -160,6 +169,85 @@ QProgressBar::chunk {
         <property name="topMargin">
          <number>15</number>
         </property>
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="layout_Progress">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="button_Plot">
+            <property name="minimumSize">
+             <size>
+              <width>90</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="baseSize">
+             <size>
+              <width>90</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::TabFocus</enum>
+            </property>
+            <property name="text">
+             <string>&amp;Plot</string>
+            </property>
+            <property name="shortcut">
+             <string notr="true">Ctrl+Return</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QProgressBar" name="progressBar">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="textVisible">
+             <bool>true</bool>
+            </property>
+            <property name="invertedAppearance">
+             <bool>false</bool>
+            </property>
+            <property name="format">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item row="0" column="0">
          <widget class="QSplitter" name="splitter">
           <property name="orientation">
@@ -271,7 +359,7 @@ QProgressBar::chunk {
                     <enum>Qt::Horizontal</enum>
                    </property>
                    <property name="handleWidth">
-                    <number>3</number>
+                    <number>5</number>
                    </property>
                    <property name="childrenCollapsible">
                     <bool>false</bool>
@@ -279,7 +367,7 @@ QProgressBar::chunk {
                    <widget class="QLabel" name="label_Inequality">
                     <property name="minimumSize">
                      <size>
-                      <width>241</width>
+                      <width>230</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -290,53 +378,85 @@ QProgressBar::chunk {
                      <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
-                   <widget class="QWidget" name="layoutWidget">
-                    <layout class="QHBoxLayout" name="horizontalLayout_InequalityHeaders_Options">
-                     <item>
-                      <widget class="QLabel" name="label_InequalityPlotOption">
-                       <property name="minimumSize">
-                        <size>
-                         <width>106</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>186</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Plotting</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_InequalityVisualization">
-                       <property name="minimumSize">
-                        <size>
-                         <width>208</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>208</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Position / Combination / Skip</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
+                   <widget class="QLabel" name="label_InequalityPlotOption">
+                    <property name="minimumSize">
+                     <size>
+                      <width>105</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>180</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Plotting</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_InequalityVisualization">
+                    <property name="minimumSize">
+                     <size>
+                      <width>65</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>65</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Position</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>80</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Combination</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>50</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Skip/Del.</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
                    </widget>
                   </widget>
                  </item>
@@ -407,7 +527,7 @@ QProgressBar::chunk {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>648</width>
+                    <width>699</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -689,7 +809,7 @@ QProgressBar::chunk {
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>33</width>
+                      <width>70</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -722,6 +842,12 @@ QProgressBar::chunk {
                     </property>
                    </widget>
                    <widget class="QLabel" name="label_VariablePointChooser">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="minimumSize">
                      <size>
                       <width>50</width>
@@ -893,7 +1019,7 @@ QProgressBar::chunk {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>648</width>
+                    <width>699</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -987,85 +1113,6 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </widget>
-        </item>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="layout_Progress">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QPushButton" name="button_Plot">
-            <property name="minimumSize">
-             <size>
-              <width>90</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>90</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::TabFocus</enum>
-            </property>
-            <property name="text">
-             <string>&amp;Plot</string>
-            </property>
-            <property name="shortcut">
-             <string notr="true">Ctrl+Return</string>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
-            </property>
-            <property name="default">
-             <bool>true</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QProgressBar" name="progressBar">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="autoFillBackground">
-             <bool>false</bool>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="textVisible">
-             <bool>true</bool>
-            </property>
-            <property name="invertedAppearance">
-             <bool>false</bool>
-            </property>
-            <property name="format">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="minimumSize">
-             <size>
-              <width>40</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Cancel</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -1193,7 +1240,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>803</width>
+     <width>854</width>
      <height>21</height>
     </rect>
    </property>
