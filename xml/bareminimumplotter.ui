@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>854</width>
+    <width>812</width>
     <height>405</height>
    </rect>
   </property>
@@ -87,6 +87,11 @@ QPushButton#pushButton_Down{
 QPushButton#pushButton_Up{
 	color: transparent;
 	image: url(../bare_minimum_plotter/rsc/up-arrow-white.png);
+}
+
+QPushButton#pushButton_Delete{
+	color: transparent;
+	image: url(../bare_minimum_plotter/rsc/cross-white.png);
 }
 
 /*LineEdits*/
@@ -345,6 +350,22 @@ QProgressBar::chunk {
                   <number>0</number>
                  </property>
                  <item>
+                  <spacer name="horizontalSpacer_5">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>6</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
                   <widget class="QSplitter" name="splitter_Inequality">
                    <property name="styleSheet">
                     <string notr="true"/>
@@ -364,11 +385,37 @@ QProgressBar::chunk {
                    <property name="childrenCollapsible">
                     <bool>false</bool>
                    </property>
+                   <widget class="QLabel" name="label_InequalityNumber">
+                    <property name="minimumSize">
+                     <size>
+                      <width>15</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>15</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>#</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
                    <widget class="QLabel" name="label_Inequality">
                     <property name="minimumSize">
                      <size>
-                      <width>230</width>
+                      <width>240</width>
                       <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
@@ -378,7 +425,7 @@ QProgressBar::chunk {
                      <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
-                   <widget class="QLabel" name="label_InequalityPlotOption">
+                   <widget class="QLabel" name="label_InequalityPlotting">
                     <property name="minimumSize">
                      <size>
                       <width>105</width>
@@ -398,7 +445,7 @@ QProgressBar::chunk {
                      <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
-                   <widget class="QLabel" name="label_InequalityVisualization">
+                   <widget class="QLabel" name="label_Position">
                     <property name="minimumSize">
                      <size>
                       <width>65</width>
@@ -418,7 +465,7 @@ QProgressBar::chunk {
                      <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
-                   <widget class="QLabel" name="label">
+                   <widget class="QLabel" name="label_Combination">
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
@@ -438,21 +485,41 @@ QProgressBar::chunk {
                      <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
-                   <widget class="QLabel" name="label_2">
+                   <widget class="QLabel" name="label_Skip">
                     <property name="minimumSize">
                      <size>
-                      <width>50</width>
+                      <width>40</width>
                       <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>50</width>
+                      <width>40</width>
                       <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
-                     <string>Skip/Del.</string>
+                     <string>Skip</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_Del">
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>30</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Del.</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -470,7 +537,23 @@ QProgressBar::chunk {
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
-                     <width>13</width>
+                     <width>12</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>6</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -527,7 +610,7 @@ QProgressBar::chunk {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>699</width>
+                    <width>657</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -931,7 +1014,10 @@ QProgressBar::chunk {
                      </size>
                     </property>
                     <property name="text">
-                     <string/>
+                     <string>Del.</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </widget>
@@ -1019,7 +1105,7 @@ QProgressBar::chunk {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>699</width>
+                    <width>657</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -1240,7 +1326,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>854</width>
+     <width>812</width>
      <height>21</height>
     </rect>
    </property>

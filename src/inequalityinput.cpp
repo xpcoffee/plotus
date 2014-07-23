@@ -58,15 +58,12 @@ InequalityInput::InequalityInput(QWidget *parent) :
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_Precision->setValidator(dValidator);
     //	initialize precision line edit
-    m_precisionIndex = ui->horizontalLayout_Inequality->indexOf(ui->lineEdit_Precision);
+    m_precisionIndex = ui->splitter_Inequality->indexOf(ui->lineEdit_Precision);
     on_comboBox_Inequality_currentIndexChanged(0);
-    //	center text in comboboxes
-    setStyleSheet( 	"QComboBox:!editable, QLabel, QListView, QPushButton{"
-                        "text-align: center;"
-                        "font: bold;"
-                    "}"
-                  );
-
+    //	splitters
+    for(int i = 0; i < ui->splitter_InequalityInput->count(); i++){
+        ui->splitter_InequalityInput->handle(i)->setEnabled(false);
+    }
 }
 
 InequalityInput::~InequalityInput()
@@ -412,9 +409,7 @@ bool InequalityInput::evaluate(){
 //	"		Public Slots			"
 //	"""""""""""""""""""""""""""""""""
 
-void InequalityInput::splitterResize(QList<int> sizes){
-    ui->splitter_InequalityInput->setSizes(sizes);
-}
+void InequalityInput::splitterResize(QList<int> sizes){ ui->splitter_InequalityInput->setSizes(sizes); }
 
 
 //	"""""""""""""""""""""""""""""""""
@@ -472,15 +467,9 @@ void InequalityInput::on_checkBox_Skip_toggled(bool checked)
 void InequalityInput::on_comboBox_Inequality_currentIndexChanged(int index)
 {
     if (index == ApproxEqual){
-        ui->horizontalLayout_Inequality->insertWidget(m_precisionIndex, ui->lineEdit_Precision);
-        ui->lineEdit_Precision->setEnabled(true);
-        ui->lineEdit_Precision->setVisible(true);
+        ui->splitter_Inequality->widget(m_precisionIndex)->show();
     }
-    else{
-        if (ui->lineEdit_Precision->isEnabled()){
-            ui->horizontalLayout_Inequality->takeAt(m_precisionIndex);
-            ui->lineEdit_Precision->setEnabled(false);
-            ui->lineEdit_Precision->setVisible(false);
-        }
+    else if (ui->lineEdit_Precision->isEnabled()){
+            ui->splitter_Inequality->widget(m_precisionIndex)->hide();
     }
 }

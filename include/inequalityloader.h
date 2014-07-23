@@ -67,13 +67,16 @@ signals:
     void moveDown (int guiNumber);
     void killThis (int guiNumber);
 
+public slots:
+    void splitterResize(QList<int> sizes);
+
 private slots:
     void on_pushButton_Details_clicked();
-    void on_pushButton_Remove_clicked();
+    void on_pushButton_Delete_clicked();
     void on_pushButton_Up_clicked();
     void on_pushButton_Down_clicked();
     void on_checkBox_Skip_toggled(bool checked);
-    void on_comboBox_Interact_currentIndexChanged(int index);
+    void on_comboBox_Combination_currentIndexChanged(int index);
     void on_comboBox_Plot_currentIndexChanged(int index);
 
 private:

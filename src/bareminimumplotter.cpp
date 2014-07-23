@@ -83,7 +83,8 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
     QSize old_size = scroll_bar_spacer->sizeHint();
     scroll_bar_spacer->changeSize(new_size, old_size.height());
-    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size+3, old_size.height());
+    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size, old_size.height());
+
 
     //	LOAD SETTINGS
     stringstream buffer;
@@ -711,6 +712,8 @@ void BareMinimumPlotter::addInequalityLoader(string filename)
                         this, SLOT(moveInequalityInputUp(int)));
     QObject::connect(new_inequality, SIGNAL(moveDown(int)),
                         this, SLOT(moveInequalityInputDown(int)));
+    QObject::connect(this, SIGNAL(inequalitySplitterMoved(QList<int>)),
+                        new_inequality, SLOT(splitterResize(QList<int>)));
     // load data
     if (filename == ""){
         filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)").toStdString();

@@ -31,6 +31,10 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
 {
     ui->setupUi(this);
     setAccessibleDescription("loader");
+    //	splitters
+    for(int i = 0; i < ui->splitter_InequalityInput->count(); i++){
+        ui->splitter_InequalityInput->handle(i)->setEnabled(false);
+    }
 }
 
 //	Destructor
@@ -119,7 +123,7 @@ int InequalityLoader::getColorIndex() 	{ return ui->comboBox_Color->currentIndex
 
 int InequalityLoader::getShapeIndex() 	{ return ui->comboBox_Shape->currentIndex(); }
 
-int InequalityLoader::getCombination() 	{ return ui->comboBox_Interact->currentIndex(); }
+int InequalityLoader::getCombination() 	{ return ui->comboBox_Combination->currentIndex(); }
 
 bool InequalityLoader::getSkip() 		{ return flag_skip; }
 
@@ -341,13 +345,13 @@ void InequalityLoader::enablePositionButtons (bool flag_enable)
 {
     ui->pushButton_Down->setEnabled(flag_enable);
     ui->pushButton_Up->setEnabled(flag_enable);
-    ui->comboBox_Interact->setEnabled(flag_enable);
-    ui->pushButton_Remove->setEnabled(flag_enable);
+    ui->comboBox_Combination->setEnabled(flag_enable);
+    ui->pushButton_Delete->setEnabled(flag_enable);
 }
 
-void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBox_Interact->setEnabled(flag_enable); }
+void InequalityLoader::enableCombinations(bool flag_enable) { ui->comboBox_Combination->setEnabled(flag_enable); }
 
-void InequalityLoader::resetCombinations() { ui->comboBox_Interact->setCurrentIndex(CombinationNone); }
+void InequalityLoader::resetCombinations() { ui->comboBox_Combination->setCurrentIndex(CombinationNone); }
 
 void InequalityLoader::setComboBoxPlot()
 {
@@ -363,6 +367,11 @@ void InequalityLoader::setComboBoxPlot()
     }
 }
 
+
+///	Public Slots
+///	=============
+
+void InequalityLoader::splitterResize(QList<int> sizes){ ui->splitter_InequalityInput->setSizes(sizes); }
 
 
 ///	Private Functions
@@ -384,13 +393,13 @@ void InequalityLoader::on_pushButton_Details_clicked()
     dialog->show();
 }
 
-void InequalityLoader::on_pushButton_Remove_clicked() { emit killThis(m_gui_number); }
+void InequalityLoader::on_pushButton_Delete_clicked() { emit killThis(m_gui_number); }
 
 void InequalityLoader::on_pushButton_Up_clicked() { emit moveUp(m_gui_number); }
 
 void InequalityLoader::on_pushButton_Down_clicked() { emit moveDown(m_gui_number); }
 
-void InequalityLoader::on_comboBox_Interact_currentIndexChanged(int index)
+void InequalityLoader::on_comboBox_Combination_currentIndexChanged(int index)
 {
    switch (index) {
     case CombinationNone:
@@ -410,14 +419,14 @@ void InequalityLoader::on_checkBox_Skip_toggled(bool checked)
        flag_skip = true;
        ui->comboBox_Color->setEnabled(false);
        ui->comboBox_Shape->setEnabled(false);
-       ui->comboBox_Interact->setEnabled(false);
+       ui->comboBox_Combination->setEnabled(false);
    }
    else {
        flag_skip = false;
        ui->comboBox_Color->setEnabled(true);
        ui->comboBox_Shape->setEnabled(true);
        if(ui->pushButton_Down->isEnabled())
-           ui->comboBox_Interact->setEnabled(true);
+           ui->comboBox_Combination->setEnabled(true);
    }
 }
 

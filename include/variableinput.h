@@ -80,14 +80,13 @@ public slots:
     void splitterResize(QList<int>);
 
 private slots:
-    void on_comboBoxAxes_currentIndexChanged(int index);
-    void on_horizontalSliderPoint_sliderMoved(int position);
-    void on_lineEditElements_textChanged(const QString &arg1);
-    void on_lineEditMax_textChanged(const QString &arg1);
-    void on_lineEditMin_textChanged(const QString &arg1);
-    void on_lineEditName_textChanged(const QString &arg1);
-
-    void on_pushButtonDelete_clicked();
+    void on_comboBox_Axes_currentIndexChanged(int index);
+    void on_horizontalSlider_Point_sliderMoved(int position);
+    void on_lineEdit_Elements_textChanged(const QString &arg1);
+    void on_lineEdit_Max_textChanged(const QString &arg1);
+    void on_lineEdit_Min_textChanged(const QString &arg1);
+    void on_lineEdit_Name_textChanged(const QString &arg1);
+    void on_pushButton_Delete_clicked();
 
 private:
     // variables
