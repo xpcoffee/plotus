@@ -1,19 +1,14 @@
 #ifndef VARIABLEINPUT_H
 #define VARIABLEINPUT_H
 
-//	"""""""""""""""""""""""""""""""""
-//	"			Includes			"
-//	"""""""""""""""""""""""""""""""""
+//	Includes
 #include <QWidget>
 #include <QSplitter>
 #include <qvalidator.h>
 #include "variable.h"
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"	Preprocessor Definitions	"
-//	"""""""""""""""""""""""""""""""""
-
+//	Preprocessor Definitions
 #ifndef COLOR_DEFAULT_BG
 #define COLOR_DEFAULT_BG "white"
 #endif
@@ -30,19 +25,19 @@
 #define COLOR_ERROR_FG "white"
 #endif
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Enumerated Types		"
-//	"""""""""""""""""""""""""""""""""
+//	Enumerators
 enum AXIS_MODE{
     MODE_X_AXIS = 0,
     MODE_Y_AXIS = 1,
     MODE_POINT	= 2,
 };
 
+//	Namespace
 namespace Ui {
 class VariableInput;
 }
 
+//	Class
 class VariableInput : public QWidget
 {
     Q_OBJECT
@@ -50,15 +45,19 @@ class VariableInput : public QWidget
 public:
     explicit VariableInput(QWidget *parent = 0);
     ~VariableInput();
+
     // validation
     bool checkInput();
+
     // formatting
     void clearFields();
     void clearFormatting();
     void highlightName();
+
     //	setters
-    void setAxisMode(int);
-    void setNumber(int);
+    void setAxisMode(int axis_mode);
+    void setNumber(int gui_number);
+
     // 	getters
     int getAxisMode();
     int getNumber();
@@ -67,17 +66,20 @@ public:
     Variable getVariable();
     QWidget *getFocusInWidget();
     QWidget *getFocusOutWidget();
+
     //	parsers
-    void fromJSON(string);
+    void fromJSON(string json);
+
     //	gui
-    void enableRemoveButton(bool);
+    void enableRemoveButton(bool flag_enable);
+    void setSplitterSizes(QList<int> sizes);
 
 signals:
-    void axisModeChanged(int nVarInputNumber);
-    void killThis(int nVariableInputNumber);
+    void axisModeChanged(int gui_number);
+    void killThis(int gui_number);
 
 public slots:
-    void splitterResize(QList<int>);
+    void splitterResize(QList<int> sizes);
 
 private slots:
     void on_comboBox_Axes_currentIndexChanged(int index);
@@ -89,17 +91,24 @@ private slots:
     void on_pushButton_Delete_clicked();
 
 private:
-    // variables
     Ui::VariableInput *ui;
-    Variable mVariable;
-    bool flag_initialized;
-    int nVariableInputNumber;
-    int nAxisMode;
 
-    // functions
+    //	data
+    Variable m_variable;
+
+    //	meta
+    bool flag_initialized;
+    int m_guiNumber;
+    int m_axisMode;
+
+    //	validation
     void sliderCheck();
+
+    //	evaluation
     void createVariable();
     void createPoint();
+
+    //	gui
     void resetSlider();
 };
 

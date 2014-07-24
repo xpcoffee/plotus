@@ -48,6 +48,7 @@ public:
     // parsers
     void parsePlotData(string json);
     void parseProblem(string problem);
+    string formatName(string json);
     string formatVariables(string json);
     string formatInequality(string json);
     string formatCase(string json);

@@ -41,10 +41,12 @@ public:
     void enablePositionButtons(bool);
     void enableCombinations(bool);
     void resetCombinations();
+
     // 	parsers
     string expressionToJSON();
     string dataToJSON();
     void fromJSON(string);
+
     //	getters
     int getNumber();
     int getColorIndex();
@@ -61,20 +63,23 @@ public:
     QVector<double> getYProblem();
     QWidget *getFocusInWidget();
     QWidget *getFocusOutWidget();
+
     //	validation
     bool highlightInvalidExpressionTerms();
+
     // 	formatting
     void clearFormatting();
     void clearFields();
+
     //	core
     bool createInequality();
     bool addVariable(Variable variable);
     bool evaluate();
 
 signals:
-    void moveUp(int nNumber);
-    void moveDown (int nNumber);
-    void killThis (int nNumber);
+    void moveUp(int gui_number);
+    void moveDown (int gui_number);
+    void killThis (int gui_number);
 
 public slots:
     void splitterResize(QList<int> sizes);
@@ -91,17 +96,21 @@ private slots:
 
 private:
     Ui::InequalityInput *ui;
+
     // data
     Inequality m_Inequality;
     Variable m_VariableX, m_VariableY;
+
     // meta
     int m_guiNumber;
     int m_precisionIndex;
     bool flag_skip;
+
     // result vectors
     vector<bool> m_plotSpace;
     vector<int> m_problemSpace;
     QVector<double> m_X, m_Y, m_XProblem, m_YProblem;
+
     // error handling
     string m_error_message;
     string m_bugmail;

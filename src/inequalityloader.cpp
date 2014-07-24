@@ -71,15 +71,20 @@ void InequalityLoader::loadCase(string filename)
         emit killThis(m_gui_number);
         return;
     }
-//	read in file
+
+    //	read in file
     m_filename = filename;
     m_name = cropFileName(filename);
     ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_name + "</b></i>"));
     BlueJSON parser;
     parser.readInFile(filename);
-//	parse
+
+    //	parse
     m_details.clear();
-    string variables, plot, expressions, data;
+    string case_name, variables, plot, expressions, data;
+    parser.getNextKeyValue("name", case_name); 		// case name
+    cout << parser.getStringToken(case_name);
+    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + case_name + "</b></i>"));
     parser.getNextKeyValue("variables", variables); // variables
     while (parser.getNextKeyValue("plot", plot)){ 	// get plots
         BlueJSON plotparser = BlueJSON(plot);
@@ -172,6 +177,18 @@ void InequalityLoader::parsePlotData(string json)
 void InequalityLoader::parseProblem(string problem)
 {
     m_error_message += "Error | Parsing| " + problem + "\n";
+}
+
+string InequalityLoader::formatName(string token)
+{
+    stringstream buffer;
+    BlueJSON parser = BlueJSON(token);
+    buffer << "<tr>";
+    buffer << "<td align=\"center\">";
+    buffer << "<b>" << parser.getStringToken(token) << "</b>";
+    buffer << "</td>";
+    buffer << "</tr>";
+    return buffer.str();
 }
 
 string InequalityLoader::formatVariables(string json)
@@ -269,10 +286,12 @@ string InequalityLoader::formatInequality(string json)
 string InequalityLoader::formatCase(string json)
 {
     BlueJSON parser = BlueJSON(json);
-    string variables, expressions;
+    string case_name, variables, expressions;
+    parser.getNextKeyValue("name", case_name);
+    parser.getStringToken(case_name);
     parser.getNextKeyValue("variables", variables);
     parser.getNextKeyValue("expressions", expressions);
-    return formatVariables(variables) + formatExpressions(expressions);
+    return formatName(case_name) + formatVariables(variables) + formatExpressions(expressions);
 }
 
 string InequalityLoader::formatExpressions(string json)
@@ -333,10 +352,8 @@ string InequalityLoader::dataToJSON()
 //	Evaluation
 //	-----------
 
-void InequalityLoader::setPlot()
-{
-    m_current_plot = ui->comboBox_Plot->currentIndex();
-}
+void InequalityLoader::setPlot() { m_current_plot = ui->comboBox_Plot->currentIndex(); }
+
 
 //	GUI
 //	----
