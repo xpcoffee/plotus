@@ -58,6 +58,7 @@ public:
     // 	gui
     void clearGUI();
     void clearFormatting();
+    void resetPlotWindow();
     void addVariableInput();
     void addInequalityInput();
     void addInequalityLoader(string filename = "");
@@ -88,10 +89,10 @@ private slots:
     void menu_saveAs();
     void menu_new();
     void menu_quit();
-    void on_button_AddVariable_clicked();
-    void on_button_AddInequality_clicked();
-    void on_button_Plot_clicked();
-    void on_pushButton_AddInequalityLoader_clicked();
+    void on_toolButton_AddVariable_clicked();
+    void on_toolButton_AddInequality_clicked();
+    void on_toolButton_Plot_clicked();
+    void on_toolButton_AddInequalityLoader_clicked();
     void on_lineEdit_SettingsTolerance_editingFinished();
     void on_splitter_Variable_splitterMoved(int pos, int index);
     void on_splitter_Inequality_splitterMoved(int pos, int index);

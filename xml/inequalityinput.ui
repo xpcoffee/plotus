@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
+    <width>655</width>
     <height>24</height>
    </rect>
   </property>
@@ -109,6 +109,12 @@
          <height>0</height>
         </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
@@ -209,7 +215,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>105</width>
+        <width>180</width>
         <height>0</height>
        </size>
       </property>
@@ -251,7 +257,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>50</width>
+           <width>80</width>
            <height>0</height>
           </size>
          </property>
@@ -308,7 +314,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>50</width>
+           <width>95</width>
            <height>0</height>
           </size>
          </property>

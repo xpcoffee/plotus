@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
+    <width>658</width>
     <height>25</height>
    </rect>
   </property>
@@ -139,10 +139,10 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="horizontalWidget" native="true">
+     <widget class="QWidget" name="container_Plot" native="true">
       <property name="minimumSize">
        <size>
-        <width>105</width>
+        <width>180</width>
         <height>0</height>
        </size>
       </property>
@@ -286,7 +286,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="horizontalWidget_2" native="true">
+     <widget class="QWidget" name="container_Position" native="true">
       <property name="minimumSize">
        <size>
         <width>65</width>

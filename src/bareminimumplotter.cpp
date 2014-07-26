@@ -84,12 +84,28 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_SettingsTolerance->setValidator(dValidator);
 
+
+    //	make plot window fill the tab on startup
+    resetPlotWindow();
+
     //	account for scrollbar sizes in ui
     int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
     QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
     QSize old_size = scroll_bar_spacer->sizeHint();
     scroll_bar_spacer->changeSize(new_size, old_size.height());
     ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size, old_size.height());
+
+    //	buttons
+    ui->toolButton_AddInequality->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->toolButton_AddInequality->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
+    ui->toolButton_AddInequality->setIconSize(QSize(22,22));
+    ui->toolButton_AddInequalityLoader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->toolButton_AddInequalityLoader->setIcon(QPixmap("../bare_minimum_plotter/rsc/load-white.png"));
+    ui->toolButton_AddInequalityLoader->setIconSize(QSize(30,22));
+    ui->toolButton_AddVariable->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->toolButton_AddVariable->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
+    ui->toolButton_AddVariable->setIconSize(QSize(22,22));
+
 
 
     //	LOAD SETTINGS
@@ -569,8 +585,9 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
 
 void BareMinimumPlotter::formatGraph(int shape, int color)
 {
-        ui->plotter->graph(m_graph_count)->setData(x_results,y_results);
-        ui->plotter->graph(m_graph_count)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
+    QCPGraph *plot = ui->plotter->graph(m_graph_count);
+        plot->setData(x_results,y_results);
+        plot->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
         QCPScatterStyle style;
         //	- set marker
         switch(shape){
@@ -622,9 +639,12 @@ void BareMinimumPlotter::formatGraph(int shape, int color)
         QPen selected_pen;
         selected_pen.setWidth(style.pen().width() + 2);
         selected_pen.setColor(style.pen().color());
-        ui->plotter->graph(m_graph_count)->setScatterStyle(style);
-        ui->plotter->graph(m_graph_count)->setSelectable(true);
-        ui->plotter->graph(m_graph_count)->setSelectedPen(selected_pen);
+        plot->setScatterStyle(style);
+        plot->setSelectable(true);
+        plot->setSelectedPen(selected_pen);
+        ui->plotter->setInteraction(QCP::iSelectLegend, true);
+        ui->plotter->setInteraction(QCP::iSelectPlottables, true);
+        ui->plotter->setInteraction(QCP::iSelectItems, true);
 }
 
 void BareMinimumPlotter::formatErrorGraph()
@@ -684,10 +704,7 @@ void BareMinimumPlotter::clearGUI()
     clearFormatting();
     m_VariableInputs.back()->clearFields();
     m_VariableInputs.front()->clearFields();
-    ui->plotter->clearGraphs();
-    ui->plotter->replot();
-    ui->plotter->xAxis->setLabel("");
-    ui->plotter->yAxis->setLabel("");
+    resetPlotWindow();
 }
 
 void BareMinimumPlotter::clearFormatting()
@@ -700,6 +717,22 @@ void BareMinimumPlotter::clearFormatting()
         (*it)->clearFormatting();
     }
     ui->progressBar->setValue(0);
+}
+
+void BareMinimumPlotter::resetPlotWindow()
+{
+    ui->plotter->clearGraphs();
+    ui->plotter->replot();
+    ui->plotter->xAxis->setLabel("");
+    ui->plotter->yAxis->setLabel("");
+
+    int winwidth = ui->tab_plot->width();
+    int winheight = ui->tab_plot->height();
+    QList<int> horsizes, versizes;
+    horsizes << 0 << winwidth - ui->splitter_HorizontalPlot->handleWidth() << 0;
+    versizes << ui->container_AbovePlot->height() << winheight - ui->splitter_VerticalPlot->handleWidth() << 0;
+    ui->splitter_HorizontalPlot->setSizes(horsizes);
+    ui->splitter_VerticalPlot->setSizes(versizes);
 }
 
 void BareMinimumPlotter::addVariableInput()
@@ -863,12 +896,12 @@ void BareMinimumPlotter::determineTabOrder()
         QWidget::setTabOrder(prev, current);
         prev = getFocusOutWidget(widget);
     }
-    QWidget::setTabOrder(prev, ui->button_Plot);
-    QWidget::setTabOrder(ui->button_Plot, ui->button_AddInequality);
-    QWidget::setTabOrder(ui->button_AddInequality, ui->pushButton_AddInequalityLoader);
-    QWidget::setTabOrder(ui->pushButton_AddInequalityLoader, ui->button_AddVariable);
-    QWidget::setTabOrder(ui->button_AddVariable, ui->pushButton);
-    QWidget::setTabOrder(ui->pushButton, ui->lineEdit_SettingsTolerance);
+    QWidget::setTabOrder(prev, ui->toolButton_Plot);
+    QWidget::setTabOrder(ui->toolButton_Plot, ui->toolButton_AddInequality);
+    QWidget::setTabOrder(ui->toolButton_AddInequality, ui->toolButton_AddInequalityLoader);
+    QWidget::setTabOrder(ui->toolButton_AddInequalityLoader, ui->toolButton_AddVariable);
+    QWidget::setTabOrder(ui->toolButton_AddVariable, ui->pushButton_Cancel);
+    QWidget::setTabOrder(ui->pushButton_Cancel, ui->lineEdit_SettingsTolerance);
 }
 
 QWidget* BareMinimumPlotter::getFocusInWidget(QWidget* widget)
@@ -1283,13 +1316,13 @@ void BareMinimumPlotter::menu_quit()
     }
 }
 
-void BareMinimumPlotter::on_button_Plot_clicked() { plot(); }
+void BareMinimumPlotter::on_toolButton_Plot_clicked() { plot(); }
 
-void BareMinimumPlotter::on_button_AddVariable_clicked() { addVariableInput(); }
+void BareMinimumPlotter::on_toolButton_AddVariable_clicked() { addVariableInput(); }
 
-void BareMinimumPlotter::on_button_AddInequality_clicked() { addInequalityInput(); }
+void BareMinimumPlotter::on_toolButton_AddInequality_clicked() { addInequalityInput(); }
 
-void BareMinimumPlotter::on_pushButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
+void BareMinimumPlotter::on_toolButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
 
 void BareMinimumPlotter::on_splitter_Variable_splitterMoved(int /*pos*/, int /*index*/)
 {
@@ -1318,4 +1351,8 @@ void BareMinimumPlotter::on_lineEdit_PlotTitle_returnPressed() { ui->plotter->se
 
 void BareMinimumPlotter::on_lineEdit_PlotTitle_textChanged(const QString&) { fitLineEditToContents(ui->lineEdit_PlotTitle); }
 
-void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished() { m_Title = ui->lineEdit_PlotTitle->text(); }
+void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
+{
+    if (ui->lineEdit_PlotTitle->text() == "Title") { m_Title = "untitled case"; }
+    else { m_Title = ui->lineEdit_PlotTitle->text(); }
+}

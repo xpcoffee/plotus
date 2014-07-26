@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>812</width>
-    <height>405</height>
+    <width>832</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,6 +72,14 @@ QLabel {
 }
 
 /*Buttons*/
+QToolButton {
+	color: white;
+	font: bold 13px calibri;
+	background: rgb(100,100,100);
+	border-radius:0px;
+	alignment:center;
+}
+
 QPushButton {
 	color: white;
 	font: bold 13px calibri;
@@ -158,6 +166,18 @@ QProgressBar::chunk {
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="styleSheet">
@@ -167,7 +187,7 @@ QProgressBar::chunk {
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -192,7 +212,7 @@ QProgressBar::chunk {
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="button_Plot">
+           <widget class="QToolButton" name="toolButton_Plot">
             <property name="minimumSize">
              <size>
               <width>90</width>
@@ -213,15 +233,6 @@ QProgressBar::chunk {
             </property>
             <property name="shortcut">
              <string notr="true">Ctrl+Return</string>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
-            </property>
-            <property name="default">
-             <bool>true</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -251,7 +262,7 @@ QProgressBar::chunk {
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButton_Cancel">
             <property name="minimumSize">
              <size>
               <width>40</width>
@@ -278,7 +289,7 @@ QProgressBar::chunk {
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_InequalityButtons">
               <item>
-               <widget class="QPushButton" name="button_AddInequality">
+               <widget class="QToolButton" name="toolButton_AddInequality">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
@@ -303,10 +314,13 @@ QProgressBar::chunk {
                 <property name="text">
                  <string>Add</string>
                 </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_AddInequalityLoader">
+               <widget class="QToolButton" name="toolButton_AddInequalityLoader">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
@@ -440,7 +454,7 @@ QProgressBar::chunk {
                    <widget class="QLabel" name="label_InequalityPlotting">
                     <property name="minimumSize">
                      <size>
-                      <width>105</width>
+                      <width>180</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -622,7 +636,7 @@ QProgressBar::chunk {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>657</width>
+                    <width>695</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -687,7 +701,7 @@ QProgressBar::chunk {
                <number>0</number>
               </property>
               <item>
-               <widget class="QPushButton" name="button_AddVariable">
+               <widget class="QToolButton" name="toolButton_AddVariable">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1117,7 +1131,7 @@ QProgressBar::chunk {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>657</width>
+                    <width>695</width>
                     <height>69</height>
                    </rect>
                   </property>
@@ -1220,9 +1234,12 @@ p, li { white-space: pre-wrap; }
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="QSplitter" name="splitter_3">
+         <widget class="QSplitter" name="splitter_VerticalPlot">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+          <property name="handleWidth">
+           <number>10</number>
           </property>
           <property name="childrenCollapsible">
            <bool>false</bool>
@@ -1237,7 +1254,7 @@ p, li { white-space: pre-wrap; }
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>10</height>
+             <height>20</height>
             </size>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
@@ -1300,9 +1317,12 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </widget>
-          <widget class="QSplitter" name="splitter_2">
+          <widget class="QSplitter" name="splitter_HorizontalPlot">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="handleWidth">
+            <number>10</number>
            </property>
            <property name="childrenCollapsible">
             <bool>false</bool>
@@ -1316,7 +1336,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="minimumSize">
              <size>
-              <width>10</width>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
@@ -1362,7 +1382,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="minimumSize">
              <size>
-              <width>10</width>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
@@ -1384,7 +1404,7 @@ p, li { white-space: pre-wrap; }
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>10</height>
+             <height>0</height>
             </size>
            </property>
            <property name="baseSize">
@@ -1490,7 +1510,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>812</width>
+     <width>832</width>
      <height>21</height>
     </rect>
    </property>
@@ -1589,11 +1609,11 @@ p, li { white-space: pre-wrap; }
   <tabstop>tabWidget</tabstop>
   <tabstop>scrollArea_InequalityInputs</tabstop>
   <tabstop>scrollArea_VariableInputs</tabstop>
-  <tabstop>button_Plot</tabstop>
-  <tabstop>button_AddInequality</tabstop>
-  <tabstop>pushButton_AddInequalityLoader</tabstop>
-  <tabstop>button_AddVariable</tabstop>
-  <tabstop>pushButton</tabstop>
+  <tabstop>toolButton_Plot</tabstop>
+  <tabstop>toolButton_AddInequality</tabstop>
+  <tabstop>toolButton_AddInequalityLoader</tabstop>
+  <tabstop>toolButton_AddVariable</tabstop>
+  <tabstop>pushButton_Cancel</tabstop>
   <tabstop>lineEdit_SettingsTolerance</tabstop>
  </tabstops>
  <resources/>
