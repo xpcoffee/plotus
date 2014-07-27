@@ -2,13 +2,15 @@
 //	"			Includes			"
 //	"""""""""""""""""""""""""""""""""
 
+///	Includes
+///	=========
+
 #include "include/inequalityinput.h"
 #include "ui_inequalityinput.h"
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"	  Third Party Functions		"
-//	"""""""""""""""""""""""""""""""""
+///	Third Party Functions
+///	======================
 
 static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
 {
@@ -40,9 +42,8 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
 }
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Public Functions		"
-//	"""""""""""""""""""""""""""""""""
+///	Public Functions
+/// =================
 
 InequalityInput::InequalityInput(QWidget *parent) :
     QWidget(parent),
@@ -53,13 +54,16 @@ InequalityInput::InequalityInput(QWidget *parent) :
 {
     ui->setupUi(this);
     setAccessibleDescription("input");
+
     //	set input validation
     QDoubleValidator *dValidator = new QDoubleValidator;
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_Precision->setValidator(dValidator);
+
     //	initialize precision line edit
     m_precisionIndex = ui->splitter_Inequality->indexOf(ui->lineEdit_Precision);
     on_comboBox_Inequality_currentIndexChanged(0);
+
     //	splitters
     for(int i = 0; i < ui->splitter_InequalityInput->count(); i++){
         ui->splitter_InequalityInput->handle(i)->setEnabled(false);
@@ -405,16 +409,14 @@ bool InequalityInput::evaluate(){
 }
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Public Slots			"
-//	"""""""""""""""""""""""""""""""""
+///	Public Slots
+///	=============
 
 void InequalityInput::splitterResize(QList<int> sizes){ ui->splitter_InequalityInput->setSizes(sizes); }
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Private Slots			"
-//	"""""""""""""""""""""""""""""""""
+///	Private Slots
+///	==============
 
 void InequalityInput::on_pushButton_Up_clicked() { emit moveUp(m_guiNumber); }
 

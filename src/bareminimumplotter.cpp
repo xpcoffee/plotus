@@ -84,7 +84,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_SettingsTolerance->setValidator(dValidator);
 
-
     //	make plot window fill the tab on startup
     resetPlotWindow();
 
@@ -106,13 +105,19 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui->toolButton_AddVariable->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
     ui->toolButton_AddVariable->setIconSize(QSize(22,22));
 
-
+    //	disable splitter handles for inequality
+    for (int i = 0; i < ui->splitter_Inequality->count(); i++){
+        ui->splitter_Inequality->handle(i)->setEnabled(false);
+    }
 
     //	LOAD SETTINGS
+    //	tolerance
     stringstream buffer;
     buffer << ui->lineEdit_SettingsTolerance->text().toStdString();
     if (!(buffer >> m_tolerance))
         m_tolerance = 0;
+
+    //	directory
     m_default_directory = QDir::currentPath().toStdString();
 
     // 	INITIAL SETUP
@@ -126,6 +131,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     m_VariableInputs[1]->enableRemoveButton(false);
     m_VariableInputs[0]->setSplitterSizes(ui->splitter_Variable->sizes());
     m_VariableInputs[1]->setSplitterSizes(ui->splitter_Variable->sizes());
+
     // 	add original inequality input
     ui->layout_Inequality->setAlignment(Qt::AlignTop);
     addInequalityInput();
