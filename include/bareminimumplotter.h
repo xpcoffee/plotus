@@ -3,14 +3,15 @@
 
 #include <QMainWindow>
 #include <QtWidgets>
-#include <vector>
-#include <stdlib.h>
-#include <stdio.h>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_symbol.h>
+#include <qwt_legend.h>
 #include <qvalidator.h>
 #include <qlocale.h>
-#include <stdlib.h>
-#include <string>
 #include <vector>
+//#include <stdio.h>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -47,8 +48,9 @@ public:
     void vectorCombineIntersection(int gui_number);
     void vectorCombineUnion(int gui_number);
     void vectorCombineSubtraction(int gui_number);
-    void formatGraph(int shape, int color);
-    void formatErrorGraph();
+    void createQPoints();
+    void addGraph(int shape, int color);
+    void addErrorGraph();
 
     // 	validation
     void print(string message);
@@ -104,17 +106,19 @@ private:
     Ui::BareMinimumPlotter *ui;
 
     //	plotter elements
+    QwtPlot *plotter;
     vector<VariableInput*> m_VariableInputs;
     vector<InequalityInput*> m_InequalityInputs;
     vector<InequalityLoader*> m_InequalityLoaders;
 
     //	plotting
     QString m_Title;
-    int m_graph_count;
-    int m_prev_combination;
+    int m_Graph_Count;
+    int m_Prev_Combination;
     bool flag_Combination;
     Variable m_XVariable, m_YVariable;
-    QVector<double> x_results, y_results, x_results_problem, y_results_problem;
+    QVector<double> m_XResults, m_YResults, m_XResults_Problem, m_YResults_Problem;
+    QVector<QPointF> m_Samples, m_Samples_Problem;
 
     //	gui management
     int m_variable_count;

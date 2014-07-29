@@ -137,7 +137,7 @@ public:
 
     bool isValidRHS(){ return mExpression2.isValid(); }
 
-    bool getXBeforeY(Variable mXVar, Variable mYVar) { return mExpression1.getXBeforeY(mXVar, mYVar); }
+    bool getXBeforeY(Variable mXVar, Variable mYVar) { return mExpression1.isXBeforeY(mXVar, mYVar); }
 
     vector<int> getProblemElements_ResultsCombined(){
         vector <int> vCombinedProblemSpace;

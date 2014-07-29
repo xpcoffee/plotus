@@ -67,7 +67,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::BareMinimumPlotter),
     m_Title("untitled_case"),
-    m_prev_combination (0),
+    m_Prev_Combination (0),
     flag_Combination (false),
     m_variable_count(0),
     m_inequality_count(0),
@@ -83,6 +83,16 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QDoubleValidator *dValidator = new QDoubleValidator;
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_SettingsTolerance->setValidator(dValidator);
+
+    // add Qwt plot
+    QVBoxLayout *layout_Plot = new QVBoxLayout();
+    ui->container_Graph->setLayout(layout_Plot);
+    plotter = new QwtPlot(ui->centralWidget);
+    plotter->canvas()->setStyleSheet("QwtPlotCanvas{"
+                                     "border: 0px;"
+                                     "background: white;"
+                                     "}");
+    layout_Plot->addWidget(plotter);
 
     //	make plot window fill the tab on startup
     resetPlotWindow();
@@ -199,16 +209,20 @@ void BareMinimumPlotter::plot()
         return;
     }
 
-    // legend
-    ui->plotter->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-    ui->plotter->legend->setSelectableParts(QCPLegend::spLegendBox | QCPLegend::spItems);
-    ui->plotter->legend->setVisible(true);
+    // legend, axes
+    plotter->setAxisTitle(QwtPlot::yLeft, QString::fromStdString(m_YVariable.getName() + y_units));
+    plotter->setAxisScale(QwtPlot::yLeft, m_YVariable.getMin(), m_YVariable.getMax());
+    plotter->setAxisTitle(QwtPlot::xBottom, QString::fromStdString(m_XVariable.getName() + x_units));
+    plotter->setAxisScale(QwtPlot::xBottom, m_XVariable.getMin(), m_XVariable.getMax());
+    plotter->insertLegend(new QwtLegend);
 
     //	evaluate and plot each inequality
-    m_graph_count = 0;
-    m_prev_combination = 0;
+    m_Graph_Count = 0;
+    m_Prev_Combination = 0;
     flag_Problem = false; // flag only causes return after all checks completed
-    ui->plotter->clearGraphs();
+
+    plotter->detachItems();
+    plotter->replot();
 
     for (int i = 0; i < static_cast<int>(ui->layout_Inequality->count()+1); i++){
         //	check skip
@@ -237,15 +251,15 @@ void BareMinimumPlotter::plot()
 void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units, int progress)
 {
         InequalityInput *input = m_InequalityInputs[gui_number];
-        progress = floor((0.0+m_graph_count)/ui->layout_Inequality->count()*100);
+        progress = floor((0.0+m_Graph_Count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setFormat("Initializing...");
-        // 	create inequality
+        //	create inequality
         if(!input->createInequality()){
             printError();
             return;
         }
-        // 	create and add variables
-        progress = floor((0.1+m_graph_count)/ui->layout_Inequality->count()*100);
+        //	create and add variables
+        progress = floor((0.1+m_Graph_Count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setFormat("Creating Variables...");
         for (int j = 0; j < static_cast<int>(m_VariableInputs.size()); j++){
             if (!m_VariableInputs[j]->checkInput()) {	// check legal
@@ -262,9 +276,10 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             printError();
             return;
         }
-        progress = floor((0.1+m_graph_count)/ui->layout_Inequality->count()*100);
+        progress = floor((0.1+m_Graph_Count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Evaluating...");
+
         //do math
         input->setXYVariables(m_XVariable, m_YVariable);
         if(!input->evaluate()){
@@ -272,12 +287,12 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             return;
         }
 
-        progress = floor((0.6+m_graph_count)/ui->layout_Inequality->count()*100);
+        progress = floor((0.6+m_Graph_Count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Combining results...");
 
         // get plotting vectors
-        switch(m_prev_combination){
+        switch(m_Prev_Combination){
         case CombinationNone:
             vectorCombineNone(input->getNumber());
             break;
@@ -291,24 +306,23 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             vectorCombineSubtraction(input->getNumber());
             break;
         }
-        m_prev_combination = input->getCombination();
-        if (m_prev_combination != CombinationNone)
+        createQPoints();
+        m_Prev_Combination = input->getCombination();
+        if (m_Prev_Combination != CombinationNone)
             return;
 
-        progress = floor((0.8+m_graph_count)/ui->layout_Inequality->count()*100);
+        progress = floor((0.8+m_Graph_Count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Plotting results...");
 
         // add normal graph
-        ui->plotter->addGraph();
-        formatGraph(input->getShapeIndex(), input->getColorIndex());
-        m_graph_count++;
+        addGraph(input->getShapeIndex(), input->getColorIndex());
+        m_Graph_Count++;
 
         // add problem graph (if needed)
-        if (!x_results_problem.isEmpty()){
-            ui->plotter->addGraph();
-            formatErrorGraph();
-            m_graph_count++;
+        if (!m_XResults_Problem.isEmpty()){
+            addErrorGraph();
+            m_Graph_Count++;
         }
 
         // set general options, plot
@@ -317,17 +331,8 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
         if (!y_units.empty())
             y_units = " [" + y_units + "]";
 
-        ui->plotter->xAxis->setLabel(QString::fromStdString(m_XVariable.getName() + x_units));
-        ui->plotter->yAxis->setLabel(QString::fromStdString(m_YVariable.getName() + y_units));
-        ui->plotter->xAxis->setRange(m_XVariable.getMin(), m_XVariable.getMax());
-        ui->plotter->yAxis->setRange(m_YVariable.getMin(), m_YVariable.getMax());
-        ui->plotter->replot();
-
-
-
-
         printError();
-        progress = floor((1+m_graph_count)/ui->layout_Inequality->count()*100);
+        progress = floor((1+m_Graph_Count)/ui->layout_Inequality->count()*100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Done.");
         flag_Empty = false;
@@ -340,12 +345,12 @@ void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units,
     InequalityLoader* loader = m_InequalityLoaders[gui_number];
     loader->setPlot();
 
-    progress = floor((0.6+m_graph_count)/ui->layout_Inequality->count()*100);
+    progress = floor((0.6+m_Graph_Count)/ui->layout_Inequality->count()*100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat("Combining results...");
 
     // get plotting vectors
-    switch(m_prev_combination){
+    switch(m_Prev_Combination){
     case CombinationNone:
         vectorCombineNone(loader->getNumber());
         break;
@@ -359,24 +364,22 @@ void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units,
         vectorCombineSubtraction(loader->getNumber());
         break;
     }
-    m_prev_combination = loader->getCombination();
-    if (m_prev_combination != CombinationNone)
+    m_Prev_Combination = loader->getCombination();
+    if (m_Prev_Combination != CombinationNone)
         return;
 
-    progress = floor((0.8+m_graph_count)/ui->layout_Inequality->count()*100);
+    progress = floor((0.8+m_Graph_Count)/ui->layout_Inequality->count()*100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat("Plotting results...");
 
     // add normal graph
-    ui->plotter->addGraph();
-    formatGraph(loader->getShapeIndex(), loader->getColorIndex());
-    m_graph_count++;
+    addGraph(loader->getShapeIndex(), loader->getColorIndex());
+    m_Graph_Count++;
 
     // add problem graph (if needed)
-    if (!x_results_problem.isEmpty()){
-        ui->plotter->addGraph();
-        formatErrorGraph();
-        m_graph_count++;
+    if (!m_XResults_Problem.isEmpty()){
+        addErrorGraph();
+        m_Graph_Count++;
     }
 
     // set general options, plot
@@ -385,14 +388,9 @@ void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units,
     if (!y_units.empty())
         y_units = " [" + y_units + "]";
 
-    ui->plotter->xAxis->setLabel(QString::fromStdString(m_XVariable.getName() + x_units));
-    ui->plotter->yAxis->setLabel(QString::fromStdString(m_YVariable.getName() + y_units));
-    ui->plotter->xAxis->setRange(m_XVariable.getMin(), m_XVariable.getMax());
-    ui->plotter->yAxis->setRange(m_YVariable.getMin(), m_YVariable.getMax());
-    ui->plotter->replot();
 
     printError();
-    progress = floor((1+m_graph_count)/ui->layout_Inequality->count()*100);
+    progress = floor((1+m_Graph_Count)/ui->layout_Inequality->count()*100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat("Done.");
     flag_Empty = false;
@@ -403,15 +401,15 @@ void BareMinimumPlotter::vectorCombineNone(int gui_number)
 {
     if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "input"){
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
-        x_results = current_inequality->getX();
-        y_results = current_inequality->getY();
-        x_results_problem = current_inequality->getXProblem();
-        y_results_problem = current_inequality->getYProblem();
+        m_XResults = current_inequality->getX();
+        m_YResults = current_inequality->getY();
+        m_XResults_Problem = current_inequality->getXProblem();
+        m_YResults_Problem = current_inequality->getYProblem();
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
-        x_results = current_inequality->getX();
-        y_results = current_inequality->getY();
+        m_XResults = current_inequality->getX();
+        m_YResults = current_inequality->getY();
 //        x_results_problem = current_inequality->getXProblem();
 //        y_results_problem = current_inequality->getYProblem();
     }
@@ -420,8 +418,8 @@ void BareMinimumPlotter::vectorCombineNone(int gui_number)
 void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
 {
     flag_Combination = true;
-    QVector<double> x_resultsOld = x_results;
-    QVector<double> y_resultsOld = y_results;
+    QVector<double> x_resultsOld = m_XResults;
+    QVector<double> y_resultsOld = m_YResults;
     QVector<double> x_resultsNew;
     QVector<double> y_resultsNew;
 
@@ -429,8 +427,8 @@ void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         x_resultsNew = current_inequality->getX();
         y_resultsNew = current_inequality->getY();
-        x_results_problem = current_inequality->getXProblem();
-        y_results_problem = current_inequality->getYProblem();
+        m_XResults_Problem = current_inequality->getXProblem();
+        m_YResults_Problem = current_inequality->getYProblem();
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
@@ -440,15 +438,15 @@ void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
 //        y_results_problem = current_inequality->getYProblem();
     }
 
-    x_results.clear();
-    y_results.clear();
+    m_XResults.clear();
+    m_YResults.clear();
 
     for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
        for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
            // ApproxEqualPrecision is in case you are comparing results of different precisions.
            if (Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_tolerance) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_tolerance)) {
-               x_results.push_back(x_resultsOld[i]);
-               y_results.push_back(y_resultsOld[i]);
+               m_XResults.push_back(x_resultsOld[i]);
+               m_YResults.push_back(y_resultsOld[i]);
            }
        }
     }
@@ -457,15 +455,15 @@ void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
     if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "input"){
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         if (current_inequality->getCombination() == CombinationNone){
-            current_inequality->setX(x_results);
-            current_inequality->setY(y_results);
+            current_inequality->setX(m_XResults);
+            current_inequality->setY(m_YResults);
         }
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         if (current_inequality->getCombination() == CombinationNone){
-            current_inequality->setX(x_results);
-            current_inequality->setY(y_results);
+            current_inequality->setX(m_XResults);
+            current_inequality->setY(m_YResults);
         }
     }
 
@@ -475,8 +473,8 @@ void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
 // [TODO] progress bar
 void BareMinimumPlotter::vectorCombineUnion(int gui_number)
 {
-    QVector<double> x_resultsOld = x_results;
-    QVector<double> y_resultsOld = y_results;
+    QVector<double> x_resultsOld = m_XResults;
+    QVector<double> y_resultsOld = m_YResults;
     QVector<double> x_resultsNew;
     QVector<double> y_resultsNew;
 
@@ -484,8 +482,8 @@ void BareMinimumPlotter::vectorCombineUnion(int gui_number)
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         x_resultsNew = current_inequality->getX();
         y_resultsNew = current_inequality->getY();
-        x_results_problem = current_inequality->getXProblem();
-        y_results_problem = current_inequality->getYProblem();
+        m_XResults_Problem = current_inequality->getXProblem();
+        m_YResults_Problem = current_inequality->getYProblem();
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
@@ -495,21 +493,21 @@ void BareMinimumPlotter::vectorCombineUnion(int gui_number)
 //        y_results_problem = current_inequality->getYProblem();
     }
 
-    x_results.clear();
-    y_results.clear();
+    m_XResults.clear();
+    m_YResults.clear();
 
     for (m_XVariable.resetPosition(); !m_XVariable.isEnd(); m_XVariable.nextPosition()){
         for (m_YVariable.resetPosition(); !m_YVariable.isEnd(); m_YVariable.nextPosition()){
             for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
                 if (Expression::approxEqual(m_XVariable.getCurrentValue(), x_resultsOld[i], m_tolerance) && Expression::approxEqual(m_YVariable.getCurrentValue(), y_resultsOld[i], m_tolerance)){
-                    x_results.push_back(m_XVariable.getCurrentValue());
-                    y_results.push_back(m_YVariable.getCurrentValue());
+                    m_XResults.push_back(m_XVariable.getCurrentValue());
+                    m_YResults.push_back(m_YVariable.getCurrentValue());
                 }
             }
             for (int i = 0; i < static_cast<int>(x_resultsNew.size()); i++){
                 if ((m_XVariable.getCurrentValue() == x_resultsNew[i]) && (m_YVariable.getCurrentValue() == y_resultsNew[i])){
-                    x_results.push_back(m_XVariable.getCurrentValue());
-                    y_results.push_back(m_YVariable.getCurrentValue());
+                    m_XResults.push_back(m_XVariable.getCurrentValue());
+                    m_YResults.push_back(m_YVariable.getCurrentValue());
                 }
             }
         }
@@ -519,15 +517,15 @@ void BareMinimumPlotter::vectorCombineUnion(int gui_number)
     if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "input"){
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         if (current_inequality->getCombination() == CombinationNone){
-            current_inequality->setX(x_results);
-            current_inequality->setY(y_results);
+            current_inequality->setX(m_XResults);
+            current_inequality->setY(m_YResults);
         }
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         if (current_inequality->getCombination() == CombinationNone){
-            current_inequality->setX(x_results);
-            current_inequality->setY(y_results);
+            current_inequality->setX(m_XResults);
+            current_inequality->setY(m_YResults);
         }
     }
 }
@@ -535,8 +533,8 @@ void BareMinimumPlotter::vectorCombineUnion(int gui_number)
 void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
 {
     flag_Combination = true;
-    QVector<double> x_resultsOld = x_results;
-    QVector<double> y_resultsOld = y_results;
+    QVector<double> x_resultsOld = m_XResults;
+    QVector<double> y_resultsOld = m_YResults;
     QVector<double> x_resultsNew;
     QVector<double> y_resultsNew;
 
@@ -544,8 +542,8 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         x_resultsNew = current_inequality->getX();
         y_resultsNew = current_inequality->getY();
-        x_results_problem = current_inequality->getXProblem();
-        y_results_problem = current_inequality->getYProblem();
+        m_XResults_Problem = current_inequality->getXProblem();
+        m_YResults_Problem = current_inequality->getYProblem();
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
@@ -555,8 +553,8 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
 //        y_results_problem = current_inequality->getYProblem();
     }
 
-    x_results.clear();
-    y_results.clear();
+    m_XResults.clear();
+    m_YResults.clear();
     bool flag_keep;
 
     for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
@@ -567,8 +565,8 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
            }
        }
        if (flag_keep){
-           x_results.push_back(x_resultsOld[i]);
-           y_results.push_back(y_resultsOld[i]);
+           m_XResults.push_back(x_resultsOld[i]);
+           m_YResults.push_back(y_resultsOld[i]);
        }
     }
 
@@ -576,92 +574,117 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
     if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "input"){
         InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         if (current_inequality->getCombination() == CombinationNone){
-            current_inequality->setX(x_results);
-            current_inequality->setY(y_results);
+            current_inequality->setX(m_XResults);
+            current_inequality->setY(m_YResults);
         }
     }
     else if (ui->layout_Inequality->itemAt(gui_number)->widget()->accessibleDescription() == "loader"){
         InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(gui_number)->widget());
         if (current_inequality->getCombination() == CombinationNone){
-            current_inequality->setX(x_results);
-            current_inequality->setY(y_results);
+            current_inequality->setX(m_XResults);
+            current_inequality->setY(m_YResults);
         }
     }
 }
 
-void BareMinimumPlotter::formatGraph(int shape, int color)
+void BareMinimumPlotter::createQPoints()
 {
-    QCPGraph *plot = ui->plotter->graph(m_graph_count);
-        plot->setData(x_results,y_results);
-        plot->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-        QCPScatterStyle style;
-        //	- set marker
-        switch(shape){
-        case CROSS:
-            style.setShape(QCPScatterStyle::ssCross);
-            break;
-        case CIRCLE:
-            style.setShape(QCPScatterStyle::ssCircle);
-            break;
-        case TRIANGLE:
-            style.setShape(QCPScatterStyle::ssTriangle);
-            break;
-        case SQUARE:
-            style.setShape(QCPScatterStyle::ssSquare);
-            break;
-        }
-
-        //	- set size
-        style.setSize(5);
-        //	- set color
-        switch(color){
-        case RED:
-            style.setPen(QPen(Qt::red));
-            break;
-        case GREEN:
-            style.setPen(QPen(Qt::green));
-            break;
-        case BLUE:
-            style.setPen(QPen(Qt::blue));
-            break;
-        case DARK_RED:
-            style.setPen(QPen(Qt::darkRed));
-            break;
-        case DARK_GREEN:
-            style.setPen(QPen(Qt::darkGreen));
-            break;
-        case DARK_BLUE:
-            style.setPen(QPen(Qt::darkBlue));
-            break;
-        case GREY:
-            style.setPen(QPen(Qt::lightGray));
-            break;
-        case BLACK:
-            style.setPen(QPen(Qt::black));
-            break;
-        }
-
-        //	[BREAK] 25 July 2014 | working on graph interactions
-        QPen selected_pen;
-        selected_pen.setWidth(style.pen().width() + 2);
-        selected_pen.setColor(style.pen().color());
-        plot->setScatterStyle(style);
-        plot->setSelectable(true);
-        plot->setSelectedPen(selected_pen);
-        ui->plotter->setInteraction(QCP::iSelectLegend, true);
-        ui->plotter->setInteraction(QCP::iSelectPlottables, true);
-        ui->plotter->setInteraction(QCP::iSelectItems, true);
+    for (int i = 0; i < m_XResults.size(); i++){
+       m_Samples << QPointF(m_XResults[i], m_YResults[i]);
+    }
+    for (int i = 0; i < m_XResults_Problem.size(); i++){
+       m_Samples_Problem << QPointF(m_XResults_Problem[i], m_YResults_Problem[i]);
+    }
 }
 
-void BareMinimumPlotter::formatErrorGraph()
+void BareMinimumPlotter::addGraph(int shape, int color)
 {
-            ui->plotter->graph(m_graph_count)->setData(x_results_problem,y_results_problem);
-            ui->plotter->graph(m_graph_count)->setLineStyle(QCPGraph::LineStyle(QCPGraph::lsNone));
-            QCPScatterStyle style;
-            style.setShape(QCPScatterStyle::ssCross);
-            style.setSize(5);
-            style.setPen(QPen(Qt::red));
-            ui->plotter->graph(m_graph_count)->setScatterStyle(style);
+        QwtPlotCurve *plot = new QwtPlotCurve("test");
+        QwtSymbol *marker;
+        QSize marker_size;
+        QColor marker_color;
+        int marker_line_width = 1;
+
+        //	set size
+        marker_size = QSize(5,5);
+
+        //	color
+        switch(color){
+        case RED:
+            marker_color = Qt::red;
+            break;
+        case GREEN:
+            marker_color = Qt::green;
+            break;
+        case BLUE:
+            marker_color = Qt::blue;
+            break;
+        case DARK_RED:
+            marker_color = Qt::darkRed;
+            break;
+        case DARK_GREEN:
+            marker_color = Qt::darkGreen;
+            break;
+        case DARK_BLUE:
+            marker_color = Qt::darkBlue;
+            break;
+        case GREY:
+            marker_color = Qt::lightGray;
+            break;
+        case BLACK:
+            marker_color = Qt::black;
+            break;
+        }
+
+        //	marker
+        switch(shape){
+        case CROSS:
+            marker = new QwtSymbol(QwtSymbol::XCross,
+                                   QBrush(), QPen(marker_color, marker_line_width),
+                                   marker_size);
+            break;
+        case CIRCLE:
+            marker = new QwtSymbol(QwtSymbol::Ellipse,
+                                   QBrush(), QPen(marker_color, marker_line_width),
+                                   marker_size);
+            break;
+        case TRIANGLE:
+            marker = new QwtSymbol(QwtSymbol::Triangle,
+                                   QBrush(), QPen(marker_color, marker_line_width),
+                                   marker_size);
+            break;
+        case SQUARE:
+            marker = new QwtSymbol(QwtSymbol::Rect,
+                                   QBrush(), QPen(marker_color, marker_line_width),
+                                   marker_size);
+            break;
+        }
+
+        //	set format
+        plot->setSymbol(marker);
+        plot->setStyle(QwtPlotCurve::NoCurve);
+        //	set data
+        plot->setSamples(m_Samples);
+        //	add graph
+        plot->attach(plotter);
+        plotter->replot();
+}
+
+void BareMinimumPlotter::addErrorGraph()
+{
+        QwtPlotCurve *plot = new QwtPlotCurve();
+        QwtSymbol *marker = new QwtSymbol(QwtSymbol::Star1,
+                   QBrush(), QPen(Qt::red, 2),
+                   QSize(4,4));
+        //	add style
+        plot->setSymbol(marker);
+        plot->setStyle(QwtPlotCurve::NoCurve);
+        plot->setTitle("Problem Points");
+        //	add data
+        plot->setSamples(m_Samples_Problem);
+        //	add graph
+        plot->attach(plotter);
+        plotter->replot();
 }
 
 //	Validation
@@ -727,11 +750,13 @@ void BareMinimumPlotter::clearFormatting()
 
 void BareMinimumPlotter::resetPlotWindow()
 {
-    ui->plotter->clearGraphs();
-    ui->plotter->replot();
-    ui->plotter->xAxis->setLabel("");
-    ui->plotter->yAxis->setLabel("");
+    //	clear graphs
+    plotter->detachItems();
+    plotter->setAxisTitle(QwtPlot::xBottom, "");
+    plotter->setAxisTitle(QwtPlot::yLeft, "");
+    plotter->replot();
 
+    // reset size to fill window
     int winwidth = ui->tab_plot->width();
     int winheight = ui->tab_plot->height();
     QList<int> horsizes, versizes;
@@ -1352,13 +1377,15 @@ void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
     edit->clearFocus();
 }
 
-
-void BareMinimumPlotter::on_lineEdit_PlotTitle_returnPressed() { ui->plotter->setFocus(); }
+void BareMinimumPlotter::on_lineEdit_PlotTitle_returnPressed() { ui->container_Graph->setFocus(); }
 
 void BareMinimumPlotter::on_lineEdit_PlotTitle_textChanged(const QString&) { fitLineEditToContents(ui->lineEdit_PlotTitle); }
 
 void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
 {
-    if (ui->lineEdit_PlotTitle->text() == "Title") { m_Title = "untitled case"; }
-    else { m_Title = ui->lineEdit_PlotTitle->text(); }
+    if (ui->lineEdit_PlotTitle->text() == "New Plot") { m_Title = "untitled case"; }
+    else {
+        m_Title = ui->lineEdit_PlotTitle->text();
+        flag_Saved = false;
+    }
 }

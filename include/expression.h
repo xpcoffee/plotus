@@ -1,27 +1,26 @@
 /*	Author(s):	Emerick Bosch
-	Build:		0.1
-	Date:		April 2014
+    Build:		0.1
+    Date:		April 2014
 
-	expression.
-	-------------
-	
-	"""""""""""""""""""""""""""""""""	
-	"			Description			"
-	"""""""""""""""""""""""""""""""""	
-	
-	Class
+    expression.
+    -------------
 
-	Interprets mathematical expressions from strings.
-	Parses the strings iteratively into arrays.
-	Arrayes solved iteratively.
+    """""""""""""""""""""""""""""""""
+    "			Description			"
+    """""""""""""""""""""""""""""""""
+
+    Class
+
+    Interprets mathematical expressions from strings.
+    Parses the strings iteratively into arrays.
+    Arrayes solved iteratively.
 */
 
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 
-//	"""""""""""""""""""""""""""""""""	
-//	"			Includes			"
-//	"""""""""""""""""""""""""""""""""	
+///	Includes
+///	=========
 
 #include<stdlib.h>
 #include<string>
@@ -34,9 +33,8 @@
 #include<math.h>
 #include"variable.h"
 
-//	"""""""""""""""""""""""""""""""""
-//	"	Preprocessor Definitions	"
-//	"""""""""""""""""""""""""""""""""
+///	Preprocessor Definitions
+///	=========================
 
     #ifndef COMPRESSION_CHAR
     #define COMPRESSION_CHAR '$'
@@ -46,9 +44,10 @@
     #define PI 3.141592653589793238462643383279502884
     #endif
 
-//	"""""""""""""""""""""""""""""""""
-//	"		Enumerated Types		"
-//	"""""""""""""""""""""""""""""""""
+
+///	Enumerated Types
+///	=================
+
     enum READABLILITY_CODES
     {
         UninitializedCounter = -1,
@@ -71,123 +70,121 @@
     };
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"			Namespaces			"
-//	"""""""""""""""""""""""""""""""""	
+///	Namespaces
+///	===========
+
 using namespace std;
 
-//	"""""""""""""""""""""""""""""""""	
-//	"		Class Definition: 		"
-//	"			Expression			"
-//	"""""""""""""""""""""""""""""""""	
+
+///	Class
+/// ======
 
 class Expression
 {
+public:
+    Expression(string expression = "");
+
+    //	setters
+    void setExpression(string expression);
+    void addVariable(Variable variable);
+    void clearVariables();
+
+    //	getters
+    int getNumTerms();
+    string getExpression();
+    string getTerm(int term_pos);
+    string getErrors();
+    vector<int> getProblemElements_Expression();
+    vector<int> getProblemElements_Result();
+    bool isXBeforeY(Variable x_variable, Variable y_variable);
+
+    //	parsing
+    vector<string> parseExpressionArray(string expression);
+    vector<int> checkExpressionArray(vector<string> &expression);
+
+    //	evaluation
+    void subVariableValues();
+    vector<double> evaluateAll();
+
+    //	validation
+    bool isValid();
+    bool charIsValid(char);
+    bool variableNameIsValid(Variable&);
+
+    //	static
+    static bool approxEqual(double dNum1, double dNum2, double dPrec){
+        return sqrt((dNum1-dNum2)*(dNum1-dNum2)) <= dPrec;
+    }
+
 private:
-	// member variables
+    //! member variables
     // - meta
-    int nTerms;
-    int nVariables;
-    int nCurrentVariable;
+    int m_TermCount;
+    int m_VariableCount;
+    int m_CurrentVariable;
+
     // - data
-    vector<string> vOriginalExpression;
-    vector<string> vExpression;
-    vector<Variable> vVariables;
-    vector<double> vResult;
-    vector<int> vProblemElements_Result;
+    vector<string> m_OriginalExpression;
+    vector<string> m_WorkingExpression;
+    vector<Variable> m_Variables;
+    vector<double> m_Results;
+    vector<int> m_Results_Problems;
     bool flag_XBeforeY;
+
     // - error handling
-    bool flag_isValid;
-    string sErrorMessage;
-    int nProblemTerm;
-    vector<int> vProblemElements_Expression;
+    bool flag_Valid;
+    int m_ProblemTerm;
+    string m_ErrorMessage;
+    vector<int> m_Expression_Problems;
+
     // - evaluation events
     bool flag_Nan;
     bool flag_Pole;
     bool flag_DivByZero;
     bool flag_Complex;
 
-	// functions
+    //! functions
     // - parsing
-	bool charIsDigit(char);
-	bool charIsParenthesis(char);
-	bool charIsOperator(char);
-    bool charIsAlpha(char);
-	bool charIsWhitespace(char);
+    bool charIsDigit		(char c);
+    bool charIsParenthesis	(char c);
+    bool charIsOperator		(char c);
+    bool charIsAlpha		(char c);
+    bool charIsWhitespace	(char c);
+
     // - validation
-    bool check_DecimalPointOK(string);
-    bool checkIllegalChars(string);
-    bool check_CharsOK(string);
-    bool check_NumbersOK(string);
-    bool check_OperatorsOK(string, int, int, bool&);
-    bool variableNameIsUnique(Variable&);
-    bool termIsNumeric(string);
-    bool termIsAlpha(string);
-    bool termIsFunction(string);
-    bool termIsStandardValue(string);
-    // - recursive evaluation functions
-    bool compressExpression(vector<string>&);
-    bool doPowers(vector<string>&);
-	bool doMultiplication(vector<string>&);
-	bool doDivision(vector<string>&);
-	bool doSubtraction(vector<string>&);
-	bool doAddition(vector<string>&);
-	bool doParenthesis(vector<string>&);
-    // - evaluation functions
+    bool check_DecimalPointOK	(string term);
+    bool checkIllegalChars		(string term);
+    bool check_NumbersOK		(string term);
+    bool check_CharsOK			(string term);
+    bool check_OperatorsOK		(string term, int term_pos, int last_term_pos, bool &flag_prev_operator);
+    bool variableNameIsUnique(Variable &variable);
+    bool termIsNumeric		(string term);
+    bool termIsAlpha		(string term);
+    bool termIsFunction		(string term);
+    bool termIsStandardValue(string term);
+
+    // - expression reduction
+    bool compressExpression	(vector<string> &expression);
+    bool doParenthesis		(vector<string> &expression);
+    bool doPowers			(vector<string> &expression);
+    bool doDivision			(vector<string> &expression);
+    bool doMultiplication	(vector<string> &expression);
+    bool doSubtraction		(vector<string> &expression);
+    bool doAddition			(vector<string> &expression);
+    void doBasic(vector<string>&);
     void doSpecial(vector<string>&, int, bool);
-	void doBasic(vector<string>&);
+
+    // - recursive evaluation
     void recEval();
-    void resetExpression();
     double evaluateExpression();
+    void resetExpression();
+
     // - internal getters
-    string getStringArray(vector<string>);
+    string getStringArray(vector<string> string_array);
+
     // - exceptions and error handling
     void handleMathException(MATH_ERROR_CODES);
     void resetEvaluation();
-
-public:
-	// constructor
-	Expression(string sExpressionString = "")
-	{
-        setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
-        // initialize
-		vOriginalExpression = parseExpressionArray(sExpressionString);
-        resetExpression();
-        resetEvaluation();
-        // validate expression
-        sErrorMessage = "";
-        vProblemElements_Expression = checkExpressionArray(vExpression);
-    }
-
-	// functions
-    // - parsing
-	vector<string> parseExpressionArray(string);
-    vector<int> checkExpressionArray(vector<string>&);
-    // - evaluation
-    void subVariableValues();
-    vector<double> evaluateAll();
-    // - setters
-	void setExpression(string);
-	void addVariable(Variable);
-	void clearVariables();
-    // - getters
-	string getExpression();
-    string getTerm(int);
-    string getErrors();
-    bool getXBeforeY(Variable, Variable);
-    int getNumTerms();
-    vector<int> getProblemElements_Expression();
-    vector<int> getProblemElements_Result();
-    // - validation
-    bool isValid();
-    bool charIsValid(char);
-    bool variableNameIsValid(Variable&);
-    // - utility
-//    static bool approxEqual(double, double, double);
-    static bool approxEqual(double dNum1, double dNum2, double dPrec){
-        return sqrt((dNum1-dNum2)*(dNum1-dNum2)) <= dPrec;
-    }
-
 };
 
 

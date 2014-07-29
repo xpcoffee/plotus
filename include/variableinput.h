@@ -71,7 +71,7 @@ public:
     void fromJSON(string json);
 
     //	gui
-    void enableRemoveButton(bool flag_enable);
+    void enableRemoveButton(bool flag_enable = true);
     void setSplitterSizes(QList<int> sizes);
 
 signals:

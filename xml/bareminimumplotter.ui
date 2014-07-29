@@ -14,7 +14,175 @@
    <string>BareMinimumPlotter</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">/*Scrollbar*/
+   <string notr="true">/*Background*/
+QWidget#centralWidget {
+	background: rgb(80,80,80);
+}
+
+/*Tab Widget*/
+QWidget#tab_input, QWidget#tab_plot, QWidget#tab_settings {
+	background: black;
+}
+
+QTabWidget::tab-bar {
+	alignment: center;
+}
+
+QTabWidget::pane {
+	position: absolute;
+	top: -8px;
+}
+
+QTabBar::tab {
+	color: rgb(80,80,80);
+	font: bold 13px calibri;
+	background: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	height: 20px;
+	width:	80px;
+
+}
+
+QTabBar::tab:selected {
+	background: black;
+	color: white;
+	font: bold 13px calibri;
+}
+
+/*Containers*/
+QFrame#verticalFrame_Inequality {
+	background: transparent;
+}
+
+QScrollArea, QScrollArea &gt; QWidget &gt; QWidget{
+	background:transparent;
+}
+
+QGroupBox{
+	font-weight: bold calibri;
+	color: white;
+	background-color: rgb(80,80,80);
+}
+
+QWidget#container_Graph{
+	background:white;
+}
+
+/*Labels*/
+QLabel {
+	color: white;
+	font: bold 13px calibri;
+}
+
+/*Buttons*/
+QToolButton {
+	color: white;
+	font: bold 13px calibri;
+	background: rgb(100,100,100);
+	border-radius:0px;
+	alignment:center;
+}
+
+QPushButton {
+	color: white;
+	font: bold 13px calibri;
+	background: rgb(100,100,100);
+	border-radius:0px;
+}
+
+QPushButton#pushButton_Down{
+	color: transparent;
+	image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
+}
+
+QPushButton#pushButton_Up{
+	color: transparent;
+	image: url(../bare_minimum_plotter/rsc/up-arrow-white.png);
+}
+
+QPushButton#pushButton_Delete{
+	color: transparent;
+	image: url(../bare_minimum_plotter/rsc/cross-white.png);
+}
+
+QPushButton:disabled{
+	background: rgb(210, 210, 210);
+}
+
+QPushButton:pressed, QToolButton:pressed{
+	background: rgb(255, 172, 39)
+}
+
+/*LineEdits*/
+QLineEdit {
+	background: white;
+	border-radius: 0px;
+}
+
+QLineEdit#lineEdit_PlotTitle{
+	color: white;
+	font: bold 18px calibri;
+	background: transparent;
+}
+
+QLineEdit#lineEdit_PlotTitle:focus{
+	color: black;
+	font: bold 18px calibri;
+	background: white;
+}
+
+/*Splitters*/
+QSplitterHandle {
+	background: black;
+}
+
+QSplitter#splitter_Inequality, QSplitter#splitter_Variable {
+	background: rgb(80,80,80);
+}
+
+/*Comboboxes*/
+QComboBox {
+	background: rgb(63, 98, 255); /*blue*/
+	border-radius:0;
+	color: white;
+	font: 13px calibri;
+}
+
+QComboBox::drop-down {
+	border-left: 2px solid black;
+	width: 20px;
+}
+
+QComboBox::down-arrow {
+	border-image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
+	width: 10px;
+	height: 10px;
+}
+
+QComboBox::QListView {
+	background: white;
+}
+
+QComboBox:disabled{
+	background: rgb(210,210,210);
+	color: transparent;
+}
+
+
+/*Progress Bar*/
+QProgressBar {
+	background: transparent;
+	color: white;
+	font: bold 13px calibri;
+}
+
+QProgressBar::chunk {
+	background: rgb(37, 158, 0);
+	width: 10px;
+}
+
+/*Scrollbar*/
  QScrollBar {
      background: rgb(100,100,100);
      width: 15px;
@@ -95,161 +263,7 @@ QScrollBar:disabled{
      width: 3px;
      height: 3px;
      background: transparent;
- }
-
-
-
-
-/*Background*/
-QWidget#centralWidget {
-	background: rgb(80,80,80);
-}
-
-/*Tab Widget*/
-QWidget#tab_input, QWidget#tab_plot, QWidget#tab_settings {
-	background: black;
-}
-
-QTabWidget::tab-bar {
-	alignment: center;
-}
-
-QTabWidget::pane {
-	position: absolute;
-	top: -8px;
-}
-
-QTabBar::tab {
-	color: rgb(80,80,80);
-	font: bold 13px calibri;
-	background: white;
-	border: 2px solid black;
-	border-radius: 10px;
-	height: 20px;
-	width:	80px;
-
-}
-
-QTabBar::tab:selected {
-	background: black;
-	color: white;
-	font: bold 13px calibri;
-}
-
-/*Containers*/
-QFrame#verticalFrame_Inequality {
-	background: transparent;
-}
-
-QScrollArea, QScrollArea &gt; QWidget &gt; QWidget{
-	background:transparent;
-}
-
-QGroupBox{
-	font-weight: bold calibri;
-	color: white;
-	background-color: rgb(80,80,80);
-}
-
-/*Labels*/
-QLabel {
-	color: white;
-	font: bold 13px calibri;
-}
-
-/*Buttons*/
-QToolButton {
-	color: white;
-	font: bold 13px calibri;
-	background: rgb(100,100,100);
-	border-radius:0px;
-	alignment:center;
-}
-
-QPushButton {
-	color: white;
-	font: bold 13px calibri;
-	background: rgb(100,100,100);
-	border-radius:0px;
-}
-
-QPushButton#pushButton_Down{
-	color: transparent;
-	image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
-}
-
-QPushButton#pushButton_Up{
-	color: transparent;
-	image: url(../bare_minimum_plotter/rsc/up-arrow-white.png);
-}
-
-QPushButton#pushButton_Delete{
-	color: transparent;
-	image: url(../bare_minimum_plotter/rsc/cross-white.png);
-}
-
-/*LineEdits*/
-QLineEdit {
-	background: white;
-	border-radius: 0px;
-}
-
-QLineEdit#lineEdit_PlotTitle{
-	color: white;
-	font: bold 18px calibri;
-	background: transparent;
-}
-
-QLineEdit#lineEdit_PlotTitle:focus{
-	color: black;
-	font: bold 18px calibri;
-	background: white;
-}
-
-/*Splitters*/
-QSplitterHandle {
-	background: black;
-}
-
-QSplitter#splitter_Inequality, QSplitter#splitter_Variable {
-	background: rgb(80,80,80);
-}
-
-/*Comboboxes*/
-QComboBox {
-	background: rgb(63, 98, 255); /*blue*/
-	border-radius:0;
-	color: white;
-	font: 13px calibri;
-}
-
-QComboBox::drop-down {
-	border-left: 2px solid black;
-	width: 20px;
-}
-
-QComboBox::down-arrow {
-	border-image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
-	width: 10px;
-	height: 10px;
-}
-
-QListView {
-	background: white;
-}
-
-
-/*Progress Bar*/
-QProgressBar {
-	background: transparent;
-	color: white;
-	font: bold 13px calibri;
-}
-
-QProgressBar::chunk {
-	background: rgb(37, 158, 0);
-	width: 10px;
-}</string>
+ }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -274,7 +288,7 @@ QProgressBar::chunk {
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -1461,7 +1475,7 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
            </widget>
-           <widget class="QCustomPlot" name="plotter" native="true">
+           <widget class="QWidget" name="container_Graph" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>10</horstretch>
@@ -1711,14 +1725,6 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>lib/qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>scrollArea_InequalityInputs</tabstop>
