@@ -1,16 +1,12 @@
-/*	Author(s):	Emerick Bosch
+/*!	Author(s):	Emerick Bosch
     Build:		0.1
     Date:		April 2014
 
-    expression.
+    expression.h
     -------------
 
-    """""""""""""""""""""""""""""""""
-    "			Description			"
-    """""""""""""""""""""""""""""""""
-
-    Class
-
+    Description
+    ============
     Interprets mathematical expressions from strings.
     Parses the strings iteratively into arrays.
     Arrayes solved iteratively.

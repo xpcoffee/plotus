@@ -1,3 +1,11 @@
+/*!	Author(s):	Emerick Bosch
+    Build:		0.3
+    Date:		July 2014
+
+    expression.cpp
+    -------------
+*/
+
 /*	TASK LIST
     ---------
 */
@@ -469,8 +477,6 @@ void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
 
 }
 
-// [TODO] prevent user from changing '-' in last inequality.
-// [TODO] progress bar
 void BareMinimumPlotter::vectorCombineUnion(int gui_number)
 {
     QVector<double> x_resultsOld = m_XResults;
@@ -589,6 +595,9 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
 
 void BareMinimumPlotter::createQPoints()
 {
+    m_Samples.clear();
+    m_Samples_Problem.clear();
+
     for (int i = 0; i < m_XResults.size(); i++){
        m_Samples << QPointF(m_XResults[i], m_YResults[i]);
     }
@@ -872,7 +881,6 @@ void BareMinimumPlotter::determineButtonStates()
 {
     int nSize = ui->layout_Inequality->count()-1;
     QWidget *front_item = ui->layout_Inequality->itemAt(0)->widget();
-    //	TODO: make this more elegant
     // disable movement buttons if only 1 widget in layout
     if (ui->layout_Inequality->count() < 2){
         if(front_item->accessibleDescription() == "input")
@@ -1103,7 +1111,6 @@ void BareMinimumPlotter::removeVariableInput(int gui_number)
             if (i < m_VariableInputs.size())
                 m_VariableInputs.erase(m_VariableInputs.begin()+i);
             // ensure correct axis modes
-            // [TODO]	make this more elegant
             if (axis_mode != MODE_POINT){
                 if (i < m_VariableInputs.size()){
                     if(m_VariableInputs[i]->getAxisMode() != MODE_POINT){

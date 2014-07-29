@@ -1,3 +1,20 @@
+/*!	Author(s):	Emerick Bosch
+    Build:		0.3
+    Date:		July 2014
+
+    expression.h
+    -------------
+
+    Description
+    ============
+    Provides the GUI for:
+    - input into inequality
+    - error feedback from inequality
+    - plot settings
+
+    Subwidget of BareMinimumPlotter.
+*/
+
 #ifndef INEQUALITYINPUT_H
 #define INEQUALITYINPUT_H
 

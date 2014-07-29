@@ -1,3 +1,37 @@
+/*!	Author(s):	Emerick Bosch
+    Build:		0.3
+    Date:		July 2014
+
+    expression.h
+    -------------
+
+    Description
+    ============
+    Provides the GUI for:
+    - organising input widgets for inequalities and variables
+    - combining, plotting, saving and opening evaluation results
+    - editing evaluation settings
+
+    Saving and opening is done in JSON format.
+
+    Subwidgets:
+    - InequalityInput
+    - InequalityLoader
+    - VariableInput
+
+    First Party Code
+    =================
+    A custom parser was coded for use in BareMinimumPlotter and is included:
+    BlueJSON	-	Emerick Bosch	-	July 2014
+
+    Third Party Code
+    =================
+    Plotting functionality is provided through QWT:
+    http://qwt.sourceforge.net/
+    link date: 29 July 2014
+
+*/
+
 #ifndef BAREMINIMUMPLOTTER_H
 #define BAREMINIMUMPLOTTER_H
 
@@ -10,7 +44,6 @@
 #include <qvalidator.h>
 #include <qlocale.h>
 #include <vector>
-//#include <stdio.h>
 #include <string>
 #include <iostream>
 #include <fstream>
