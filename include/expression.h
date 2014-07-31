@@ -55,25 +55,25 @@
 ///	Enumerated Types
 ///	=================
 
-    enum READABLILITY_CODES
+    enum ReadabilityCode
     {
         UninitializedCounter = -1,
     };
 
-    enum INPUT_ERROR_CODES
+    enum MathErrorCode
     {
-        InputErrorUninitializedVariable 	= 300,
-        InputErrorInvalidExpression 		= 301,
-        InputErrorParenthesesEmpty 		= 302,
-        InputErrorParenthesesNotEmpty 		= 303,
+        MathDivideByZero	= 200,
+        MathNaN,
+        MathPole,
+        MathComplex,
     };
 
-    enum MATH_ERROR_CODES
+    enum InputErrorCode
     {
-        MathDivideByZero = 200,
-        MathNaN = 201,
-        MathPole = 202,
-        MathComplex = 203,
+        InputErrorUninitializedVariable	= 300,
+        InputErrorInvalidExpression,
+        InputErrorParenthesesEmpty ,
+        InputErrorParenthesesNotEmpty,
     };
 
 
@@ -190,7 +190,7 @@ private:
     string getStringArray(vector<string> string_array);
 
     // - exceptions and error handling
-    void handleMathException(MATH_ERROR_CODES);
+    void handleMathException(MathErrorCode);
     void resetEvaluation();
 };
 

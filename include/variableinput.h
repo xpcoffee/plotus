@@ -26,10 +26,10 @@
 #endif
 
 //	Enumerators
-enum AXIS_MODE{
-    MODE_X_AXIS = 0,
-    MODE_Y_AXIS = 1,
-    MODE_POINT	= 2,
+enum PlotMode{
+    PlotHorizontal = 0,
+    PlotVertical,
+    PlotConstant,
 };
 
 //	Namespace

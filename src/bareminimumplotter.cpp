@@ -18,12 +18,6 @@
 #include "ui_bareminimumplotter.h"
 
 
-///	Enumerated Types
-///	=================
-
-
-
-
 ///	Namespaces
 ///	===========
 
@@ -58,10 +52,10 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::BareMinimumPlotter),
     m_Title("untitled_case"),
-    m_Prev_Combination (0),
+    m_PrevCombination (0),
     flag_Combination (false),
-    m_variable_count(0),
-    m_inequality_count(0),
+    m_VariableCount(0),
+    m_InequalityCount(0),
     flag_Saved(true),
     flag_Empty (true)
 {
@@ -112,22 +106,22 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     }
 
     //	LOAD SETTINGS
-    //	tolerance
+    //	Comparation Precision
     stringstream buffer;
     buffer << ui->lineEdit_SettingsTolerance->text().toStdString();
-    if (!(buffer >> m_tolerance))
-        m_tolerance = 0;
+    if (!(buffer >> m_CompPrecision))
+        m_CompPrecision = 0;
 
     //	directory
-    m_default_directory = QDir::currentPath().toStdString();
+    m_DefaultDirectory = QDir::currentPath();
 
     // 	INITIAL SETUP
     // 	add original x & y variable inputs
     ui->layout_Variable->setAlignment(Qt::AlignTop);
     addVariableInput();
     addVariableInput();
-    m_VariableInputs[0]->setAxisMode(MODE_X_AXIS);
-    m_VariableInputs[1]->setAxisMode(MODE_Y_AXIS);
+    m_VariableInputs[0]->setAxisMode(PlotHorizontal);
+    m_VariableInputs[1]->setAxisMode(PlotVertical);
     m_VariableInputs[0]->enableRemoveButton(false);
     m_VariableInputs[1]->enableRemoveButton(false);
     m_VariableInputs[0]->setSplitterSizes(ui->splitter_Variable->sizes());
@@ -184,23 +178,28 @@ void BareMinimumPlotter::plot()
     int check = 0;
     for (int i = 0; i < static_cast<int>(m_VariableInputs.size()); i++){
         VariableInput *varinput = m_VariableInputs[i];
-        if (varinput->getAxisMode() == MODE_X_AXIS){
+        if (varinput->getAxisMode() == PlotHorizontal){
             m_XVariable = varinput->getVariable();
             x_units = varinput-> getUnits();
             check++;
-        } else if (varinput->getAxisMode() == MODE_Y_AXIS){
+        } else if (varinput->getAxisMode() == PlotVertical){
             m_YVariable = varinput->getVariable();
             y_units = varinput-> getUnits();
             check++;
         }
     }
     if (check != 2){
-        m_error_message =+ "Internal Check | Problem getting variables for horizontal and vertical axes. Please report this to:\n emerick.bosch+bugmail@gmail.com\n";
+        m_ErrorMessage =+ "Internal Check | Problem getting variables for horizontal and vertical axes. Please report this to:\n emerick.bosch+bugmail@gmail.com\n";
         printError();
         return;
     }
 
     // legend, axes
+    if (!x_units.empty())
+        x_units = " [" + x_units + "]";
+    if (!y_units.empty())
+        y_units = " [" + y_units + "]";
+
     plotter->setAxisTitle(QwtPlot::yLeft, QString::fromStdString(m_YVariable.name() + y_units));
     plotter->setAxisScale(QwtPlot::yLeft, m_YVariable.min(), m_YVariable.max());
     plotter->setAxisTitle(QwtPlot::xBottom, QString::fromStdString(m_XVariable.name() + x_units));
@@ -209,7 +208,7 @@ void BareMinimumPlotter::plot()
 
     //	evaluate and plot each inequality
     m_Graph_Count = 0;
-    m_Prev_Combination = 0;
+    m_PrevCombination = 0;
     flag_Problem = false; // flag only causes return after all checks completed
 
     plotter->detachItems();
@@ -221,13 +220,13 @@ void BareMinimumPlotter::plot()
         for (int j = 0; j < static_cast<int>(m_InequalityInputs.size()); j++){
             if(m_InequalityInputs[j]->getNumber() == i){
                 if (m_InequalityInputs[j]->getSkip()) { flag_skip = true; break; }
-                plotNew(j, x_units, y_units, progress);
+                plotNew(j, progress);
             }
         }
         for (int j = 0; j < static_cast<int>(m_InequalityLoaders.size()); j++){
             if(m_InequalityLoaders[j]->getNumber() == i){
                 if (m_InequalityLoaders[j]->getSkip()) { flag_skip = true; break; }
-                plotOld(j, x_units, y_units, progress);
+                plotOld(j, progress);
             }
         }
         if (flag_skip)
@@ -238,11 +237,11 @@ void BareMinimumPlotter::plot()
     flag_Saved = false;
 }
 
-//	TODO: nProgress might roll back (m_graph_count will stay the same for combined graphs)
-void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units, int progress)
+//	[BREAK] 31 July 2014 | problem plotting inequality loaders
+void BareMinimumPlotter::plotNew(int gui_number, int progress)
 {
         InequalityInput *input = m_InequalityInputs[gui_number];
-        progress = floor((0.0+m_Graph_Count)/ui->layout_Inequality->count()*100);
+        progress = floor( ( 0.0 + m_Graph_Count )/ui->layout_Inequality->count() * 100 );
         ui->progressBar->setFormat("Initializing...");
         //	create inequality
         if(!input->createInequality()){
@@ -250,7 +249,7 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             return;
         }
         //	create and add variables
-        progress = floor((0.1+m_Graph_Count)/ui->layout_Inequality->count()*100);
+        progress = floor( ( 0.1 + m_Graph_Count )/ui->layout_Inequality->count() * 100 );
         ui->progressBar->setFormat("Creating Variables...");
         for (int j = 0; j < static_cast<int>(m_VariableInputs.size()); j++){
             if (!m_VariableInputs[j]->checkInput()) {	// check legal
@@ -267,7 +266,7 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             printError();
             return;
         }
-        progress = floor((0.1+m_Graph_Count)/ui->layout_Inequality->count()*100);
+        progress = floor( ( 0.1 + m_Graph_Count )/ui->layout_Inequality->count() * 100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Evaluating...");
 
@@ -278,12 +277,12 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             return;
         }
 
-        progress = floor((0.6+m_Graph_Count)/ui->layout_Inequality->count()*100);
+        progress = floor( ( 0.6 + m_Graph_Count )/ui->layout_Inequality->count() *100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Combining results...");
 
         // get plotting vectors
-        switch(m_Prev_Combination){
+        switch(m_PrevCombination){
         case CombinationNone:
             vectorCombineNone(input->getNumber());
             break;
@@ -298,11 +297,11 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             break;
         }
         createQPoints();
-        m_Prev_Combination = input->getCombination();
-        if (m_Prev_Combination != CombinationNone)
+        m_PrevCombination = input->getCombination();
+        if (m_PrevCombination != CombinationNone)
             return;
 
-        progress = floor((0.8+m_Graph_Count)/ui->layout_Inequality->count()*100);
+        progress = floor( ( 0.8 + m_Graph_Count )/ui->layout_Inequality->count() * 100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Plotting results...");
 
@@ -316,14 +315,8 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
             m_Graph_Count++;
         }
 
-        // set general options, plot
-        if (!x_units.empty())
-            x_units = " [" + x_units + "]";
-        if (!y_units.empty())
-            y_units = " [" + y_units + "]";
-
         printError();
-        progress = floor((1+m_Graph_Count)/ui->layout_Inequality->count()*100);
+        progress = floor( ( 1 + m_Graph_Count )/ui->layout_Inequality->count() * 100);
         ui->progressBar->setValue(progress);
         ui->progressBar->setFormat("Done.");
         flag_Empty = false;
@@ -331,17 +324,17 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
 }
 
 
-void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units, int progress)
+void BareMinimumPlotter::plotOld(int gui_number, int progress)
 {
     InequalityLoader* loader = m_InequalityLoaders[gui_number];
     loader->setPlot();
 
-    progress = floor((0.6+m_Graph_Count)/ui->layout_Inequality->count()*100);
+    progress = floor( ( 0.6 + m_Graph_Count )/ui->layout_Inequality->count() *100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat("Combining results...");
 
     // get plotting vectors
-    switch(m_Prev_Combination){
+    switch(m_PrevCombination){
     case CombinationNone:
         vectorCombineNone(loader->getNumber());
         break;
@@ -355,11 +348,11 @@ void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units,
         vectorCombineSubtraction(loader->getNumber());
         break;
     }
-    m_Prev_Combination = loader->getCombination();
-    if (m_Prev_Combination != CombinationNone)
+    m_PrevCombination = loader->getCombination();
+    if (m_PrevCombination != CombinationNone)
         return;
 
-    progress = floor((0.8+m_Graph_Count)/ui->layout_Inequality->count()*100);
+    progress = floor( ( 0.8 + m_Graph_Count )/ui->layout_Inequality->count() * 100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat("Plotting results...");
 
@@ -373,15 +366,8 @@ void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units,
         m_Graph_Count++;
     }
 
-    // set general options, plot
-    if (!x_units.empty())
-        x_units = " [" + x_units + "]";
-    if (!y_units.empty())
-        y_units = " [" + y_units + "]";
-
-
     printError();
-    progress = floor((1+m_Graph_Count)/ui->layout_Inequality->count()*100);
+    progress = floor( ( 1 + m_Graph_Count )/ui->layout_Inequality->count() * 100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat("Done.");
     flag_Empty = false;
@@ -435,7 +421,7 @@ void BareMinimumPlotter::vectorCombineIntersection(int gui_number)
     for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
        for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
            // ApproxEqualPrecision is in case you are comparing results of different precisions.
-           if (Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_tolerance) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_tolerance)) {
+           if (Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_CompPrecision) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_CompPrecision)) {
                m_XResults.push_back(x_resultsOld[i]);
                m_YResults.push_back(y_resultsOld[i]);
            }
@@ -488,7 +474,7 @@ void BareMinimumPlotter::vectorCombineUnion(int gui_number)
     for (m_XVariable.resetPosition(); !m_XVariable.isEnd(); m_XVariable.nextPosition()){
         for (m_YVariable.resetPosition(); !m_YVariable.isEnd(); m_YVariable.nextPosition()){
             for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-                if (Expression::approxEqual(m_XVariable.getCurrentValue(), x_resultsOld[i], m_tolerance) && Expression::approxEqual(m_YVariable.getCurrentValue(), y_resultsOld[i], m_tolerance)){
+                if (Expression::approxEqual(m_XVariable.getCurrentValue(), x_resultsOld[i], m_CompPrecision) && Expression::approxEqual(m_YVariable.getCurrentValue(), y_resultsOld[i], m_CompPrecision)){
                     m_XResults.push_back(m_XVariable.getCurrentValue());
                     m_YResults.push_back(m_YVariable.getCurrentValue());
                 }
@@ -549,7 +535,7 @@ void BareMinimumPlotter::vectorCombineSubtraction(int gui_number)
     for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
        flag_keep = true;
        for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
-           if ((Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_tolerance) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_tolerance))) {
+           if ((Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_CompPrecision) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_CompPrecision))) {
                flag_keep = false;
            }
        }
@@ -632,29 +618,29 @@ void BareMinimumPlotter::addErrorGraph()
 
 //	Validation
 //	----------
-void BareMinimumPlotter::print(string message)
+void BareMinimumPlotter::print(QString message)
 {
-    m_error_message += message;
-    ui->textEdit_Error->setText(QString::fromStdString(m_error_message));
+    m_ErrorMessage += message;
+    ui->textEdit_Error->setText(m_ErrorMessage);
 }
 
 void BareMinimumPlotter::printclr()
 {
-    m_error_message = "";
-    ui->textEdit_Error->setText(QString::fromStdString(m_error_message));
+    m_ErrorMessage = "";
+    ui->textEdit_Error->setText(m_ErrorMessage);
 }
 
 void BareMinimumPlotter::printError()
 {
     // show in display
     for (int i = 0; i < static_cast<int>(m_InequalityInputs.size()); i++){
-        m_error_message += m_InequalityInputs[i]->getErrors();
+        m_ErrorMessage += m_InequalityInputs[i]->getErrors();
     }
     for (int i = 0; i < static_cast<int>(m_InequalityLoaders.size()); i++){
-        m_error_message += m_InequalityLoaders[i]->getErrors();
+        m_ErrorMessage += QString::fromStdString(m_InequalityLoaders[i]->getErrors());
     }
 
-    ui->textEdit_Error->setText(QString::fromStdString(m_error_message));
+    ui->textEdit_Error->setText(m_ErrorMessage);
     // show on progress bar
     ui->progressBar->setValue(100);
     ui->progressBar->setFormat("Error.");
@@ -681,7 +667,7 @@ void BareMinimumPlotter::clearGUI()
 
 void BareMinimumPlotter::clearFormatting()
 {
-    m_error_message = "";
+    m_ErrorMessage = "";
     for (int i = 0; i < static_cast<int>(m_InequalityInputs.size()); i++){
        m_InequalityInputs[i]->clearFormatting();
     }
@@ -714,7 +700,7 @@ void BareMinimumPlotter::addVariableInput()
     m_VariableInputs.push_back(new VariableInput());
     VariableInput *new_variable = m_VariableInputs.back();
     //	add to gui
-    new_variable->setNumber(m_variable_count++);
+    new_variable->setNumber(m_VariableCount++);
     ui->layout_Variable->addWidget(new_variable);
     //	connect slots to signals
     QObject::connect(new_variable, SIGNAL(axisModeChanged(int)), 	// axis mode synch
@@ -725,7 +711,7 @@ void BareMinimumPlotter::addVariableInput()
                      new_variable, SLOT(splitterResize(QList<int>)));
     //	enable remove buttons
     if (m_VariableInputs.size() > 2){
-        new_variable->setAxisMode(MODE_POINT);
+        new_variable->setAxisMode(PlotConstant);
         m_VariableInputs[0]->enableRemoveButton(true);
         m_VariableInputs[1]->enableRemoveButton(true);
     }
@@ -789,6 +775,7 @@ void BareMinimumPlotter::addInequalityLoader(string filename)
     //	resize according to splitter
     inequalitySplitterMoved(ui->splitter_Inequality->sizes());
 
+    cout << "result size: " << new_inequality->getX().count() << endl;
     flag_Saved = false;
 }
 
@@ -1012,24 +999,24 @@ void BareMinimumPlotter::checkAxisMode(int gui_number)
 {
     int xcount = 0, ycount = 0, xpos, ypos;
     for (int i = 0; i < static_cast<int>(m_VariableInputs.size()); i++){ 	// find x-axis and y-axis labels
-       if(m_VariableInputs[i]->getAxisMode() == MODE_X_AXIS) {
+       if(m_VariableInputs[i]->getAxisMode() == PlotHorizontal) {
             xcount++;
             if (m_VariableInputs[i]->getNumber() != gui_number)
                 xpos = i;
        }
-       if(m_VariableInputs[i]->getAxisMode() == MODE_Y_AXIS) {
+       if(m_VariableInputs[i]->getAxisMode() == PlotVertical) {
             ycount++;
             if (m_VariableInputs[i]->getNumber() != gui_number)
                 ypos = i;
        }
     }
 
-    if (xcount == 2 && ycount == 1){ m_VariableInputs[xpos]->setAxisMode(MODE_POINT); } 	// sort such that only one x and one y
-    else if (xcount == 2 && ycount == 0) { m_VariableInputs[xpos]->setAxisMode(MODE_Y_AXIS); }
-    else if (xcount == 0 && ycount == 2) { m_VariableInputs[ypos]->setAxisMode(MODE_X_AXIS); }
-    else if (xcount == 1 && ycount == 2) { m_VariableInputs[ypos]->setAxisMode(MODE_POINT); }
-    else if (xcount == 1 && ycount == 0) { m_VariableInputs[gui_number]->setAxisMode(MODE_Y_AXIS); }
-    else if (xcount == 0 && ycount == 1) { m_VariableInputs[gui_number]->setAxisMode(MODE_X_AXIS); }
+    if (xcount == 2 && ycount == 1){ m_VariableInputs[xpos]->setAxisMode(PlotConstant); } 	// sort such that only one x and one y
+    else if (xcount == 2 && ycount == 0) { m_VariableInputs[xpos]->setAxisMode(PlotVertical); }
+    else if (xcount == 0 && ycount == 2) { m_VariableInputs[ypos]->setAxisMode(PlotHorizontal); }
+    else if (xcount == 1 && ycount == 2) { m_VariableInputs[ypos]->setAxisMode(PlotConstant); }
+    else if (xcount == 1 && ycount == 0) { m_VariableInputs[gui_number]->setAxisMode(PlotVertical); }
+    else if (xcount == 0 && ycount == 1) { m_VariableInputs[gui_number]->setAxisMode(PlotHorizontal); }
 }
 
 void BareMinimumPlotter::removeVariableInput(int gui_number)
@@ -1045,9 +1032,9 @@ void BareMinimumPlotter::removeVariableInput(int gui_number)
             if (i < m_VariableInputs.size())
                 m_VariableInputs.erase(m_VariableInputs.begin()+i);
             // ensure correct axis modes
-            if (axis_mode != MODE_POINT){
+            if (axis_mode != PlotConstant){
                 if (i < m_VariableInputs.size()){
-                    if(m_VariableInputs[i]->getAxisMode() != MODE_POINT){
+                    if(m_VariableInputs[i]->getAxisMode() != PlotConstant){
                         if (i+1 < m_VariableInputs.size()){
                             m_VariableInputs[i+1]->setAxisMode(axis_mode);
                         } else if (i != 0){
@@ -1057,7 +1044,7 @@ void BareMinimumPlotter::removeVariableInput(int gui_number)
                         m_VariableInputs[i]->setAxisMode(axis_mode);
                     }
                 } else {
-                    if(m_VariableInputs[i-1]->getAxisMode() != MODE_POINT){
+                    if(m_VariableInputs[i-1]->getAxisMode() != PlotConstant){
                         if (i != 0){
                             m_VariableInputs[i-2]->setAxisMode(axis_mode);
                         }
@@ -1203,7 +1190,7 @@ void BareMinimumPlotter::menu_about()
 // [BREAK] 14 July 2014 | finished primitive file open. Time to work on GUI.
 void BareMinimumPlotter::menu_open()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Open plot", QString::fromStdString(m_default_directory), "JSON (*.json)");
+    QString filename = QFileDialog::getOpenFileName(this, "Open plot", m_DefaultDirectory, "JSON (*.json)");
     if (filename.isEmpty())
         return;
 
@@ -1249,13 +1236,13 @@ void BareMinimumPlotter::menu_open()
 void BareMinimumPlotter::menu_saveAs()
 {
     if (flag_Empty){
-        m_error_message = "Error | Input | Plot not complete. Cannot save.";
+        m_ErrorMessage = "Error | Input | Plot not complete. Cannot save.";
         printError();
         return;
     }
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
-    QString filename = dialog.getSaveFileName(this, "Save configuration", QString::fromStdString(m_default_directory), "JSON (*.json)");
+    QString filename = dialog.getSaveFileName(this, "Save configuration", m_DefaultDirectory, "JSON (*.json)");
     save_JSON(filename);
     flag_Saved = true;
 }
@@ -1313,8 +1300,8 @@ void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
     QLineEdit *edit = ui->lineEdit_SettingsTolerance;
     stringstream buffer;
     buffer << edit->text().toStdString();
-    if (!(buffer >> m_tolerance))
-        m_tolerance = 0;
+    if (!(buffer >> m_CompPrecision))
+        m_CompPrecision = 0;
     edit->clearFocus();
 }
 

@@ -44,9 +44,9 @@ static void clearLineEditTextFormat(QLineEdit* lineEdit)
 InequalityInput::InequalityInput(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InequalityInput),
-    flag_skip(false),
-    m_error_message(""),
-    m_bugmail("emerick.bosch+bugmail@gmail.com")
+    flag_Skip(false),
+    m_ErrorMessage(""),
+    m_BugMail("emerick.bosch+bugmail@gmail.com")
 {
     ui->setupUi(this);
     setAccessibleDescription("input");
@@ -57,7 +57,7 @@ InequalityInput::InequalityInput(QWidget *parent) :
     ui->lineEdit_Precision->setValidator(dValidator);
 
     //	initialize precision line edit
-    m_precisionIndex = ui->splitter_Inequality->indexOf(ui->lineEdit_Precision);
+    m_PrecisionIndex = ui->splitter_Inequality->indexOf(ui->lineEdit_Precision);
     on_comboBox_Inequality_currentIndexChanged(0);
 
     //	splitters
@@ -76,7 +76,7 @@ InequalityInput::~InequalityInput()
 //	-------
 
 void InequalityInput::setNumber(int nNumber){
-    m_guiNumber = nNumber;
+    m_GuiNumber = nNumber;
         ui->label_Index->setNum(nNumber+1);
 }
 
@@ -90,7 +90,7 @@ void InequalityInput::setX(QVector<double> vX){ m_X = vX; }
 void InequalityInput::setY(QVector<double> vY){ m_Y = vY; }
 
 bool InequalityInput::createInequality(){
-    m_error_message = "";
+    m_ErrorMessage = "";
     // input expressions
     m_Inequality = Inequality(ui->lineEdit_Left->text().toStdString(),
                              getSymbol(),
@@ -124,13 +124,13 @@ void InequalityInput::resetCombinations(){ ui->comboBox_Interact->setCurrentInde
 string InequalityInput::expressionToJSON() {
     stringstream buffer;
     buffer <<	"\"inequality\":{" <<
-                "\"left expression\":" << "\""<< getLeftExpression() << "\"," <<
+                "\"left expression\":" << "\""<< getLeftExpression().toStdString() << "\"," <<
                 "\"symbol\":" << "\"" << ui->comboBox_Inequality->currentText().toStdString() << "\",";
     if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
         buffer << "\"precision\":"	<< ui->lineEdit_Precision->text().toStdString() << ",";
     }
-    buffer <<  	"\"right expression\":" << "\"" << getRightExpression() << "\"," <<
-                "\"combination\":" << "\"" <<getCombination() <<
+    buffer <<  	"\"right expression\":" << "\"" << getRightExpression().toStdString() << "\"," <<
+                "\"combination\":" << "\"" << getCombination() <<
                 "\"}";
 
     return buffer.str();
@@ -221,7 +221,7 @@ void InequalityInput::fromJSON(string sInput){
 //	Getters: UI
 //	------------
 
-int InequalityInput::getNumber(){ return m_guiNumber; }
+int InequalityInput::getNumber(){ return m_GuiNumber; }
 
 int InequalityInput::getShapeIndex(){ return ui->comboBox_Shape->currentIndex(); }
 
@@ -229,11 +229,13 @@ int InequalityInput::getCombination(){ return ui->comboBox_Interact->currentInde
 
 double InequalityInput::getPrecision() { return atof(ui->lineEdit_Precision->text().toStdString().c_str()); }
 
-bool InequalityInput::getSkip(){ return flag_skip; }
+bool InequalityInput::getSkip(){ return flag_Skip; }
 
-string InequalityInput::getLeftExpression(){ return m_Inequality.getExpressionLHS(); }
+QString InequalityInput::getLeftExpression(){ return QString::fromStdString( m_Inequality.getExpressionLHS() ); }
 
-string InequalityInput::getRightExpression(){ return m_Inequality.getExpressionRHS(); }
+QString InequalityInput::getRightExpression(){ return QString::fromStdString( m_Inequality.getExpressionRHS() ); }
+
+QString InequalityInput::getErrors(){ return m_ErrorMessage + QString::fromStdString(m_Inequality.getErrors()); }
 
 QWidget* InequalityInput::getFocusInWidget() { return ui->lineEdit_Left; }
 
@@ -336,7 +338,6 @@ QwtSymbol::Style InequalityInput::getShape()
 //	Getters: Data
 //	--------------
 
-string InequalityInput::getErrors(){ return m_error_message + m_Inequality.getErrors(); }
 
 QVector<double> InequalityInput::getX(){ return m_X; }
 
@@ -448,12 +449,12 @@ bool InequalityInput::addVariable(Variable variable){
 bool InequalityInput::evaluate(){
     // do maths
     try{
-        m_plotSpace = m_Inequality.evaluate();
+        m_PlotPoints = m_Inequality.evaluate();
     }
-    catch(INPUT_ERROR_CODES e){ // catch errors that happen during evaluation
+    catch(InputErrorCode e){ // catch errors that happen during evaluation
         switch(e){
         case InputErrorInvalidExpression:
-            m_error_message += "Input | Invalid expression.\n";
+            m_ErrorMessage += "Input | Invalid expression.\n";
             if(highlightInvalidExpressionTerms())
                 return false;
             break;
@@ -462,13 +463,14 @@ bool InequalityInput::evaluate(){
                 return false;
             break;
         default:
-            m_error_message += "Bug | Unhandled input error. Please report this bug to the following email address:\n" + m_bugmail + "\n";
+            m_ErrorMessage += 	"Bug | Unhandled input error. Please report this bug to the following email address:\n" +
+                                m_BugMail + "\n";
             cerr << e << endl;
             return false;
         }
     }
 
-    m_problemSpace = m_Inequality.getProblemElements_ResultsCombined();
+    m_ProblemPoints = m_Inequality.getProblemElements_ResultsCombined();
 
     // create QVectors (for plotting)
     m_VariableX.resetPosition();		// reset iterators
@@ -481,14 +483,14 @@ bool InequalityInput::evaluate(){
 
     bool flag_XBeforeY = m_Inequality.getXBeforeY(m_VariableX, m_VariableY);
 
-    vector<int>::iterator it_ProblemSpace = m_problemSpace.begin();
-    for(int i = 0; i < static_cast<int>(m_plotSpace.size()); i++){
-        if(!m_problemSpace.empty() && i == *it_ProblemSpace){ 	// problem point - add to problem vectors
+    vector<int>::iterator it_ProblemSpace = m_ProblemPoints.begin();
+    for(int i = 0; i < static_cast<int>(m_PlotPoints.size()); i++){
+        if(!m_ProblemPoints.empty() && i == *it_ProblemSpace){ 	// problem point - add to problem vectors
             m_XProblem.push_back(m_VariableX.getCurrentValue());
             m_YProblem.push_back(m_VariableY.getCurrentValue());
             it_ProblemSpace++;
         }
-        else if (m_plotSpace[i]) { 	// not a problem point - add to the normal graph vectors
+        else if (m_PlotPoints[i]) { 	// not a problem point - add to the normal graph vectors
             m_X.push_back(m_VariableX.getCurrentValue());
             m_Y.push_back(m_VariableY.getCurrentValue());
         }
@@ -519,11 +521,11 @@ void InequalityInput::splitterResize(QList<int> sizes){ ui->splitter_InequalityI
 ///	Private Slots
 ///	==============
 
-void InequalityInput::on_pushButton_Up_clicked() { emit moveUp(m_guiNumber); }
+void InequalityInput::on_pushButton_Up_clicked() { emit moveUp(m_GuiNumber); }
 
-void InequalityInput::on_pushButton_Down_clicked() { emit moveDown(m_guiNumber); }
+void InequalityInput::on_pushButton_Down_clicked() { emit moveDown(m_GuiNumber); }
 
-void InequalityInput::on_pushButton_Delete_clicked() { emit killThis(m_guiNumber); }
+void InequalityInput::on_pushButton_Delete_clicked() { emit killThis(m_GuiNumber); }
 
 void InequalityInput::on_lineEdit_Left_textChanged(const QString&) { clearLineEditTextFormat(ui->lineEdit_Left); }
 
@@ -546,7 +548,7 @@ void InequalityInput::on_comboBox_Interact_currentIndexChanged(int index)
 void InequalityInput::on_checkBox_Skip_toggled(bool checked)
 {
    if(checked) {
-       flag_skip = true;
+       flag_Skip = true;
        ui->comboBox_Color->setEnabled(false);
        ui->comboBox_Shape->setEnabled(false);
        ui->lineEdit_Left->setEnabled(false);
@@ -556,7 +558,7 @@ void InequalityInput::on_checkBox_Skip_toggled(bool checked)
 
    }
    else {
-       flag_skip = false;
+       flag_Skip = false;
        ui->comboBox_Color->setEnabled(true);
        ui->comboBox_Shape->setEnabled(true);
        ui->lineEdit_Left->setEnabled(true);
@@ -570,9 +572,9 @@ void InequalityInput::on_checkBox_Skip_toggled(bool checked)
 void InequalityInput::on_comboBox_Inequality_currentIndexChanged(int index)
 {
     if (index == ApproxEqual){
-        ui->splitter_Inequality->widget(m_precisionIndex)->show();
+        ui->splitter_Inequality->widget(m_PrecisionIndex)->show();
     }
     else if (ui->lineEdit_Precision->isEnabled()){
-            ui->splitter_Inequality->widget(m_precisionIndex)->hide();
+            ui->splitter_Inequality->widget(m_PrecisionIndex)->hide();
     }
 }

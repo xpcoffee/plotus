@@ -75,8 +75,8 @@ public:
 
     // 	core
     void plot();
-    void plotNew(int gui_number, string x_units, string y_units, int progress);
-    void plotOld(int gui_number, string x_units, string y_units, int progress);
+    void plotNew(int gui_number, int progress);
+    void plotOld(int gui_number, int progress);
     void vectorCombineNone(int gui_number);
     void vectorCombineIntersection(int gui_number);
     void vectorCombineUnion(int gui_number);
@@ -86,7 +86,7 @@ public:
     void addErrorGraph();
 
     // 	validation
-    void print(string message);
+    void print(QString message);
     void printclr();
     void printError();
 
@@ -147,25 +147,25 @@ private:
     //	plotting
     QString m_Title;
     int m_Graph_Count;
-    int m_Prev_Combination;
+    int m_PrevCombination;
     bool flag_Combination;
     Variable m_XVariable, m_YVariable;
     QVector<double> m_XResults, m_YResults, m_XResults_Problem, m_YResults_Problem;
     QVector<QPointF> m_Samples, m_Samples_Problem;
 
     //	gui management
-    int m_variable_count;
-    int m_inequality_count;
+    int m_VariableCount;
+    int m_InequalityCount;
     bool flag_Saved;
 
     //	error handling
     bool flag_Problem;
     bool flag_Empty;
-    string m_error_message;
+    QString m_ErrorMessage;
 
     // 	settings
-    double m_tolerance;
-    string m_default_directory;
+    double m_CompPrecision;
+    QString m_DefaultDirectory;
 
     // experimental
 

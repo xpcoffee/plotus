@@ -106,9 +106,9 @@ public:
     int getCombination();
     double getPrecision();
     bool getSkip();
-    string getLeftExpression();
-    string getRightExpression();
-    string getErrors();
+    QString getLeftExpression();
+    QString getRightExpression();
+    QString getErrors();
     QWidget *getFocusInWidget();
     QWidget *getFocusOutWidget();
     QColor getColor();
@@ -159,18 +159,18 @@ private:
     Variable m_VariableX, m_VariableY;
 
     // meta
-    int m_guiNumber;
-    int m_precisionIndex;
-    bool flag_skip;
+    int m_GuiNumber;
+    int m_PrecisionIndex;
+    bool flag_Skip;
 
     // result vectors
-    vector<bool> m_plotSpace;
-    vector<int> m_problemSpace;
+    vector<bool> m_PlotPoints;
+    vector<int> m_ProblemPoints;
     QVector<double> m_X, m_Y, m_XProblem, m_YProblem;
 
     // error handling
-    string m_error_message;
-    string m_bugmail;
+    QString m_ErrorMessage;
+    QString m_BugMail;
 };
 
 #endif // INEQUALITYINPUT_H

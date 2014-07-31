@@ -117,16 +117,16 @@ void VariableInput::setAxisMode(int axis_mode)
 {
     switch(axis_mode){
     case 0:
-        m_axisMode = MODE_X_AXIS;
-        ui->comboBox_Axes->setCurrentIndex(MODE_X_AXIS);
+        m_axisMode = PlotHorizontal;
+        ui->comboBox_Axes->setCurrentIndex(PlotHorizontal);
         break;
     case 1:
-        m_axisMode = MODE_Y_AXIS;
-        ui->comboBox_Axes->setCurrentIndex(MODE_Y_AXIS);
+        m_axisMode = PlotVertical;
+        ui->comboBox_Axes->setCurrentIndex(PlotVertical);
         break;
     case 2:
-        m_axisMode = MODE_POINT;
-        ui->comboBox_Axes->setCurrentIndex(MODE_POINT);
+        m_axisMode = PlotConstant;
+        ui->comboBox_Axes->setCurrentIndex(PlotConstant);
         break;
     default:
         cerr << "[ERROR] VariableInput | setAxisMode | " << "Unknown axis mode: " << axis_mode << endl;
@@ -151,11 +151,11 @@ string VariableInput::toJSON()
             "\"max\":" << m_variable.max() << "," <<
             "\"elements\":" << m_variable.elements() << "," <<
             "\"units\":\"" << getUnits() << "\"";
-    if (ui->comboBox_Axes->currentIndex() == MODE_POINT)
+    if (ui->comboBox_Axes->currentIndex() == PlotConstant)
         buffer << ",\"slider point\":" << ui->horizontalSlider_Point->value();
-    if (ui->comboBox_Axes->currentIndex() == MODE_X_AXIS)
+    if (ui->comboBox_Axes->currentIndex() == PlotHorizontal)
         buffer << ",\"axis\":\"x\"";
-    if (ui->comboBox_Axes->currentIndex() == MODE_Y_AXIS)
+    if (ui->comboBox_Axes->currentIndex() == PlotVertical)
         buffer << ",\"axis\":\"y\"";
     buffer << "}";
     return buffer.str();
@@ -163,7 +163,7 @@ string VariableInput::toJSON()
 
 Variable VariableInput::getVariable()
 {
-    if (ui->comboBox_Axes->currentIndex() == MODE_POINT) { createPoint(); }
+    if (ui->comboBox_Axes->currentIndex() == PlotConstant) { createPoint(); }
     else { createVariable(); }
     return m_variable;
 }
@@ -224,9 +224,9 @@ void VariableInput::fromJSON(string json)
             if (getline (ss, token, '"'))
                 if (getline (ss, token, '"')){
                     if (token == "x")
-                        ui->comboBox_Axes->setCurrentIndex(MODE_X_AXIS);
+                        ui->comboBox_Axes->setCurrentIndex(PlotHorizontal);
                     if (token == "y")
-                        ui->comboBox_Axes->setCurrentIndex(MODE_Y_AXIS);
+                        ui->comboBox_Axes->setCurrentIndex(PlotVertical);
                 }
     }
 }
@@ -252,7 +252,7 @@ void VariableInput::sliderCheck()
     if (!checkInput())
         return;
     createVariable();
-    if (ui->comboBox_Axes->currentIndex() == MODE_POINT){
+    if (ui->comboBox_Axes->currentIndex() == PlotConstant){
        ui->horizontalSlider_Point->setEnabled(true);
        ui->horizontalSlider_Point->setTickInterval(1);
        ui->label_Point->setNum(m_variable.min());
@@ -309,17 +309,17 @@ void VariableInput::on_comboBox_Axes_currentIndexChanged(int index)
    clearFormatting();
    switch(index) {
    case 0:
-        m_axisMode = MODE_X_AXIS;
+        m_axisMode = PlotHorizontal;
         resetSlider();
         emit axisModeChanged(m_guiNumber);
         break;
    case 1:
-        m_axisMode = MODE_Y_AXIS;
+        m_axisMode = PlotVertical;
         resetSlider();
         emit axisModeChanged(m_guiNumber);
         break;
    case 2:
-        m_axisMode = MODE_POINT;
+        m_axisMode = PlotConstant;
         sliderCheck();
         emit axisModeChanged(m_guiNumber);
         break;

@@ -952,7 +952,7 @@ void Expression::recEval()
                     try{
                         dResult = evaluateExpression();
                     }
-                    catch(MATH_ERROR_CODES e){
+                    catch(MathErrorCode e){
                         // MATH ERRORS HANDLED HERE
                         // does not stop the evaluation, only logs a problem point
                         handleMathException(e);
@@ -960,7 +960,7 @@ void Expression::recEval()
                         m_Results_Problems.push_back(m_Results.size());
                         dResult = 0;
                     }
-                    catch(INPUT_ERROR_CODES e){
+                    catch(InputErrorCode e){
                         // INPUT ERRORS HANDLED HERE
                         // stops the evaluation
                         m_Expression_Problems.push_back(m_ProblemTerm);
@@ -1020,7 +1020,7 @@ string Expression::getStringArray(vector<string> string_array)
 // 	Exception Handling and Validation
 //	----------------------------------
 
-void Expression::handleMathException(MATH_ERROR_CODES e)
+void Expression::handleMathException(MathErrorCode e)
 {
 
     switch(e){
