@@ -1,7 +1,27 @@
+/*!	Author(s):	Emerick Bosch
+    Build:		0.3
+    Date:		July 2014
+
+    inequalityloader.h
+    -------------------
+
+    Description
+    ============
+    Provides the GUI for:
+    - loading inequality
+    - selecting specific plot from loaded inequality
+    - plot settings
+
+    Subwidget of BareMinimumPlotter.
+*/
+
+
 #ifndef INEQUALITYLOADER_H
 #define INEQUALITYLOADER_H
 
-//	Include
+///	Includes
+///	=========
+
 #include <QWidget>
 #include <QtWidgets>
 #include <stdlib.h>
@@ -9,17 +29,21 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include "inequalityinput.h"
+#include "inequalityinput.h"	// CombinationMode, ComboBoxColor, ComboBoxShape
 #include "bluejson.h"
 
-//	Namespace
+///	Namespaces
+///	===========
+
 using namespace std;
 
 namespace Ui {
 class InequalityLoader;
 }
 
-//	Class
+///	Class
+/// ======
+
 class InequalityLoader : public QWidget
 {
     Q_OBJECT
@@ -27,25 +51,31 @@ class InequalityLoader : public QWidget
 public:
     explicit InequalityLoader(QWidget *parent = 0);
     ~InequalityLoader();
+
     //	setters
     void setNumber(int number);
     void setCaseName(string value);
     void loadCase(string filename);
     void setX(QVector<double> vector);
     void setY(QVector<double> vector);
-    // getters
+
+    //	getters: ui
     int getNumber();
-    int getColorIndex();
     int getShapeIndex();
     int getCombination();
     bool getSkip();
+    QWidget *getFocusInWidget();
+    QWidget *getFocusOutWidget();
+    QColor getColor();
+    QwtSymbol::Style getShape();
+
+    //	getters: data
     QVector<double> getX();
     QVector<double> getY();
     string getFile();
     string getErrors();
-    QWidget *getFocusInWidget();
-    QWidget *getFocusOutWidget();
-    // parsers
+
+    //	parsers
     void parsePlotData(string json);
     void parseProblem(string problem);
     string formatName(string json);
@@ -55,9 +85,11 @@ public:
     string formatExpressions(string json);
     string expressionToJSON();
     string dataToJSON();
-    // evaluation
+
+    //	evaluation
     void setPlot();
-    // gui
+
+    //	gui
     void enablePositionButtons(bool flag_enable);
     void enableCombinations(bool flag_enable);
     void resetCombinations();
@@ -82,24 +114,24 @@ private slots:
 
 private:
     Ui::InequalityLoader *ui;
-    // data
+
+    //	data
     vector<QVector<double> > m_x_results;
     vector<QVector<double> > m_y_results;
     vector<string> m_details;
     vector<string> m_expressions;
     string sDetails;
-    // meta
+
+    //	meta
     int m_gui_number;
     bool flag_skip;
     bool flag_problem;
     string m_name;
     string m_filename;
     string m_error_message;
-    // evaluation
+
+    //	evaluation
     unsigned int m_current_plot;
-
-    // functions
-
 };
 
 #endif // INEQUALITYLOADER_H

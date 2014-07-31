@@ -1,15 +1,26 @@
 /*!	Author(s):	Emerick Bosch
-    Build:		0.1
-    Date:		April 2014
+    Build:		0.3
+    Date:		July 2014
 
     expression.h
     -------------
 
     Description
     ============
-    Interprets mathematical expressions from strings.
-    Parses the strings iteratively into arrays.
-    Arrayes solved iteratively.
+    Mathematically evaluates symbolic expressions for any
+    number of variables and for all values of these variables.
+
+    An expression is input as a string and parsed into its separated terms;
+    the terms are stored in a string array.
+    Variables are represented by the Variable class and are input separately.
+    The expressions are then evaluated recursively for all values of all input
+    variables and the results stored in a double array.
+
+    Problems arising from a mathematically incorrect expression are flagged
+    during parsing. The position of problem terms are logged in an integer array.
+    Problems arising from a mathematical operation (e.g. divide by 0) are flagged
+    during evaluation. The index of problem evaluations are logged in an integer
+    array.
 */
 
 #ifndef EXPRESSION_H

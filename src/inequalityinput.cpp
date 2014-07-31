@@ -1,7 +1,3 @@
-//	"""""""""""""""""""""""""""""""""
-//	"			Includes			"
-//	"""""""""""""""""""""""""""""""""
-
 ///	Includes
 ///	=========
 
@@ -97,7 +93,7 @@ bool InequalityInput::createInequality(){
     m_error_message = "";
     // input expressions
     m_Inequality = Inequality(ui->lineEdit_Left->text().toStdString(),
-                             ui->comboBox_Inequality->currentIndex(),
+                             getSymbol(),
                              ui->lineEdit_Right->text().toStdString());
     m_Inequality.setPrecision(atof(ui->lineEdit_Precision->text().toStdString().c_str()));
     // remove whitespace
@@ -153,7 +149,26 @@ string InequalityInput::dataToJSON(){
             buffer << "\n";
         }
     }
-    // close plot data
+    buffer << "]\n";
+    return buffer.str();
+}
+
+string InequalityInput::problemDataToJSON(){
+    stringstream buffer;
+    buffer << "\"problem data\":[";
+
+    for (int j = 0; j < m_XProblem.size(); j++){
+        buffer << "{"
+                   "\"x\":"<< m_XProblem[j] << ","
+                   "\"y\":" << m_YProblem[j] <<
+                   "}";
+
+        if (j != m_XProblem.size()-1){
+            buffer << ",";
+            buffer << "\n";
+        }
+    }
+
     buffer << "]\n";
     return buffer.str();
 }
@@ -170,7 +185,7 @@ void InequalityInput::fromJSON(string sInput){
         } else if (token == "symbol") {
             if (getline (iss, token, '"'))
                 if (getline (iss, token, '"')){
-                    int symbol;
+                    InequalitySymbol symbol;
                     if (token == "<")
                         symbol = SmallerThan;
                     if (token == ">")
@@ -203,12 +218,10 @@ void InequalityInput::fromJSON(string sInput){
 }
 
 
-//	Getters
-//	-------
+//	Getters: UI
+//	------------
 
 int InequalityInput::getNumber(){ return m_guiNumber; }
-
-int InequalityInput::getColorIndex(){ return ui->comboBox_Color->currentIndex(); }
 
 int InequalityInput::getShapeIndex(){ return ui->comboBox_Shape->currentIndex(); }
 
@@ -222,6 +235,107 @@ string InequalityInput::getLeftExpression(){ return m_Inequality.getExpressionLH
 
 string InequalityInput::getRightExpression(){ return m_Inequality.getExpressionRHS(); }
 
+QWidget* InequalityInput::getFocusInWidget() { return ui->lineEdit_Left; }
+
+QWidget* InequalityInput::getFocusOutWidget()
+{
+    QWidget::setTabOrder(ui->lineEdit_Left, ui->comboBox_Inequality);
+    QWidget::setTabOrder(ui->comboBox_Inequality, ui->lineEdit_Right);
+
+    if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
+        QWidget::setTabOrder(ui->lineEdit_Right, ui->lineEdit_Precision);
+        return ui->lineEdit_Precision;
+    } else {
+        return ui->lineEdit_Right;
+    }
+}
+
+
+QColor InequalityInput::getColor()
+{
+        switch(ui->comboBox_Color->currentIndex()){
+        case Red:
+            return QColor(Qt::red);
+            break;
+        case Green:
+            return QColor(Qt::green);
+            break;
+        case Blue:
+            return QColor(Qt::blue);
+            break;
+        case DarkRed:
+            return QColor(Qt::darkRed);
+            break;
+        case DarkGreen:
+            return QColor(Qt::darkGreen);
+            break;
+        case DarkBlue:
+            return QColor(Qt::darkBlue);
+            break;
+        case Grey:
+            return QColor(Qt::lightGray);
+            break;
+        case Black:
+            return QColor(Qt::black);
+            break;
+        }
+        return QColor(Qt::transparent);
+}
+
+InequalitySymbol InequalityInput::getSymbol()
+{
+    switch(ui->comboBox_Inequality->currentIndex()){
+    case SmallerThan:
+        return SmallerThan;
+        break;
+    case GreaterThan:
+        return GreaterThan;
+        break;
+    case GreaterThanEqual:
+        return GreaterThanEqual;
+        break;
+    case SmallerThanEqual:
+        return SmallerThanEqual;
+        break;
+    case ApproxEqual:
+        return ApproxEqual;
+        break;
+    }
+    return NoSymbol;
+}
+
+QwtSymbol::Style InequalityInput::getShape()
+{
+    switch(ui->comboBox_Shape->currentIndex()){
+    case CrossX:
+        return QwtSymbol::XCross;
+        break;
+    case CrossPlus:
+        return QwtSymbol::Cross;
+        break;
+    case Circle:
+        return QwtSymbol::Ellipse;
+        break;
+    case UpTriangle:
+        return QwtSymbol::Triangle;
+        break;
+    case DownTriangle:
+        return QwtSymbol::DTriangle;
+        break;
+    case Square:
+        return QwtSymbol::Rect;
+        break;
+    case Diamond:
+        return QwtSymbol::Diamond;
+        break;
+    }
+    return QwtSymbol::NoSymbol;
+}
+
+
+//	Getters: Data
+//	--------------
+
 string InequalityInput::getErrors(){ return m_error_message + m_Inequality.getErrors(); }
 
 QVector<double> InequalityInput::getX(){ return m_X; }
@@ -232,19 +346,6 @@ QVector<double> InequalityInput::getXProblem(){ return m_XProblem; }
 
 QVector<double> InequalityInput::getYProblem(){ return m_YProblem; }
 
-QWidget* InequalityInput::getFocusInWidget() { return ui->lineEdit_Left; }
-
-QWidget* InequalityInput::getFocusOutWidget()
-{
-    QWidget::setTabOrder(ui->lineEdit_Left, ui->comboBox_Inequality);
-    QWidget::setTabOrder(ui->comboBox_Inequality, ui->lineEdit_Right);
-    if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
-        QWidget::setTabOrder(ui->lineEdit_Right, ui->lineEdit_Precision);
-        return ui->lineEdit_Precision;
-    } else {
-        return ui->lineEdit_Right;
-    }
-}
 
 //	Validation
 //	----------
@@ -394,12 +495,12 @@ bool InequalityInput::evaluate(){
 
         //	TODO: XBeforeY more elegantly
         if (flag_XBeforeY){ 		// accounts for the fact that evaluation happens in the order in which variables were *added*
-            if ((i+1) % m_VariableY.getElements() == 0){
+            if ((i+1) % m_VariableY.elements() == 0){
                 m_VariableX.nextPosition();
             }
             m_VariableY.nextPosition();
         } else {
-            if ((i+1) % m_VariableX.getElements() == 0){
+            if ((i+1) % m_VariableX.elements() == 0){
                 m_VariableY.nextPosition();
             }
             m_VariableX.nextPosition();

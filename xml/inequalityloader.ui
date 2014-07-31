@@ -199,7 +199,12 @@
          </property>
          <item>
           <property name="text">
-           <string>cross</string>
+           <string>cross (x)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>cross (+)</string>
           </property>
          </item>
          <item>
@@ -209,12 +214,22 @@
          </item>
          <item>
           <property name="text">
-           <string>triangle</string>
+           <string>triangle (up)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>triangle (down)</string>
           </property>
          </item>
          <item>
           <property name="text">
            <string>square</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>diamond</string>
           </property>
          </item>
         </widget>

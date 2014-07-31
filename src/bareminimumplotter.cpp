@@ -21,24 +21,7 @@
 ///	Enumerated Types
 ///	=================
 
-enum COLOR {
-    BLUE 		= 0,
-    GREEN 		= 1,
-    RED 		= 2,
-    DARK_BLUE 	= 3,
-    DARK_GREEN 	= 4,
-    DARK_RED 	= 5,
-    GREY 		= 6,
-    BLACK 		= 7,
-    WHITE 		= 8,
-};
 
-enum SHAPE {
-    CROSS 		= 0,
-    CIRCLE 		= 1,
-    TRIANGLE 	= 2,
-    SQUARE 		= 3,
-};
 
 
 ///	Namespaces
@@ -218,10 +201,10 @@ void BareMinimumPlotter::plot()
     }
 
     // legend, axes
-    plotter->setAxisTitle(QwtPlot::yLeft, QString::fromStdString(m_YVariable.getName() + y_units));
-    plotter->setAxisScale(QwtPlot::yLeft, m_YVariable.getMin(), m_YVariable.getMax());
-    plotter->setAxisTitle(QwtPlot::xBottom, QString::fromStdString(m_XVariable.getName() + x_units));
-    plotter->setAxisScale(QwtPlot::xBottom, m_XVariable.getMin(), m_XVariable.getMax());
+    plotter->setAxisTitle(QwtPlot::yLeft, QString::fromStdString(m_YVariable.name() + y_units));
+    plotter->setAxisScale(QwtPlot::yLeft, m_YVariable.min(), m_YVariable.max());
+    plotter->setAxisTitle(QwtPlot::xBottom, QString::fromStdString(m_XVariable.name() + x_units));
+    plotter->setAxisScale(QwtPlot::xBottom, m_XVariable.min(), m_XVariable.max());
     plotter->insertLegend(new QwtLegend);
 
     //	evaluate and plot each inequality
@@ -324,7 +307,7 @@ void BareMinimumPlotter::plotNew(int gui_number, string x_units, string y_units,
         ui->progressBar->setFormat("Plotting results...");
 
         // add normal graph
-        addGraph(input->getShapeIndex(), input->getColorIndex());
+        addGraph(input->getShape(), input->getColor());
         m_Graph_Count++;
 
         // add problem graph (if needed)
@@ -381,7 +364,7 @@ void BareMinimumPlotter::plotOld(int gui_number, string x_units, string y_units,
     ui->progressBar->setFormat("Plotting results...");
 
     // add normal graph
-    addGraph(loader->getShapeIndex(), loader->getColorIndex());
+    addGraph(loader->getShape(), loader->getColor());
     m_Graph_Count++;
 
     // add problem graph (if needed)
@@ -606,68 +589,19 @@ void BareMinimumPlotter::createQPoints()
     }
 }
 
-void BareMinimumPlotter::addGraph(int shape, int color)
+void BareMinimumPlotter::addGraph(QwtSymbol::Style shape, QColor marker_color)
 {
         QwtPlotCurve *plot = new QwtPlotCurve("test");
         QwtSymbol *marker;
         QSize marker_size;
-        QColor marker_color;
         int marker_line_width = 1;
 
         //	set size
         marker_size = QSize(5,5);
 
-        //	color
-        switch(color){
-        case RED:
-            marker_color = Qt::red;
-            break;
-        case GREEN:
-            marker_color = Qt::green;
-            break;
-        case BLUE:
-            marker_color = Qt::blue;
-            break;
-        case DARK_RED:
-            marker_color = Qt::darkRed;
-            break;
-        case DARK_GREEN:
-            marker_color = Qt::darkGreen;
-            break;
-        case DARK_BLUE:
-            marker_color = Qt::darkBlue;
-            break;
-        case GREY:
-            marker_color = Qt::lightGray;
-            break;
-        case BLACK:
-            marker_color = Qt::black;
-            break;
-        }
-
         //	marker
-        switch(shape){
-        case CROSS:
-            marker = new QwtSymbol(QwtSymbol::XCross,
-                                   QBrush(), QPen(marker_color, marker_line_width),
-                                   marker_size);
-            break;
-        case CIRCLE:
-            marker = new QwtSymbol(QwtSymbol::Ellipse,
-                                   QBrush(), QPen(marker_color, marker_line_width),
-                                   marker_size);
-            break;
-        case TRIANGLE:
-            marker = new QwtSymbol(QwtSymbol::Triangle,
-                                   QBrush(), QPen(marker_color, marker_line_width),
-                                   marker_size);
-            break;
-        case SQUARE:
-            marker = new QwtSymbol(QwtSymbol::Rect,
-                                   QBrush(), QPen(marker_color, marker_line_width),
-                                   marker_size);
-            break;
-        }
+        marker = new QwtSymbol(shape,  QBrush(), QPen(marker_color, marker_line_width),
+                               marker_size);
 
         //	set format
         plot->setSymbol(marker);

@@ -82,7 +82,7 @@ public:
     void vectorCombineUnion(int gui_number);
     void vectorCombineSubtraction(int gui_number);
     void createQPoints();
-    void addGraph(int shape, int color);
+    void addGraph(QwtSymbol::Style shape, QColor color);
     void addErrorGraph();
 
     // 	validation

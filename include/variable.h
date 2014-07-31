@@ -1,143 +1,217 @@
-/*	Author(s):	Emerick Bosch
-	Build:		0.1
-	Date:		April 2014
+/*!	Author(s):	Emerick Bosch
+    Build:		0.3
+    Date:		July 2014
 
-	variable.h
-	-------------
-	
-	"""""""""""""""""""""""""""""""""	
-	"			Description			"
-	"""""""""""""""""""""""""""""""""	
-	
-	Class
+    variable.h
+    -------------
 
-	Stores name, range and values of a variable to be evaluated.
+    Description
+    ============
+    Stores the name and domain of a variable/parameter.
+    Stores standard variable names and values (constants, etc.).
+
+    Provides methods to:
+    - create the domain of the variable
+    - check the validity of the variable name
 */
 
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-//	"""""""""""""""""""""""""""""""""	
-//	"			Includes			"
-//	"""""""""""""""""""""""""""""""""	
+///	Includes
+///	=========
 
 #include<string>
 #include<vector>
 #include<iostream>
 #include<cassert>
+#include<math.h>
 
-//	"""""""""""""""""""""""""""""""""	
-//	"			Namespaces			"
-//	"""""""""""""""""""""""""""""""""	
+
+///	Namespace
+///	==========
+
 using namespace std;
 
-//	"""""""""""""""""""""""""""""""""	
-//	"		Class Definition: 		"
-//	"			Variable			"
-//	"""""""""""""""""""""""""""""""""	
 
+///	Enumerators
+///	============
+
+enum Spacing {
+    Linear	= 0,
+    Logarithmic,
+};
+
+///	Class
+///	======
 
 class Variable
 {
 private:
-    // variables
-	string sName;
-    vector<double> vValues;
-    double dMin, dMax, dResolution;
-    int nElements;
-    int nCurrentPosition;
-	bool flag_populated;
+    //	Member Variables
+    //	-----------------
 
-    // functions
-	void populateValues(){
-        for (double i = 0; i < nElements; i++){
-            double result = dMin + i*dResolution;
-			vValues.push_back(result);
-		}
-		nCurrentPosition = 0;
-		flag_populated   = true;
-	}
+    string m_Name;
+    vector<double> m_Domain;
+    Spacing m_DomainSpacing;
+    double m_Min, m_Max;
+    int m_Elements;
+    int m_Pos;
+    bool flag_Populated;
+    bool flag_Initialized;
 
 public:
-    // constructor
-    Variable(string name = "", double num1 = 0, double num2 = 0, int elements = 1){
-		//	TODO: assert input is correct
-		setName(name);
-		setMinMax(num1, num2);
-		setGrid(elements);
-		// includes beginning and end
-        if(nElements == 1){
-            dResolution = 0;
-        } else {
-            dResolution = (dMax - dMin)/static_cast<double>(nElements-1);
-        }
-        populateValues();
+    Variable ():
+        m_Name(""),
+        m_Elements(1),
+        flag_Populated(false),
+        flag_Initialized(false)
+    { }
+
+    Variable(string name, double domain_start = 0, double domain_end = 0, int elements = 1):
+        m_Name(name),
+        m_Elements(elements)
+    {
+        setMinMax(domain_start, domain_end);
+        setLinearDomain();
     }
 
-    // functions
-    // - iteration
-	void nextPosition(){
-		assert(flag_populated);
-		if (isEnd()){ nCurrentPosition = 0; }
-		else { nCurrentPosition++; }
-	} 
+    //	Setters
+    //	--------
 
-	bool isEnd(){
-		if ( nCurrentPosition == nElements - 1 ){ return true; }
-		else { return false; }
-	}
+    void setName(string name) { m_Name = name; }
 
-    void resetPosition () { nCurrentPosition = 0; }
+    void setElements(int elements) { m_Elements = elements; }
 
-    // - setters
-	void setName(string name){
-		sName = name;
-	}
+    void setMinMax(double num1, double num2)
+    {
+        if (num1 > num2)	{ m_Min = num2; m_Max = num1; }
+        else 				{ m_Min = num1; m_Max = num2; }
 
-    void setMinMax(double num1, double num2){
-		if (num1 > num2){
-            dMin = num2;
-            dMax = num1;
-		}
-		else {
-            dMin = num1;
-            dMax = num2;
-		}
-		flag_populated = false;
-	}
+        m_Domain.clear();
+        flag_Populated = false;
+        flag_Initialized = true;
+    }
 
-    void setGrid(int elements){
-		nElements      = elements;
-		flag_populated = false;
-	}
+    //	Getters
+    //	--------
 
-    // - getters
-    string getName() { return sName; }
-    int getCurrentPosition(){ return nCurrentPosition; }
-    int getElements() { return nElements; }
-    int  size() { return vValues.size(); }
-    double getMin() { return dMin; }
-    double getMax() { return dMax; }
-    double getResolution() { return dResolution; }
-    double getCurrentValue() {
-		assert(flag_populated);
-		return vValues[nCurrentPosition];
-	}
+    string name() { return m_Name; }
 
-    // - validation
-    static bool nameIsLegal(string sName){
-        // check that name is set
-        if (sName.empty())
+    int position(){ return m_Pos; }
+
+    int elements() { return m_Elements; }
+
+    double min() { return m_Min; }
+
+    double max() { return m_Max; }
+
+    double getCurrentValue() { return m_Domain[m_Pos]; }
+
+    Spacing getDomainSpacing() { return m_DomainSpacing; }
+
+
+    //	Domain Creation
+    //	----------------
+
+    void setLinearDomain()
+    {
+        if (!flag_Initialized)
+            return;
+
+        setLinearDomain(m_Min, m_Max, m_Elements);
+    }
+
+    void setLinearDomain(double min, double max, double steps)
+    {
+        double spacing;
+
+        if (steps == 1) { spacing = 0; }
+        else { spacing = (max - min)/static_cast<double>(steps - 1); }
+
+        m_Domain.clear();
+        for (int i = 0; i < steps; i++){
+            m_Domain.push_back( min + i*spacing );
+        }
+
+        resetPosition();
+        flag_Populated   = true;
+        flag_Initialized = true;
+        m_DomainSpacing = Linear;
+    }
+
+    void setLogarithmicDomain(double base = 10)
+    {
+        if (!flag_Initialized || base == 0)
+            return;
+
+        setLogarithmicDomain(m_Min, m_Max, m_Elements, base);
+    }
+
+    void setLogarithmicDomain(double min, double max, double steps, double base = 10)
+    {
+        if (base == 0)
+            return;
+
+        double log_min = log(min)/log(base);
+        double log_max = log(max)/log(base);
+
+        m_Domain.clear();
+        for (int i = 0; i < steps; i++){
+            double exponent = i*( log_max - log_min )/steps ;
+
+            // skip negative roots
+            if ((exponent < 0) && (exponent > -1)){ continue; }
+
+            m_Domain.push_back( pow( base, exponent  ) );
+        }
+
+        // account for skipped items
+        m_Elements = m_Domain.size();
+
+        resetPosition();
+        flag_Populated   = true;
+        flag_Initialized = true;
+        m_DomainSpacing = Logarithmic;
+    }
+
+
+    //	Iteration
+    //	----------
+
+    void nextPosition()
+    {
+        if (!flag_Populated)
+            return;
+
+        if ( isEnd() ){ resetPosition(); }
+        else { m_Pos++; }
+    }
+
+    bool isEnd() { return m_Pos == (m_Elements - 1); }
+
+    void resetPosition () { m_Pos = 0; }
+
+    //	Validation
+    //	-----------
+
+    static bool nameIsLegal(string name)
+    {
+        // name is set
+        if (name.empty())
             return false;
-        // check for start with number
-        char varNameStart = sName[0];
+
+        // start with number
+        char varNameStart = name[0];
         if (('0' <= varNameStart) && (varNameStart  <= '9'))
             return false;
-        // check for illegal name
-        if (isFunction(sName) || isStandardValue(sName))
+
+        // illegal name
+        if (isFunction(name) || isStandardValue(name))
             return false;
-        // check for illegal characters
-        for (string::iterator it = sName.begin(); it != sName.end(); it++){
+
+        // illegal characters
+        for (string::iterator it = name.begin(); it != name.end(); it++){
             char c = *it;
             if (	// operators
                     (c == '+') || (c == '-') ||(c == '/') ||(c == '*') ||(c == '^') ||
@@ -150,11 +224,11 @@ public:
                 return false;
             }
         }
-        // all checks passed
-        return true;
+        return true; // all checks passed
     }
 
-    static bool isFunction(string sName){
+    static bool isFunction(string sName)
+    {
          return (sName == "sin") 		|| (sName == "cos") 	|| (sName == "tan") 	||
                 (sName == "sec") 		|| (sName == "csc") 	|| (sName == "cot") 	||
                 (sName == "sinh")		|| (sName == "cosh")	|| (sName == "tanh")	||
@@ -166,7 +240,8 @@ public:
                 (sName == "exp") 		|| (sName == "ln") 		|| (sName == "log");
     }
 
-    static bool isStandardValue(string sName){
+    static bool isStandardValue(string sName)
+    {
         return 	(sName == "pi");
     }
 };

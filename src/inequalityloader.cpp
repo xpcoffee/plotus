@@ -83,7 +83,6 @@ void InequalityLoader::loadCase(string filename)
     m_details.clear();
     string case_name, variables, plot, expressions, data;
     parser.getNextKeyValue("name", case_name); 		// case name
-    cout << parser.getStringToken(case_name);
     ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + case_name + "</b></i>"));
     parser.getNextKeyValue("variables", variables); // variables
     while (parser.getNextKeyValue("plot", plot)){ 	// get plots
@@ -119,26 +118,16 @@ void InequalityLoader::setX(QVector<double> vector) { m_x_results[m_current_plot
 void InequalityLoader::setY(QVector<double> vector) { m_y_results[m_current_plot] = vector; }
 
 
-//	Getters
-//	--------
+//	Getters: UI
+//	------------
 
 int	InequalityLoader::getNumber() 		{ return m_gui_number; }
-
-int InequalityLoader::getColorIndex() 	{ return ui->comboBox_Color->currentIndex(); }
 
 int InequalityLoader::getShapeIndex() 	{ return ui->comboBox_Shape->currentIndex(); }
 
 int InequalityLoader::getCombination() 	{ return ui->comboBox_Combination->currentIndex(); }
 
 bool InequalityLoader::getSkip() 		{ return flag_skip; }
-
-QVector<double> InequalityLoader::getX() { return m_x_results[m_current_plot]; }
-
-QVector<double> InequalityLoader::getY() { return m_y_results[m_current_plot]; }
-
-string InequalityLoader::getFile() { return m_filename; }
-
-string InequalityLoader::getErrors() { return m_error_message; }
 
 QWidget* InequalityLoader::getFocusInWidget() { return ui->comboBox_Plot; }
 
@@ -147,6 +136,77 @@ QWidget* InequalityLoader::getFocusOutWidget()
     QWidget::setTabOrder(ui->comboBox_Plot, ui->pushButton_Details);
     return ui->pushButton_Details;
 }
+
+QColor InequalityLoader::getColor()
+{
+        switch(ui->comboBox_Color->currentIndex()){
+        case Red:
+            return QColor(Qt::red);
+            break;
+        case Green:
+            return QColor(Qt::green);
+            break;
+        case Blue:
+            return QColor(Qt::blue);
+            break;
+        case DarkRed:
+            return QColor(Qt::darkRed);
+            break;
+        case DarkGreen:
+            return QColor(Qt::darkGreen);
+            break;
+        case DarkBlue:
+            return QColor(Qt::darkBlue);
+            break;
+        case Grey:
+            return QColor(Qt::lightGray);
+            break;
+        case Black:
+            return QColor(Qt::black);
+            break;
+        }
+        return QColor(Qt::transparent);
+}
+
+QwtSymbol::Style InequalityLoader::getShape()
+{
+    switch(ui->comboBox_Shape->currentIndex()){
+    case CrossX:
+        return QwtSymbol::XCross;
+        break;
+    case CrossPlus:
+        return QwtSymbol::Cross;
+        break;
+    case Circle:
+        return QwtSymbol::Ellipse;
+        break;
+    case UpTriangle:
+        return QwtSymbol::Triangle;
+        break;
+    case DownTriangle:
+        return QwtSymbol::DTriangle;
+        break;
+    case Square:
+        return QwtSymbol::Rect;
+        break;
+    case Diamond:
+        return QwtSymbol::Diamond;
+        break;
+    }
+    return QwtSymbol::NoSymbol;
+}
+
+
+//	Getters: Data
+//	--------------
+
+QVector<double> InequalityLoader::getX() { return m_x_results[m_current_plot]; }
+
+QVector<double> InequalityLoader::getY() { return m_y_results[m_current_plot]; }
+
+string InequalityLoader::getFile() { return m_filename; }
+
+string InequalityLoader::getErrors() { return m_error_message; }
 
 
 //	Parsers

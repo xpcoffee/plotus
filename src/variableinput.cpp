@@ -146,10 +146,10 @@ string VariableInput::toJSON()
 {
     ostringstream buffer;
     createVariable();
-    buffer <<  "{\"name\":\"" << m_variable.getName() << "\"," <<
-            "\"min\":" << m_variable.getMin() << "," <<
-            "\"max\":" << m_variable.getMax() << "," <<
-            "\"elements\":" << m_variable.getElements() << "," <<
+    buffer <<  "{\"name\":\"" << m_variable.name() << "\"," <<
+            "\"min\":" << m_variable.min() << "," <<
+            "\"max\":" << m_variable.max() << "," <<
+            "\"elements\":" << m_variable.elements() << "," <<
             "\"units\":\"" << getUnits() << "\"";
     if (ui->comboBox_Axes->currentIndex() == MODE_POINT)
         buffer << ",\"slider point\":" << ui->horizontalSlider_Point->value();
@@ -217,7 +217,7 @@ void VariableInput::fromJSON(string json)
                         value = 0;
                     sliderCheck();
                     ui->horizontalSlider_Point->setValue(value);
-                    double dSelectedValue = m_variable.getMin() + value*(m_variable.getMax()-m_variable.getMin())/m_variable.getElements();
+                    double dSelectedValue = m_variable.min() + value*(m_variable.max()-m_variable.min())/m_variable.elements();
                     ui->label_Point->setNum(dSelectedValue);
                 }
         if (token == "axis")
@@ -255,8 +255,8 @@ void VariableInput::sliderCheck()
     if (ui->comboBox_Axes->currentIndex() == MODE_POINT){
        ui->horizontalSlider_Point->setEnabled(true);
        ui->horizontalSlider_Point->setTickInterval(1);
-       ui->label_Point->setNum(m_variable.getMin());
-       ui->horizontalSlider_Point->setMaximum(m_variable.getElements());
+       ui->label_Point->setNum(m_variable.min());
+       ui->horizontalSlider_Point->setMaximum(m_variable.elements());
     }
 }
 
@@ -271,7 +271,7 @@ void VariableInput::createVariable()
 
 void VariableInput::createPoint()
 {
-    double dSelectedValue = m_variable.getMin() + ui->horizontalSlider_Point->value()*(m_variable.getMax()-m_variable.getMin())/m_variable.getElements();
+    double dSelectedValue = m_variable.min() + ui->horizontalSlider_Point->value()*(m_variable.max()-m_variable.min())/m_variable.elements();
     m_variable = Variable(	ui->lineEdit_Name->text().toStdString(),
                             dSelectedValue,
                             dSelectedValue,
@@ -329,7 +329,7 @@ void VariableInput::on_comboBox_Axes_currentIndexChanged(int index)
 void VariableInput::on_horizontalSlider_Point_sliderMoved(int position)
 {
     createVariable();
-    double dSelectedValue = m_variable.getMin() + position*(m_variable.getMax()-m_variable.getMin())/m_variable.getElements();
+    double dSelectedValue = m_variable.min() + position*(m_variable.max()-m_variable.min())/m_variable.elements();
     ui->label_Point->setNum(dSelectedValue);
 }
 

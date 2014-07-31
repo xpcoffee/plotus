@@ -2,8 +2,8 @@
     Build:		0.3
     Date:		July 2014
 
-    expression.h
-    -------------
+    inequalityinput.h
+    ------------------
 
     Description
     ============
@@ -18,30 +18,65 @@
 #ifndef INEQUALITYINPUT_H
 #define INEQUALITYINPUT_H
 
-//	Includes
+
+///	Includes
+///	=========
+
 #include <QWidget>
 #include <QtWidgets>
 #include <sstream>
 #include <qvalidator.h>
+#include <qwt_symbol.h>
 #include "inequality.h"
 #include "expression.h"
 
-// 	Enumerators
-enum COMBINE
+
+///	Enumerated Types
+///	=================
+
+enum CombinationMode
 {
     CombinationNone 		= 0,
-    CombinationIntersect 	= 1,
-    CombinationUnion 		= 2,
-    CombinationSubtract 	= 3,
+    CombinationIntersect,
+    CombinationUnion,
+    CombinationSubtract,
 
 };
 
-// 	Namespace
+enum ComboboxColor {
+    Blue 		= 0,
+    Green,
+    Red,
+    DarkBlue,
+    DarkGreen,
+    DarkRed,
+    Grey,
+    Black,
+    White,
+};
+
+enum ComboboxShape {
+    CrossX 		= 0,
+    CrossPlus,
+    Circle,
+    UpTriangle,
+    DownTriangle,
+    Square,
+    Diamond
+};
+
+
+///	Namespaces
+/// ===========
+
 namespace Ui {
 class InequalityInput;
 }
 
-//	Class
+
+///	Class
+///	======
+
 class InequalityInput : public QWidget
 {
     Q_OBJECT
@@ -62,11 +97,11 @@ public:
     // 	parsers
     string expressionToJSON();
     string dataToJSON();
+    string problemDataToJSON();
     void fromJSON(string);
 
-    //	getters
+    //	getters: ui
     int getNumber();
-    int getColorIndex();
     int getShapeIndex();
     int getCombination();
     double getPrecision();
@@ -74,12 +109,17 @@ public:
     string getLeftExpression();
     string getRightExpression();
     string getErrors();
+    QWidget *getFocusInWidget();
+    QWidget *getFocusOutWidget();
+    QColor getColor();
+    InequalitySymbol getSymbol();
+    QwtSymbol::Style getShape();
+
+    //	getters: data
     QVector<double> getX();
     QVector<double> getY();
     QVector<double> getXProblem();
     QVector<double> getYProblem();
-    QWidget *getFocusInWidget();
-    QWidget *getFocusOutWidget();
 
     //	validation
     bool highlightInvalidExpressionTerms();

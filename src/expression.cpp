@@ -1,21 +1,3 @@
-/*!	Author(s):	Emerick Bosch
-    Build:		0.1
-    Date:		April 2014
-
-    expression.cpp
-    -------------
-
-    """""""""""""""""""""""""""""""""
-    "			Description			"
-    """""""""""""""""""""""""""""""""
-
-    Class Functions
-
-    Interprets mathematical expressions from strings.
-    Parses the strings iteratively into arrays.
-    Arrayes solved iteratively.
-*/
-
 ///	Includes
 /// =========
 
@@ -80,11 +62,11 @@ vector<int> Expression::getProblemElements_Result(){ return m_Results_Problems; 
 
 bool Expression::isXBeforeY(Variable x_variable, Variable y_variable)
 {
-    /*! Returns true of variable X is listed before variable Y in m_Variables*/
+    /*! Returns true if variable X is listed before variable Y in m_Variables*/
 
     for (int i = 0; i < static_cast<int>(m_Variables.size()); i++){
-        if (m_Variables[i].getName() == x_variable.getName())	{ return true; }
-        else if (m_Variables[i].getName() == y_variable.getName()) { return false; }
+        if (m_Variables[i].name() == x_variable.name())	{ return true; }
+        else if (m_Variables[i].name() == y_variable.name()) { return false; }
     }
 
     assert (false && "getXBeforeY: Neither X nor Y variables were found. Make sure they are added.");
@@ -101,12 +83,12 @@ void Expression::subVariableValues(){
         string sTerm = m_WorkingExpression[j];
         bool flag_initialized = false;
         for (int i = 0; i < static_cast<int>(m_Variables.size()); i++){ // for all variables
-            if (m_Variables[i].getName() == sTerm){
+            if (m_Variables[i].name() == sTerm){
                 ostringstream buffer;
                 buffer << m_Variables[i].getCurrentValue();
                 m_WorkingExpression[j] = buffer.str();
                 flag_initialized = true;
-            } else if (("-" + m_Variables[i].getName()) == sTerm){
+            } else if (("-" + m_Variables[i].name()) == sTerm){
                 ostringstream buffer;
                 buffer << -1 * m_Variables[i].getCurrentValue();
                 m_WorkingExpression[j] = buffer.str();
@@ -372,13 +354,13 @@ vector<int> Expression::checkExpressionArray(vector<string> &expression)
 
 bool Expression::variableNameIsUnique(Variable &variable){
     for (vector<Variable>::iterator it = m_Variables.begin(); it != m_Variables.end(); it++){
-            if ((*it).getName() == variable.getName()){ return false; }
+            if ((*it).name() == variable.name()){ return false; }
     }
     return true;
 }
 
 bool Expression::variableNameIsValid(Variable & myVar){
-    string sName = myVar.getName();
+    string sName = myVar.name();
     if (!Variable::nameIsLegal(sName))
         m_ErrorMessage += "Problem | Input | Variable name is illegal." + sName + "\n";
     if (!variableNameIsUnique(myVar))
@@ -957,7 +939,7 @@ void Expression::recEval()
         throw InputErrorInvalidExpression;
 
     // for all values of the current variable (current variable is global)
-    for (int i = 0; i < m_Variables[m_CurrentVariable].size(); i++){
+    for (int i = 0; i < m_Variables[m_CurrentVariable].elements(); i++){
             int j = m_CurrentVariable;
 
             // if this is the final nested variable;

@@ -1,27 +1,26 @@
-/*	Author(s):	Emerick Bosch
-	Build:		0.1
-	Date:		April 2014
+/*!	Author(s):	Emerick Bosch
+    Build:		0.3
+    Date:		July 2014
 
-	inequality.h
-	-------------
-	
-	"""""""""""""""""""""""""""""""""	
-	"			Description			"
-	"""""""""""""""""""""""""""""""""	
-	
-	Class
+    inequality.h
+    -------------
 
-	Stores two expressions, their variables and the inequality that relates them.
-	Runs evaluations of the expressions, evaluates true/false between the expressions. 
+    Description
+    ============
+    Stores expressions and symbol required to represent an inequality.
+
+    Provides methods to:
+    - compare results of expression evaluation and return boolean array
+      of the comparison results.
+    - handle validation outputs from the Expression class
 */
 
-#ifndef INEQUALITY_H 
+#ifndef INEQUALITY_H
 #define INEQUALITY_H
 
 
-//	"""""""""""""""""""""""""""""""""	
-//	"			Includes			"
-//	"""""""""""""""""""""""""""""""""	
+///	Includes
+///	=========
 
 #include<string>
 #include<vector>
@@ -34,179 +33,152 @@
 /// Enumerated Types
 /// =================
 
-enum INEQUALITY_SYMBOL{
-    SmallerThan 		= 0,
-    GreaterThan 		= 1,
-    SmallerThanEqual 	= 2,
-    GreaterThanEqual	= 3,
-    ApproxEqual			= 4,
+enum InequalitySymbol{
+    NoSymbol			= -1,
+    SmallerThan	,
+    GreaterThan,
+    SmallerThanEqual,
+    GreaterThanEqual,
+    ApproxEqual,
 };
 
 
-//	"""""""""""""""""""""""""""""""""
-//	"			Namespaces			"
-//	"""""""""""""""""""""""""""""""""	
+///	Namespaces
+///	===========
 
 using namespace std;
 
 
-//	"""""""""""""""""""""""""""""""""	
-//	"		Class Definition: 		"
-//	"			Variable			"
-//	"""""""""""""""""""""""""""""""""	
+///	Class
+///	======
 
 class Inequality
 {
 private:
 
-    // variables
-    double dPrecision;
-    int nSymbol;
-    string sErrorMessage;
-    vector<double> vEvalArray1, vEvalArray2;
-    bool flag_initialized;
-	
+    //	Member Variables
+    //	-----------------
+
+    Expression m_LeftExpression, m_RightExpression;
+    int m_Symbol;
+    InequalitySymbol m_Sym;
+    double m_Precision;
+    bool flag_Initialized;
+    string m_ErrorMessage;
+    vector<double> m_LeftResults, m_RightResults;
+
 public:
-
-    // variables
-    Expression mExpression1, mExpression2;
-
-    // constructor
-    Inequality(string sExp1 = "", int symbol = -1, string sExp2 = "") :
-     dPrecision(0),
-     sErrorMessage(""),
-     flag_initialized(true)
+    Inequality(string expression1 = "", InequalitySymbol symbol = NoSymbol, string expression2 = "") :
+     m_Precision(0),
+     flag_Initialized(true),
+     m_ErrorMessage("")
     {
-        if (symbol == -1){
-            flag_initialized = false;
+        if (symbol == NoSymbol){
+            flag_Initialized = false;
         }
         else{
-            mExpression1.setExpression(sExp1);
-            mExpression2.setExpression(sExp2);
-            nSymbol = symbol;
+            m_LeftExpression.setExpression(expression1);
+            m_RightExpression.setExpression(expression2);
+            m_Sym = symbol;
         }
-	}
-
-    // functions
-    // - setters
-	void clearVariables(){
-        assert(flag_initialized);
-        mExpression1.clearVariables();
-        mExpression2.clearVariables();
-	}
-
-	void addVariable(Variable myVar){
-        assert(flag_initialized);
-        mExpression1.addVariable(myVar);
-		mExpression2.addVariable(myVar);
-	}
-
-    void setInequality(string sExp1, int symbol, string sExp2){
-            mExpression1.setExpression(sExp1);
-            mExpression2.setExpression(sExp2);
-            nSymbol = symbol;
-            flag_initialized = true;
     }
 
-    void changeSymbol(int symbol){
-        assert(flag_initialized);
-        nSymbol = symbol;
-	}
+    //	Setters
+    //	========
 
-    void setPrecision(double dPrec){ dPrecision = dPrec; }
-
-    // - member variable getters
-    vector<int> getProblemElements_ExpressionLHS(){ return mExpression1.getProblemElements_Expression(); }
-
-    vector<int> getProblemElements_ExpressionRHS(){ return mExpression2.getProblemElements_Expression(); }
-
-    string getTermLHS(int nTerm){ return mExpression1.getTerm(nTerm); }
-
-    string getTermRHS(int nTerm){ return mExpression2.getTerm(nTerm); }
-
-    string getExpressionLHS(){ return mExpression1.getExpression(); }
-
-    string getExpressionRHS(){ return mExpression2.getExpression(); }
-
-    int getNumTermsLHS(){ return mExpression1.getNumTerms(); }
-
-    int getNumTermsRHS(){ return mExpression2.getNumTerms(); }
-
-    // - getters
-    bool isValidLHS(){ return mExpression1.isValid(); }
-
-    bool isValidRHS(){ return mExpression2.isValid(); }
-
-    bool getXBeforeY(Variable mXVar, Variable mYVar) { return mExpression1.isXBeforeY(mXVar, mYVar); }
-
-    vector<int> getProblemElements_ResultsCombined(){
-        vector <int> vCombinedProblemSpace;
-        vector <int> vProblemSpace1 = mExpression1.getProblemElements_Result();
-        vector <int> vProblemSpace2 = mExpression2.getProblemElements_Result();
-
-        //combine both problem spaces
-        vector<int>::iterator it = vProblemSpace1.begin();
-        vector<int>::iterator jit = vProblemSpace2.begin();
-
-        if(vProblemSpace1.empty()){
-            vCombinedProblemSpace = vProblemSpace2;
-        } else if (vProblemSpace2.empty()){
-                vCombinedProblemSpace = vProblemSpace1;
-        } else {
-            while (it != vProblemSpace1.end() && jit != vProblemSpace2.end()){
-                if (it == vProblemSpace1.end())	{
-                        vCombinedProblemSpace.push_back(*jit);
-                        jit++;
-                }
-                else if (jit == vProblemSpace2.end())	{
-                        vCombinedProblemSpace.push_back(*it);
-                        it++;
-                }
-                else if (*it > *jit)	{
-                        vCombinedProblemSpace.push_back(*jit);
-                        jit++;
-                }
-                else if (*it == *jit)	{
-                        vCombinedProblemSpace.push_back(*jit);
-                        vCombinedProblemSpace.push_back(*it);
-                        it++;
-                        jit++;
-                }
-                else if (*it < *jit)	{
-                        vCombinedProblemSpace.push_back(*it);
-                        it++;
-                }
-            }
-        }
-
-        return vCombinedProblemSpace;
+    void clearVariables()
+    {
+        assert(flag_Initialized);
+        m_LeftExpression.clearVariables();
+        m_RightExpression.clearVariables();
     }
 
-    // - evaluation
+    void addVariable(Variable variable)
+    {
+        assert(flag_Initialized);
+        m_LeftExpression.addVariable(variable);
+        m_RightExpression.addVariable(variable);
+    }
+
+    void setInequality(string left_expression, int symbol, string right_expression)
+    {
+            m_LeftExpression.setExpression(left_expression);
+            m_RightExpression.setExpression(right_expression);
+            m_Symbol = symbol;
+            flag_Initialized = true;
+    }
+
+    void setInequality(string left_expression, InequalitySymbol symbol, string right_expression)
+    {
+            m_LeftExpression.setExpression(left_expression);
+            m_RightExpression.setExpression(right_expression);
+            m_Sym = symbol;
+            flag_Initialized = true;
+    }
+
+    void changeSymbol(int symbol)
+    {
+        assert(flag_Initialized);
+        m_Symbol = symbol;
+    }
+
+    void changeSymbol(InequalitySymbol symbol)
+    {
+        assert(flag_Initialized);
+        m_Sym = symbol;
+    }
+
+    void setPrecision(double value){ m_Precision = value; }
+
+    //	Getters
+    //	--------
+
+    vector<int> getProblemElements_ExpressionLHS(){ return m_LeftExpression.getProblemElements_Expression(); }
+
+    vector<int> getProblemElements_ExpressionRHS(){ return m_RightExpression.getProblemElements_Expression(); }
+
+    string getTermLHS(int nTerm){ return m_LeftExpression.getTerm(nTerm); }
+
+    string getTermRHS(int nTerm){ return m_RightExpression.getTerm(nTerm); }
+
+    string getExpressionLHS(){ return m_LeftExpression.getExpression(); }
+
+    string getExpressionRHS(){ return m_RightExpression.getExpression(); }
+
+    int getNumTermsLHS(){ return m_LeftExpression.getNumTerms(); }
+
+    int getNumTermsRHS(){ return m_RightExpression.getNumTerms(); }
+
+    bool getXBeforeY(Variable mXVar, Variable mYVar) { return m_LeftExpression.isXBeforeY(mXVar, mYVar); }
+
+
+    //	Evaluation
+    //	-----------
+
     vector<bool> evaluate(){
-		vector<bool> vResult;
+        vector<bool> plot_points;
 
-        vEvalArray1 = mExpression1.evaluateAll();
-        vEvalArray2 = mExpression2.evaluateAll();
+        m_LeftResults = m_LeftExpression.evaluateAll();
+        m_RightResults = m_RightExpression.evaluateAll();
 
-        for (unsigned int i = 0; i < vEvalArray1.size(); i++){
-            switch (nSymbol){
+        for (unsigned int i = 0; i < m_LeftResults.size(); i++){
+            switch (m_Sym){
             case SmallerThan:
-                vResult.push_back(vEvalArray1[i] < vEvalArray2[i]);
+                plot_points.push_back(m_LeftResults[i] < m_RightResults[i]);
                 break;
             case GreaterThan:
-                vResult.push_back(vEvalArray1[i] > vEvalArray2[i]);
+                plot_points.push_back(m_LeftResults[i] > m_RightResults[i]);
                 break;
             case SmallerThanEqual:
-                vResult.push_back(vEvalArray1[i] <= vEvalArray2[i]);
+                plot_points.push_back(m_LeftResults[i] <= m_RightResults[i]);
                 break;
             case GreaterThanEqual:
-                vResult.push_back(vEvalArray1[i] >= vEvalArray2[i]);
+                plot_points.push_back(m_LeftResults[i] >= m_RightResults[i]);
                 break;
             case ApproxEqual:
                 {
-                    double diff = (vEvalArray1[i]-vEvalArray2[i])*(vEvalArray1[i]-vEvalArray2[i]);
-                    vResult.push_back((dPrecision*dPrecision) >= diff);
+                    double diff = (m_LeftResults[i]-m_RightResults[i])*(m_LeftResults[i]-m_RightResults[i]);
+                    plot_points.push_back((m_Precision*m_Precision) >= diff);
                     break;
                 }
             default:
@@ -214,17 +186,69 @@ public:
                 assert (false && "Unknown inequality operator");
                 break;
             }
-		}
-        return vResult;
-	}
+        }
+        return plot_points;
+    }
 
-    // - validation
-    bool variableIsValid (Variable & myVar){ return mExpression1.variableNameIsValid(myVar); }
+    vector<int> getProblemElements_ResultsCombined()
+    {
+        vector <int> combined_plot_problems;
+        vector <int> left_problem_points = m_LeftExpression.getProblemElements_Result();
+        vector <int> right_problem_points = m_RightExpression.getProblemElements_Result();
 
-    string getErrors(){
-        sErrorMessage += mExpression1.getErrors();
-        sErrorMessage += mExpression2.getErrors();
-        return sErrorMessage;
+        //combine both problem spaces
+        vector<int>::iterator it = left_problem_points.begin();
+        vector<int>::iterator jit = right_problem_points.begin();
+
+        if( left_problem_points.empty() )
+            { combined_plot_problems = right_problem_points; }
+        else if ( right_problem_points.empty() )
+            { combined_plot_problems = left_problem_points; }
+        else {
+            while ( it != left_problem_points.end() &&
+                    jit != right_problem_points.end() ){
+                if ( it == left_problem_points.end() ) {
+                        combined_plot_problems.push_back(*jit);
+                        jit++;
+                }
+                else if ( jit == right_problem_points.end() ) {
+                        combined_plot_problems.push_back(*it);
+                        it++;
+                }
+                else if (*it > *jit)	{
+                        combined_plot_problems.push_back(*jit);
+                        jit++;
+                }
+                else if (*it == *jit)	{
+                        combined_plot_problems.push_back(*jit);
+                        combined_plot_problems.push_back(*it);
+                        it++; jit++;
+                }
+                else if (*it < *jit)	{
+                        combined_plot_problems.push_back(*it);
+                        it++;
+                }
+            }
+        }
+
+        return combined_plot_problems;
+    }
+
+
+    //	Validation
+    //	-----------
+
+    bool isValidLHS(){ return m_LeftExpression.isValid(); }
+
+    bool isValidRHS(){ return m_RightExpression.isValid(); }
+
+    bool variableIsValid (Variable & myVar){ return m_LeftExpression.variableNameIsValid(myVar); }
+
+    string getErrors()
+    {
+        m_ErrorMessage += m_LeftExpression.getErrors();
+        m_ErrorMessage += m_RightExpression.getErrors();
+        return m_ErrorMessage;
     }
 
 }; // Inequality
