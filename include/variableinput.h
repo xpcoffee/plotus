@@ -4,6 +4,7 @@
 //	Includes
 #include <QWidget>
 #include <QSplitter>
+#include <QLineEdit>
 #include <qvalidator.h>
 #include "variable.h"
 
@@ -30,6 +31,13 @@ enum PlotMode{
     PlotHorizontal = 0,
     PlotVertical,
     PlotConstant,
+};
+
+enum DefaultColor{
+    NormalBackground	= 0,
+    NormalForeground,
+    ErrorBackground,
+    ErrorForeground,
 };
 
 //	Namespace
@@ -61,8 +69,8 @@ public:
     // 	getters
     int getAxisMode();
     int getNumber();
-    string getUnits();
-    string toJSON();
+    QString getUnits();
+    QString toJSON();
     Variable getVariable();
     QWidget *getFocusInWidget();
     QWidget *getFocusOutWidget();
@@ -73,6 +81,9 @@ public:
     //	gui
     void enableRemoveButton(bool flag_enable = true);
     void setSplitterSizes(QList<int> sizes);
+    void formatLineEdit(QLineEdit* edit, QString fg, QString bg);
+    void formatLineEditNormal(QLineEdit* edit);
+    void formatLineEditError(QLineEdit* edit);
 
 signals:
     void axisModeChanged(int gui_number);
@@ -106,10 +117,13 @@ private:
 
     //	evaluation
     void createVariable();
-    void createPoint();
+    void createConstant();
 
     //	gui
     void resetSlider();
+
+    //	string 'enum'
+    QVector<QString> DefaultColors;
 };
 
 #endif // VARIABLEINPUT_H

@@ -210,7 +210,7 @@
       </item>
       <item>
        <property name="text">
-        <string>point</string>
+        <string>const.</string>
        </property>
       </item>
      </widget>
@@ -249,7 +249,7 @@
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
-     <widget class="QLabel" name="label_Point">
+     <widget class="QLabel" name="label_Constant">
       <property name="minimumSize">
        <size>
         <width>50</width>

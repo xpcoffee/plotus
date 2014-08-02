@@ -330,6 +330,11 @@ QwtSymbol::Style InequalityInput::getShape()
     case Diamond:
         return QwtSymbol::Diamond;
         break;
+    case Dots:
+        // Dots is a line style, not a symbol,
+        // must send a signal to change line style
+        return QwtSymbol::UserStyle;
+        break;
     }
     return QwtSymbol::NoSymbol;
 }

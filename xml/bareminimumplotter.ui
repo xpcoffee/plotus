@@ -182,14 +182,17 @@ QProgressBar::chunk {
 	width: 10px;
 }
 
+/*Slider*/
+QSlider::handle:disabled{
+	background: transparent;
+}
+
 /*Scrollbar*/
  QScrollBar {
      background: rgb(100,100,100);
      width: 15px;
      margin: 15px 0px 15px 0px;
  }
-
-
 
  QScrollBar::handle:enabled {
      background: rgb(63, 98, 255);
@@ -288,7 +291,7 @@ QScrollBar:disabled{
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -364,6 +367,9 @@ QScrollBar:disabled{
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_Cancel">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="minimumSize">
              <size>
               <width>40</width>
@@ -1107,7 +1113,7 @@ QScrollBar:disabled{
                      <bool>false</bool>
                     </property>
                     <property name="text">
-                     <string>Point Chooser</string>
+                     <string>Const. Chooser</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -1142,7 +1148,7 @@ QScrollBar:disabled{
                      <bool>false</bool>
                     </property>
                     <property name="text">
-                     <string>Point</string>
+                     <string>Value</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>

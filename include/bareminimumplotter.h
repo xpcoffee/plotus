@@ -56,6 +56,11 @@
 #include "inequalityloader.h"
 #include "bluejson.h"
 
+enum UIMode {
+    Busy = 0,
+    Available
+};
+
 using namespace std;
 
 namespace Ui {
@@ -73,7 +78,7 @@ public:
     //	overrides
     void showEvent(QShowEvent* event);
 
-    // 	core
+    // 	plotting and evaluation
     void plot();
     void plotNew(int gui_number, int progress);
     void plotOld(int gui_number, int progress);
@@ -84,6 +89,7 @@ public:
     void createQPoints();
     void addGraph(QwtSymbol::Style shape, QColor color);
     void addErrorGraph();
+    void setAxisVariables();
 
     // 	validation
     void print(QString message);
@@ -100,6 +106,7 @@ public:
     void determineInequalityOrder();
     void determineButtonStates();
     void determineTabOrder();
+    void setUIMode(UIMode mode);
     QWidget *getFocusInWidget(QWidget* widget);
     QWidget *getFocusOutWidget(QWidget* widget);
 
@@ -110,6 +117,7 @@ public:
 signals:
     void variableSplitterMoved(QList<int> sizes);
     void inequalitySplitterMoved(QList<int> sizes);
+    void plotThreadCancel();
 
 public slots:
     void checkAxisMode(int gui_number);
@@ -117,6 +125,7 @@ public slots:
     void removeInequalityInput(int gui_number);
     void moveInequalityInputUp(int gui_number);
     void moveInequalityInputDown(int gui_number);
+    void setProgress(int progress, QString message);
 
 private slots:
     void menu_about();

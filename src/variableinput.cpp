@@ -15,15 +15,6 @@
 #include  <sstream>
 
 
-///	Static Functions
-/// =================
-
-static void setQLineEditBackground(QLineEdit* lineEdit_, string fg, string bg){
-    string str = 	"QLineEdit{ color: " + fg + "; background: " + bg + ";}";
-    lineEdit_->setStyleSheet(QString::fromStdString(str));
-}
-
-
 ///	Public Functions
 /// =================
 
@@ -35,6 +26,18 @@ VariableInput::VariableInput(QWidget *parent) :
     ui->setupUi(this);
     // global variable initialization
     setAccessibleDescription("variable-input");
+
+    DefaultColors <<
+         //! Normal Background
+         "white" <<
+         //! Normal Foreground
+         "black" <<
+         //! Error Background
+         "red" <<
+         //! Error Foreground
+         "white";
+
+
     // input validation
     QDoubleValidator *dValidator = new QDoubleValidator;
     QIntValidator *iValidator = new QIntValidator;
@@ -58,50 +61,54 @@ bool VariableInput::checkInput()
     bool flag_isOK = true;
     // all fields filled in
     if	(ui->lineEdit_Elements->text().isEmpty()){
-        setQLineEditBackground(ui->lineEdit_Elements, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Elements);
         flag_isOK = false;
     }
     if	(ui->lineEdit_Min->text().isEmpty()) {
-        setQLineEditBackground(ui->lineEdit_Min, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Min);
         flag_isOK = false;
     }
     if	(ui->lineEdit_Max->text().isEmpty()){
-        setQLineEditBackground(ui->lineEdit_Max, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Max);
         flag_isOK = false;
     }
     if	(ui->lineEdit_Name->text().isEmpty()){
-        setQLineEditBackground(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Name);
         flag_isOK = false;
     }
-    // remove whitespace in name lineEdit_
+
+    // remove whitespace in name
     ui->lineEdit_Name->setText(ui->lineEdit_Name->text().replace(QString(" "), QString("")));
+
     // illegal variable name
     if (!Variable::nameIsLegal(ui->lineEdit_Name->text().toStdString())){
-        setQLineEditBackground(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Name);
         flag_isOK = false;
     }
+
     // at least 1 element
     if 	(ui->lineEdit_Elements->text().toInt() < 1){
-        setQLineEditBackground(ui->lineEdit_Elements, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Elements);
         flag_isOK = false;
     }
+
     // max and min not equal
     if  (ui->lineEdit_Max->text().toDouble() == ui->lineEdit_Min->text().toDouble()){
-        setQLineEditBackground(ui->lineEdit_Max, COLOR_ERROR_FG, COLOR_ERROR_BG);
-        setQLineEditBackground(ui->lineEdit_Min, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEditError(ui->lineEdit_Max);
+        formatLineEditError(ui->lineEdit_Min);
         flag_isOK = false;
     }
     return flag_isOK;
 }
 
-void VariableInput::highlightName(){ setQLineEditBackground(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG); }
+void VariableInput::highlightName(){ formatLineEdit(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG); }
 
 void VariableInput::clearFormatting()
 {
-    setQLineEditBackground(ui->lineEdit_Name, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-    setQLineEditBackground(ui->lineEdit_Elements, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-    setQLineEditBackground(ui->lineEdit_Max, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
-    setQLineEditBackground(ui->lineEdit_Min, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
+    formatLineEditNormal(ui->lineEdit_Name);
+    formatLineEditNormal(ui->lineEdit_Elements);
+    formatLineEditNormal(ui->lineEdit_Min);
+    formatLineEditNormal(ui->lineEdit_Max);
 }
 
 void VariableInput::clearFields()
@@ -140,30 +147,33 @@ int VariableInput::getAxisMode(){ return m_axisMode; }
 
 int VariableInput::getNumber(){ return m_guiNumber; }
 
-string VariableInput::getUnits(){ return ui->lineEdit_Units->text().toStdString(); }
+QString VariableInput::getUnits(){ return ui->lineEdit_Units->text(); }
 
-string VariableInput::toJSON()
+QString VariableInput::toJSON()
 {
     ostringstream buffer;
-    createVariable();
-    buffer <<  "{\"name\":\"" << m_variable.name() << "\"," <<
-            "\"min\":" << m_variable.min() << "," <<
-            "\"max\":" << m_variable.max() << "," <<
-            "\"elements\":" << m_variable.elements() << "," <<
-            "\"units\":\"" << getUnits() << "\"";
+    createVariable();	// ensure that variable is not a constant
+
+    buffer <<	"{\"name\":\""	<< m_variable.name()		<< "\"," <<
+                "\"min\":"		<< m_variable.min()			<< "," <<
+                "\"max\":"		<< m_variable.max()			<< "," <<
+                "\"elements\":"	<< m_variable.elements()	<< "," <<
+                "\"units\":\""	<< getUnits().toStdString()	<< "\"";
+
     if (ui->comboBox_Axes->currentIndex() == PlotConstant)
-        buffer << ",\"slider point\":" << ui->horizontalSlider_Point->value();
+        buffer << ",\"slider constant\":" << ui->horizontalSlider_Point->value();
     if (ui->comboBox_Axes->currentIndex() == PlotHorizontal)
         buffer << ",\"axis\":\"x\"";
     if (ui->comboBox_Axes->currentIndex() == PlotVertical)
         buffer << ",\"axis\":\"y\"";
+
     buffer << "}";
-    return buffer.str();
+    return QString::fromStdString( buffer.str() );
 }
 
 Variable VariableInput::getVariable()
 {
-    if (ui->comboBox_Axes->currentIndex() == PlotConstant) { createPoint(); }
+    if (ui->comboBox_Axes->currentIndex() == PlotConstant) { createConstant(); }
     else { createVariable(); }
     return m_variable;
 }
@@ -207,7 +217,7 @@ void VariableInput::fromJSON(string json)
             if (getline (ss, token, '"'))
                 if (getline (ss, token, '"'))
                     ui->lineEdit_Units->setText(QString::fromStdString(token));
-        if (token == "slider point")
+        if (token == "slider constant")
             if (getline (ss, token, ':'))
                 if (getline (ss, token, ',')){
                     stringstream ss;
@@ -218,7 +228,7 @@ void VariableInput::fromJSON(string json)
                     sliderCheck();
                     ui->horizontalSlider_Point->setValue(value);
                     double dSelectedValue = m_variable.min() + value*(m_variable.max()-m_variable.min())/m_variable.elements();
-                    ui->label_Point->setNum(dSelectedValue);
+                    ui->label_Constant->setNum(dSelectedValue);
                 }
         if (token == "axis")
             if (getline (ss, token, '"'))
@@ -241,6 +251,20 @@ void VariableInput::setSplitterSizes(QList<int> sizes)
     ui->splitter->setSizes(sizes);
 }
 
+void VariableInput::formatLineEdit(QLineEdit* edit, QString fg, QString bg){
+    QString str = 	"QLineEdit{ color: " + fg + "; background: " + bg + ";}";
+    edit->setStyleSheet(str);
+}
+
+void VariableInput::formatLineEditNormal(QLineEdit* edit){
+    formatLineEdit(edit, DefaultColors[NormalForeground], DefaultColors[NormalBackground]);
+}
+
+void VariableInput::formatLineEditError(QLineEdit* edit){
+    formatLineEdit(edit, DefaultColors[ErrorForeground], DefaultColors[ErrorBackground]);
+}
+
+
 ///	Private Functions
 ///	==================
 
@@ -255,7 +279,7 @@ void VariableInput::sliderCheck()
     if (ui->comboBox_Axes->currentIndex() == PlotConstant){
        ui->horizontalSlider_Point->setEnabled(true);
        ui->horizontalSlider_Point->setTickInterval(1);
-       ui->label_Point->setNum(m_variable.min());
+       ui->label_Constant->setNum(m_variable.min());
        ui->horizontalSlider_Point->setMaximum(m_variable.elements());
     }
 }
@@ -269,7 +293,7 @@ void VariableInput::createVariable()
     flag_initialized = true;
 }
 
-void VariableInput::createPoint()
+void VariableInput::createConstant()
 {
     double dSelectedValue = m_variable.min() + ui->horizontalSlider_Point->value()*(m_variable.max()-m_variable.min())/m_variable.elements();
     m_variable = Variable(	ui->lineEdit_Name->text().toStdString(),
@@ -281,7 +305,7 @@ void VariableInput::createPoint()
 void VariableInput::resetSlider()
 {
        ui->horizontalSlider_Point->setValue(0);
-       ui->label_Point->setText("-");
+       ui->label_Constant->setText("-");
        ui->horizontalSlider_Point->setEnabled(false);
 }
 
@@ -330,9 +354,8 @@ void VariableInput::on_horizontalSlider_Point_sliderMoved(int position)
 {
     createVariable();
     double dSelectedValue = m_variable.min() + position*(m_variable.max()-m_variable.min())/m_variable.elements();
-    ui->label_Point->setNum(dSelectedValue);
+    ui->label_Constant->setNum(dSelectedValue);
 }
-
 
 void VariableInput::on_lineEdit_Elements_textChanged(const QString&) { clearFormatting(); sliderCheck(); }
 
@@ -346,9 +369,9 @@ void VariableInput::on_lineEdit_Name_textChanged(const QString&)
     ui->lineEdit_Name->setText(ui->lineEdit_Name->text().replace(QString(" "), QString("")));
     // illegal variable name
     if (!ui->lineEdit_Name->text().isEmpty() && !Variable::nameIsLegal(ui->lineEdit_Name->text().toStdString())){
-        setQLineEditBackground(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG);
+        formatLineEdit(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG);
     } else {
-        setQLineEditBackground(ui->lineEdit_Name, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
+        formatLineEdit(ui->lineEdit_Name, COLOR_DEFAULT_FG, COLOR_DEFAULT_BG);
     }
 }
 

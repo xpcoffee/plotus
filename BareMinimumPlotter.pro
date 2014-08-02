@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-CONFIG	+= qwt
+CONFIG   += qwt
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
@@ -20,7 +20,7 @@ SOURCES += src/main.cpp \
     src/expression.cpp \
     src/inequalityinput.cpp \
     src/inequalityloader.cpp \
-    src/variableinput.cpp \
+    src/variableinput.cpp
 
 HEADERS  += include/variableinput.h \
     include/bareminimumplotter.h \
@@ -29,7 +29,7 @@ HEADERS  += include/variableinput.h \
     include/inequality.h \
     include/inequalityinput.h \
     include/inequalityloader.h \
-    include/variable.h \
+    include/variable.h
 
 FORMS    +=  xml/bareminimumplotter.ui \
     xml/inequalityinput.ui \

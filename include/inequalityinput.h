@@ -62,7 +62,8 @@ enum ComboboxShape {
     UpTriangle,
     DownTriangle,
     Square,
-    Diamond
+    Diamond,
+    Dots
 };
 
 
