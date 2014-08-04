@@ -102,7 +102,7 @@ public:
     void resetPlotWindow();
     void addVariableInput();
     void addInequalityInput();
-    void addInequalityLoader(string filename = "");
+    void addInequalityLoader(QString filename = "");
     void determineInequalityOrder();
     void determineButtonStates();
     void determineTabOrder();

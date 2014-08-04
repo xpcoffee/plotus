@@ -12,7 +12,6 @@
 
 #include "include/variableinput.h"
 #include "ui_variableinput.h"
-#include  <sstream>
 
 
 ///	Public Functions
@@ -36,7 +35,6 @@ VariableInput::VariableInput(QWidget *parent) :
          "red" <<
          //! Error Foreground
          "white";
-
 
     // input validation
     QDoubleValidator *dValidator = new QDoubleValidator;
@@ -151,7 +149,7 @@ QString VariableInput::getUnits(){ return ui->lineEdit_Units->text(); }
 
 QString VariableInput::toJSON()
 {
-    ostringstream buffer;
+    stringstream buffer;
     createVariable();	// ensure that variable is not a constant
 
     buffer <<	"{\"name\":\""	<< m_variable.name()		<< "\"," <<
@@ -192,53 +190,44 @@ QWidget* VariableInput::getFocusOutWidget()
 // TODO: Make this more elegant
 void VariableInput::fromJSON(string json)
 {
+   BlueJSON parser = BlueJSON(json);
     string token;
-    stringstream ss;
-    ss << json;
-    while (getline (ss, token, '"')){
-        if (token == "name")
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"'))
-                    ui->lineEdit_Name->setText(QString::fromStdString(token));
-        if (token == "min")
-            if (getline (ss, token, ':'))
-                if (getline (ss, token, ','))
-                    ui->lineEdit_Min->setText(QString::fromStdString(token));
-        if (token == "max")
-            if (getline (ss, token, ':'))
-                if (getline (ss, token, ','))
-                    ui->lineEdit_Max->setText(QString::fromStdString(token));
-        if (token == "elements")
-            if (getline (ss, token, ':'))
-                if (getline (ss, token, ',')){
-                    ui->lineEdit_Elements->setText(QString::fromStdString(token));
-                }
-        if (token == "units")
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"'))
-                    ui->lineEdit_Units->setText(QString::fromStdString(token));
-        if (token == "slider constant")
-            if (getline (ss, token, ':'))
-                if (getline (ss, token, ',')){
-                    stringstream ss;
-                    int value;
-                    ss << token;
-                    if(!(ss >> value))
-                        value = 0;
-                    sliderCheck();
-                    ui->horizontalSlider_Point->setValue(value);
-                    double dSelectedValue = m_variable.min() + value*(m_variable.max()-m_variable.min())/m_variable.elements();
-                    ui->label_Constant->setNum(dSelectedValue);
-                }
-        if (token == "axis")
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"')){
-                    if (token == "x")
-                        ui->comboBox_Axes->setCurrentIndex(PlotHorizontal);
-                    if (token == "y")
-                        ui->comboBox_Axes->setCurrentIndex(PlotVertical);
-                }
-    }
+    double value_double;
+    int value_int;
+
+    parser.getNextKeyValue("name", token);
+    parser.getStringToken(token);
+    ui->lineEdit_Name->setText(QString::fromStdString(token));
+
+    parser.getNextKeyValue("min", token);
+    parser.getDoubleToken(value_double);
+    ui->lineEdit_Min->setText(QString::number(value_double));
+
+    parser.getNextKeyValue("max", token);
+    parser.getDoubleToken(value_double);
+    ui->lineEdit_Max->setText(QString::number(value_double));
+
+    parser.getNextKeyValue("elements", token);
+    parser.getIntToken(value_int);
+    ui->lineEdit_Elements->setText(QString::number(value_int));
+
+    parser.getNextKeyValue("units", token);
+    parser.getStringToken(token);
+    ui->lineEdit_Units->setText(QString::fromStdString(token));
+
+    parser.getNextKeyValue("slider constant", token);
+    parser.getIntToken(value_int);
+    sliderCheck();
+    ui->horizontalSlider_Point->setValue(value_int);
+    value_double = m_variable.min() + value_int*(m_variable.max()-m_variable.min())/m_variable.elements();
+    ui->label_Constant->setNum(value_double);
+
+    parser.getNextKeyValue("axis", token);
+    parser.getStringToken(token);
+    if (token == "x")
+        ui->comboBox_Axes->setCurrentIndex(PlotHorizontal);
+    if (token == "y")
+        ui->comboBox_Axes->setCurrentIndex(PlotVertical);
 }
 
 void VariableInput::enableRemoveButton(bool flag_enable)

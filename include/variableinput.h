@@ -6,7 +6,9 @@
 #include <QSplitter>
 #include <QLineEdit>
 #include <qvalidator.h>
+#include <sstream>
 #include "variable.h"
+#include "bluejson.h"
 
 
 //	Preprocessor Definitions

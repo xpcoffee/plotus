@@ -116,22 +116,22 @@ private:
     Ui::InequalityLoader *ui;
 
     //	data
-    vector<QVector<double> > m_x_results;
-    vector<QVector<double> > m_y_results;
-    vector<string> m_details;
-    vector<string> m_expressions;
-    string sDetails;
+    vector<QVector<double> > m_XResults;
+    vector<QVector<double> > m_YResults;
+    vector<string> m_DetailsHTML;
+    vector<string> m_DetailsJSON;
+    string m_Detail;
 
     //	meta
-    int m_gui_number;
-    bool flag_skip;
-    bool flag_problem;
-    string m_name;
-    string m_filename;
-    string m_error_message;
+    int m_guiNumber;
+    bool flag_Skip;
+    bool flag_Problem;
+    string m_Name;
+    string m_Filename;
+    string m_ErrorMessage;
 
     //	evaluation
-    unsigned int m_current_plot;
+    unsigned int m_CurrentPlot;
 };
 
 #endif // INEQUALITYLOADER_H

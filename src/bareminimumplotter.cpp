@@ -771,7 +771,7 @@ void BareMinimumPlotter::addInequalityInput()
     flag_Saved = false;
 }
 
-void BareMinimumPlotter::addInequalityLoader(string filename)
+void BareMinimumPlotter::addInequalityLoader(QString filename)
 {
     m_InequalityLoaders.push_back(new InequalityLoader);
     InequalityLoader *new_inequality = m_InequalityLoaders.back();
@@ -789,9 +789,9 @@ void BareMinimumPlotter::addInequalityLoader(string filename)
                         new_inequality, SLOT(splitterResize(QList<int>)));
     // load data
     if (filename == ""){
-        filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)").toStdString();
+        filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)");
     }
-    new_inequality->loadCase(filename);
+    new_inequality->loadCase(filename.toStdString());
     // enable/disable combination menu
     determineButtonStates();
     //	set tab order
@@ -1247,8 +1247,8 @@ void BareMinimumPlotter::menu_open()
 
     BlueJSON parser;
     parser.readInFile(filename.toStdString());
-
     string token;
+
     //	case name
     parser.getNextKeyValue("name", token);
     parser.getStringToken(token);
@@ -1260,25 +1260,32 @@ void BareMinimumPlotter::menu_open()
 
     //	expressions
     int gui_number = 0;
+
     vector<string> keys;
     keys.push_back("inequality");
     keys.push_back("case");
     int closest_key;
+
     while (parser.getNextKeyValue(keys,token, closest_key)){
-        if (closest_key == 1){	//	case found
+        if (closest_key == 1){
             BlueJSON subparser = BlueJSON(token);
             string file;
+
             subparser.getNextKeyValue("file", file);
             subparser.getStringToken(file);
-            addInequalityLoader(file);
+            addInequalityLoader(QString::fromStdString(file));
+
             gui_number++;
         } else {				//	inequality found
             if ((gui_number + 1) > ui->layout_Inequality->count())
                 addInequalityInput();
+
             gui_number++;
+
             m_InequalityInputs.back()->fromJSON(token);
         }
     }
+
     flag_Saved = false;
 }
 
@@ -1316,8 +1323,10 @@ void BareMinimumPlotter::menu_quit()
         this->close();
         return;
     }
+
     QString warning = "<b>The current work has not been saved.</b><br>Are you sure you want to exit?";
     QMessageBox *warnbox;
+
     int response  = warnbox->warning(this, "Exiting BareMinimumPlotter", warning, "&Cancel", "E&xit");
     if (response == 1){
         this->close();
@@ -1327,9 +1336,12 @@ void BareMinimumPlotter::menu_quit()
 void BareMinimumPlotter::on_toolButton_Plot_clicked()
 {
     setUIMode(Busy);
+
     plot();
+
     clearFormatting();
     ui->tabWidget->setCurrentIndex(1);
+
     flag_Saved = false;
 }
 
