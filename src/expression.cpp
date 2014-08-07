@@ -24,8 +24,10 @@ Expression::Expression(string expression):
 void Expression::setExpression(string expression){
     // parse
     m_OriginalExpression = parseExpressionArray(expression);
+
     // validate
     m_Expression_Problems = checkExpressionArray(m_OriginalExpression);
+
     // assign expression to working expression
     resetExpression();
 }
@@ -53,7 +55,6 @@ string Expression::getTerm(int term_pos)
 
 string Expression::getErrors(){ return m_ErrorMessage; }
 
-
 bool Expression::isValid(){ return flag_Valid; }
 
 vector<int> Expression::getProblemElements_Expression(){ return m_Expression_Problems; }
@@ -79,28 +80,38 @@ bool Expression::isXBeforeY(Variable x_variable, Variable y_variable)
 
 void Expression::subVariableValues(){
     m_TermCount = m_WorkingExpression.size();
+
     for (int j = 0; j < m_TermCount; j++){	// for all terms
-        string sTerm = m_WorkingExpression[j];
+        string term = m_WorkingExpression[j];
         bool flag_initialized = false;
+
         for (int i = 0; i < static_cast<int>(m_Variables.size()); i++){ // for all variables
-            if (m_Variables[i].name() == sTerm){
+            if (m_Variables[i].name() == term){
                 ostringstream buffer;
+
                 buffer << m_Variables[i].getCurrentValue();
                 m_WorkingExpression[j] = buffer.str();
+
                 flag_initialized = true;
-            } else if (("-" + m_Variables[i].name()) == sTerm){
+            } else if (("-" + m_Variables[i].name()) == term){
                 ostringstream buffer;
+
                 buffer << -1 * m_Variables[i].getCurrentValue();
                 m_WorkingExpression[j] = buffer.str();
+
                 flag_initialized = true;
             }
         }
-        if (!flag_initialized && Variable::nameIsLegal(sTerm)){
+
+        if (!flag_initialized && Variable::nameIsLegal(term)){
             m_Expression_Problems.push_back(j);
             flag_Valid = false;
-            m_ErrorMessage += "Problem | Input | Uninitialized variable: " + sTerm + "\n";
-            throw InputErrorUninitializedVariable; // [DOCUMENTATION] unitialized variable
+            m_ErrorMessage += "Error | Uninitialized variable: " + term + "\n";
         }
+    }
+
+    if (!flag_Valid){
+        throw InputErrorUninitializedVariable; // only throw exception after all terms checked
     }
 }
 
@@ -152,14 +163,10 @@ vector<string> Expression::parseExpressionArray (string expression){
     while (it != expression.end()){
         if (charIsDigit(*it) || charIsAlpha(*it)){
             // if start of new value, start new term
-            // else continue current term
-            if (flag_new_value){
+            if (flag_new_value)
                 current_term = "";
-                current_term += *it;
-            }
-            else {
-                current_term += *it;
-            }
+
+            current_term += *it;
 
             flag_new_value = false;
             flag_preceding_operator = false;
@@ -202,7 +209,7 @@ vector<string> Expression::parseExpressionArray (string expression){
 
             // log error
             ostringstream buffer;
-            buffer << "Problem | Input | Illegal character in expression: " << current_term << " | ASCII Value: " << (int)*it << "\n";
+            buffer << "Error | Illegal character in expression: " << current_term << " | ASCII Value: " << (int)*it << "\n";
             m_ErrorMessage += buffer.str();
         }
         it++;
@@ -228,19 +235,19 @@ bool Expression::check_DecimalPointOK(string term){
        if (*it == '.' || *it == ',') { decimal_points++; }
 
        // multiple decimal points
+       // and decimal points in variable names
        if (decimal_points > 1) { return false; }
-       // decimal points in variable names
        else if (decimal_points > 0 && flag_isVariable) { return false;}
    }
-   return true; // if no problem
+   return true;
 }
 
 bool Expression::check_NumbersOK(string term){
     if (termIsNumeric(term)){
         for (string::iterator it = term.begin(); it != term.end(); it++){
             if (!charIsDigit(*it)){
-                m_ErrorMessage += "Problem | Input | Variables may not start with a number.\n";
-                return false; // numbers must only be made out of digits
+                m_ErrorMessage += "Error | Variables may not start with a number.\n";
+                return false;
             }
         }
     }
@@ -254,18 +261,16 @@ bool Expression::check_CharsOK(string term){
             return false;	// illegal character
         }
     }
-    return true; // if no problem
+    return true;
 }
 
 bool Expression::check_OperatorsOK(string term, int term_pos, int last_term_pos, bool &flag_prev_operator)
 {
-    // term is an operator
     if (charIsOperator(term[0]) && (term.size() == 1)){
         // consecutive operators
         if (flag_prev_operator)
             return false;
 
-        // log operator found
         flag_prev_operator = true;
 
         // operator at beginning of expression (non negative) or
@@ -276,7 +281,7 @@ bool Expression::check_OperatorsOK(string term, int term_pos, int last_term_pos,
 
     } else { flag_prev_operator = false; } // log operator not found
 
-   return true; // no problem
+   return true;
 }
 
 vector<int> Expression::checkExpressionArray(vector<string> &expression)
@@ -293,6 +298,7 @@ vector<int> Expression::checkExpressionArray(vector<string> &expression)
 
     for (vector<string>::iterator it = expression.begin(); it != expression.end(); it++){
        term = *it;
+
        // input checks
        flag_checks_passed = 	check_CharsOK(term)		&&
                             check_NumbersOK(term)		&&
@@ -303,6 +309,7 @@ vector<int> Expression::checkExpressionArray(vector<string> &expression)
            error_terms.push_back(term_pos); // incorrect input in current term
            flag_Valid = false;
        }
+
        // parentheses checks
        if (term[0] == '('){
            error_parenth.push_back(term_pos);
@@ -312,28 +319,32 @@ vector<int> Expression::checkExpressionArray(vector<string> &expression)
                terms_before_parenth.push_back(expression[term_pos-1]);
        }
        else if (term[0] == ')'){
-           // unopened parentheses
            if (error_parenth.size() == 0){
                flag_Valid = false;
                error_terms.push_back(term_pos);
-               m_ErrorMessage += "Problem | Input | Unopened parenthesis.\n";
+               m_ErrorMessage += "Error | Unopened parenthesis.\n";
            }
-           else {
-               error_parenth.pop_back();
-           }
+           else { error_parenth.pop_back(); }
 
            // check if contents of parenth match what is needed by function/standard value
-           if (!terms_before_parenth.empty() && termIsFunction(terms_before_parenth.back())	// functions need non-empty parenth
-                   && (term_pos - open_parenth_positions.back()) == 1){
+           if (	!terms_before_parenth.empty() &&
+                termIsFunction(terms_before_parenth.back())	&&
+                (term_pos - open_parenth_positions.back()) == 1)
+           {
                flag_Valid = false;
                error_terms.push_back(open_parenth_positions.back()-1);
-               m_ErrorMessage += "Problem | Input | Empty parentheses - function requires a value in parentheses.\n";
-           } else if (!terms_before_parenth.empty() && termIsStandardValue(terms_before_parenth.back())
-                      && (term_pos - open_parenth_positions.back()) > 1){ 	// value with non-empty parenth
-               flag_Valid = false;
-               error_terms.push_back(open_parenth_positions.back()-1);
-               m_ErrorMessage += "Problem | Input | Non-empty parentheses - value requires parentheses to be empty.\n";
+               m_ErrorMessage += "Error | Function needs value in parentheses.\n";
            }
+
+           else if (!terms_before_parenth.empty() &&
+                    termIsStandardValue(terms_before_parenth.back()) &&
+                    (term_pos - open_parenth_positions.back()) > 1)
+           {
+               flag_Valid = false;
+               error_terms.push_back(open_parenth_positions.back()-1);
+               m_ErrorMessage += "Error | Parentheses after values must be empty.\n";
+           }
+
            if(!terms_before_parenth.empty()){
                 terms_before_parenth.pop_back();
                 open_parenth_positions.pop_back();
@@ -344,7 +355,7 @@ vector<int> Expression::checkExpressionArray(vector<string> &expression)
     // unclosed parentheses
     for (vector<int>::iterator it = error_parenth.begin(); it != error_parenth.end(); it++){
         error_terms.push_back(*it);
-        m_ErrorMessage += "Problem | Input | Unclosed parenthesis.\n";
+        m_ErrorMessage += "Error | Unclosed parenthesis.\n";
         flag_Valid = false;
     }
 
@@ -360,12 +371,12 @@ bool Expression::variableNameIsUnique(Variable &variable){
 }
 
 bool Expression::variableNameIsValid(Variable & myVar){
-    string sName = myVar.name();
-    if (!Variable::nameIsLegal(sName))
-        m_ErrorMessage += "Problem | Input | Variable name is illegal." + sName + "\n";
+    string name = myVar.name();
+    if (!Variable::nameIsLegal(name))
+        m_ErrorMessage += "Error | Variable name is illegal." + name + "\n";
     if (!variableNameIsUnique(myVar))
-        m_ErrorMessage += "Problem | Input | Variable name is not unique: " + sName + "\n";
-    return Variable::nameIsLegal(sName) && variableNameIsUnique(myVar);
+        m_ErrorMessage += "Error | Variable name is not unique: " + name + "\n";
+    return Variable::nameIsLegal(name) && variableNameIsUnique(myVar);
 }
 
 bool Expression::charIsValid(char c){
@@ -389,12 +400,12 @@ bool Expression::compressExpression(vector<string> &expression)
     m_TermCount = expression.size();
 
     for (int i = 0; i < m_TermCount; i++){
-        string sTerm = expression[i];
+        string term = expression[i];
 
         // if compression character is found:
         // shift everything after the compression character left by 1 and
         // delete last term
-        if (COMPRESSION_CHAR == sTerm[0]){
+        if (COMPRESSION_CHAR == term[0]){
             for (int j = i; j < m_TermCount-1; j++){
                 expression[j] = expression[j+1];
             }
@@ -440,6 +451,7 @@ bool Expression::doParenthesis (vector<string> &expression)
             if (i+1 < m_TermCount)
                 term_after_operator = expression[i+1];
 
+            /// evaluate parenthesis
             // if parentheses not empty,
             // create new array from contents,
             // perform maths on contents
@@ -466,25 +478,28 @@ bool Expression::doParenthesis (vector<string> &expression)
                 expression[j] = COMPRESSION_CHAR;
             }
 
-            // parenthesis multiplication
+            /// parenthesis multiplication
+            //	place multiplications before or after answer
             bool flag_doneBefore = false;
-            if (!term_before_operator.empty()){				// there is term before parenth
-                if (termIsNumeric(term_before_operator)){ 	// term before parenth is number
-                    expression[open_pos+1] = expression[open_pos];	// shift answer up by 1
-                    expression[open_pos] = "*"; 					// convert to multiplication
+
+            //	multiply before parenth
+            if (!term_before_operator.empty()){
+                if (termIsNumeric(term_before_operator)){
+                    expression[open_pos+1] = expression[open_pos];
+                    expression[open_pos] = "*";
                     flag_doneBefore = true;
                 }
             }
-            if (!term_after_operator.empty()){				// there is term before parenth
-                if (termIsNumeric(term_after_operator)){ 	// term before parenth is number
-                    if (flag_empty_parenth){			// if parenth were empty (need to deal with differently)
-                        if (flag_doneBefore){
-                                expression[open_pos+2] = COMPRESSION_CHAR;
-                        } else {
-                                expression[open_pos+1] = "*";
-                        }
+
+            //	multiply after parenth
+            //	if there was multiplication before parenth, positions change
+            if (!term_after_operator.empty()){
+                if (termIsNumeric(term_after_operator)){
+                    if (flag_empty_parenth){
+                        if (flag_doneBefore){ expression[open_pos+2] = COMPRESSION_CHAR; }
+                        else { expression[open_pos+1] = "*"; }
                     } else {
-                        expression[open_pos+2] = "*"; 	// convert to multiplication
+                        expression[open_pos+2] = "*";
                     }
                 }
             }
@@ -563,11 +578,12 @@ bool Expression::doDivision (vector<string>	&expression)
            string term_before_operator = expression[i-1];
            string term_after_operator  = expression[i+1];
 
-           // [ERROR] Expression | doDivision() | no consecutive operators allowed
            assert( !((term_after_operator.size() == 1) &&
                    charIsOperator(term_after_operator[0])) );
+
            if (atof(term_after_operator.c_str()) == 0)
                throw MathDivideByZero;
+
            double result = atof(term_before_operator.c_str()) / atof(term_after_operator.c_str());
 
            // update expression - operator and second value filled with special character
@@ -994,6 +1010,11 @@ double Expression::evaluateExpression()
     doBasic(m_WorkingExpression);
 
     string reduced_expression = m_WorkingExpression[0];
+
+    if (m_WorkingExpression.empty()) { reduced_expression = "0"; }
+    else { reduced_expression = m_WorkingExpression[0]; }
+
+
     double result = atof(reduced_expression.c_str());
     resetExpression();
     return result;

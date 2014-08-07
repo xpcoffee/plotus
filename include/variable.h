@@ -51,26 +51,26 @@ private:
     //	Member Variables
     //	-----------------
 
-    string m_Name;
-    vector<double> m_Domain;
-    Spacing m_DomainSpacing;
-    double m_Min, m_Max;
-    int m_Elements;
-    int m_Pos;
-    bool flag_Populated;
-    bool flag_Initialized;
+    string m_name;
+    vector<double> m_domain;
+    Spacing m_domainSpacing;
+    double m_min, m_max;
+    int m_elements;
+    int m_pos;
+    bool flag_populated;
+    bool flag_initialized;
 
 public:
     Variable ():
-        m_Name(""),
-        m_Elements(1),
-        flag_Populated(false),
-        flag_Initialized(false)
+        m_name(""),
+        m_elements(1),
+        flag_populated(false),
+        flag_initialized(false)
     { }
 
     Variable(string name, double domain_start = 0, double domain_end = 0, int elements = 1):
-        m_Name(name),
-        m_Elements(elements)
+        m_name(name),
+        m_elements(elements)
     {
         setMinMax(domain_start, domain_end);
         setLinearDomain();
@@ -79,36 +79,36 @@ public:
     //	Setters
     //	--------
 
-    void setName(string name) { m_Name = name; }
+    void setName(string name) { m_name = name; }
 
-    void setElements(int elements) { m_Elements = elements; }
+    void setElements(int elements) { m_elements = elements; }
 
     void setMinMax(double num1, double num2)
     {
-        if (num1 > num2)	{ m_Min = num2; m_Max = num1; }
-        else 				{ m_Min = num1; m_Max = num2; }
+        if (num1 > num2)	{ m_min = num2; m_max = num1; }
+        else 				{ m_min = num1; m_max = num2; }
 
-        m_Domain.clear();
-        flag_Populated = false;
-        flag_Initialized = true;
+        m_domain.clear();
+        flag_populated = false;
+        flag_initialized = true;
     }
 
     //	Getters
     //	--------
 
-    string name() { return m_Name; }
+    string name() { return m_name; }
 
-    int position(){ return m_Pos; }
+    int position(){ return m_pos; }
 
-    int elements() { return m_Elements; }
+    int elements() { return m_elements; }
 
-    double min() { return m_Min; }
+    double min() { return m_min; }
 
-    double max() { return m_Max; }
+    double max() { return m_max; }
 
-    double getCurrentValue() { return m_Domain[m_Pos]; }
+    double getCurrentValue() { return m_domain[m_pos]; }
 
-    Spacing getDomainSpacing() { return m_DomainSpacing; }
+    Spacing getDomainSpacing() { return m_domainSpacing; }
 
 
     //	Domain Creation
@@ -116,10 +116,10 @@ public:
 
     void setLinearDomain()
     {
-        if (!flag_Initialized)
+        if (!flag_initialized)
             return;
 
-        setLinearDomain(m_Min, m_Max, m_Elements);
+        setLinearDomain(m_min, m_max, m_elements);
     }
 
     void setLinearDomain(double min, double max, double steps)
@@ -129,23 +129,23 @@ public:
         if (steps == 1) { spacing = 0; }
         else { spacing = (max - min)/static_cast<double>(steps - 1); }
 
-        m_Domain.clear();
+        m_domain.clear();
         for (int i = 0; i < steps; i++){
-            m_Domain.push_back( min + i*spacing );
+            m_domain.push_back( min + i*spacing );
         }
 
         resetPosition();
-        flag_Populated   = true;
-        flag_Initialized = true;
-        m_DomainSpacing = Linear;
+        flag_populated   = true;
+        flag_initialized = true;
+        m_domainSpacing = Linear;
     }
 
     void setLogarithmicDomain(double base = 10)
     {
-        if (!flag_Initialized || base == 0)
+        if (!flag_initialized || base == 0)
             return;
 
-        setLogarithmicDomain(m_Min, m_Max, m_Elements, base);
+        setLogarithmicDomain(m_min, m_max, m_elements, base);
     }
 
     void setLogarithmicDomain(double min, double max, double steps, double base = 10)
@@ -156,23 +156,23 @@ public:
         double log_min = log(min)/log(base);
         double log_max = log(max)/log(base);
 
-        m_Domain.clear();
+        m_domain.clear();
         for (int i = 0; i < steps; i++){
             double exponent = i*( log_max - log_min )/steps ;
 
             // skip negative roots
             if ((exponent < 0) && (exponent > -1)){ continue; }
 
-            m_Domain.push_back( pow( base, exponent  ) );
+            m_domain.push_back( pow( base, exponent  ) );
         }
 
         // account for skipped items
-        m_Elements = m_Domain.size();
+        m_elements = m_domain.size();
 
         resetPosition();
-        flag_Populated   = true;
-        flag_Initialized = true;
-        m_DomainSpacing = Logarithmic;
+        flag_populated   = true;
+        flag_initialized = true;
+        m_domainSpacing = Logarithmic;
     }
 
 
@@ -181,16 +181,16 @@ public:
 
     void nextPosition()
     {
-        if (!flag_Populated)
+        if (!flag_populated)
             return;
 
         if ( isEnd() ){ resetPosition(); }
-        else { m_Pos++; }
+        else { m_pos++; }
     }
 
-    bool isEnd() { return m_Pos == (m_Elements - 1); }
+    bool isEnd() { return m_pos == (m_elements - 1); }
 
-    void resetPosition () { m_Pos = 0; }
+    void resetPosition () { m_pos = 0; }
 
     //	Validation
     //	-----------

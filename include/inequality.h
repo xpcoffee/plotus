@@ -77,9 +77,7 @@ public:
             flag_Initialized = false;
         }
         else{
-            m_LeftExpression.setExpression(expression1);
-            m_RightExpression.setExpression(expression2);
-            m_Sym = symbol;
+            setInequality(expression1, symbol, expression2);
         }
     }
 
@@ -88,7 +86,6 @@ public:
 
     void clearVariables()
     {
-        assert(flag_Initialized);
         m_LeftExpression.clearVariables();
         m_RightExpression.clearVariables();
     }
@@ -241,6 +238,38 @@ public:
     bool isValidLHS(){ return m_LeftExpression.isValid(); }
 
     bool isValidRHS(){ return m_RightExpression.isValid(); }
+
+    bool variablesInit()
+    {
+        bool flag_init = true;
+
+        try {
+            m_LeftExpression.subVariableValues();
+        } catch (InputErrorCode e){
+            switch(e){
+                case InputErrorUninitializedVariable:
+                    flag_init = false;
+                break;
+            default:
+                break;
+            }
+        }
+
+        try {
+            m_RightExpression.subVariableValues();
+        } catch (InputErrorCode e){
+            switch(e){
+                case InputErrorUninitializedVariable:
+                    flag_init = false;
+                break;
+            default:
+                break;
+            }
+        }
+
+        return flag_init;
+
+    }
 
     bool variableIsValid (Variable & myVar){ return m_LeftExpression.variableNameIsValid(myVar); }
 

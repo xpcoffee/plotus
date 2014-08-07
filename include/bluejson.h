@@ -40,13 +40,13 @@ class BlueJSON
 {
 private:
     // member variables
-    string m_Text;
+    string m_text;
     string::iterator m_it;
-    unsigned int m_ValueStart;
-    unsigned int m_NestLevel;
-    bool flag_KeyFound;
-    bool flag_InString;
-    string m_Token;
+    unsigned int m_valueStart;
+    unsigned int m_nestLevel;
+    bool flag_keyFound;
+    bool flag_inString;
+    string m_token;
 
     // parsing
     bool isValueStart(char c);

@@ -24,10 +24,10 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InequalityLoader),
     m_guiNumber(-1),
-    flag_Skip(false),
-    flag_Problem(false),
-    m_ErrorMessage(""),
-    m_CurrentPlot(0)
+    flag_skip(false),
+    flag_problem(false),
+    m_errorMessage(""),
+    m_currentPlot(0)
 {
     ui->setupUi(this);
     setAccessibleDescription("loader");
@@ -73,14 +73,14 @@ void InequalityLoader::loadCase(string filename)
     }
 
     //	read in file
-    m_Filename = filename;
-    m_Name = cropFileName(filename);
-    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_Name + "</b></i>"));
+    m_filename = filename;
+    m_name = cropFileName(filename);
+    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_name + "</b></i>"));
     BlueJSON parser;
     parser.readInFile(filename);
 
     //	parse
-    m_DetailsHTML.clear();
+    m_detailsHTML.clear();
 
     string case_name, variables, plot, expressions, data;
 
@@ -94,9 +94,9 @@ void InequalityLoader::loadCase(string filename)
 
         // expressions
         plotparser.getNextKeyValue("expressions", expressions);
-        m_DetailsJSON.push_back("\"variables\":[" + variables + "],\n"			// 	JSON for saving
+        m_detailsJSON.push_back("\"variables\":[" + variables + "],\n"			// 	JSON for saving
                                 "\"expressions\":{" + expressions + "}\n");
-        m_DetailsHTML.push_back(formatVariables(variables) +					//	Formatted for display
+        m_detailsHTML.push_back(formatVariables(variables) +					//	Formatted for display
                             "<hr>" +
                             "<table align=\"center\" cellspacing=\"10\">" +
                             "<tr><th>Expressions</th><th>Combination</th></tr>" +
@@ -112,16 +112,16 @@ void InequalityLoader::loadCase(string filename)
     return;
 
 //	if input was invalid, kill the widget
-    if (flag_Problem){
+    if (flag_problem){
         emit killThis(m_guiNumber);
         return;
     }
 
 }
 
-void InequalityLoader::setX(QVector<double> vector) { m_XResults[m_CurrentPlot] = vector; }
+void InequalityLoader::setX(QVector<double> vector) { m_xResults[m_currentPlot] = vector; }
 
-void InequalityLoader::setY(QVector<double> vector) { m_YResults[m_CurrentPlot] = vector; }
+void InequalityLoader::setY(QVector<double> vector) { m_yResults[m_currentPlot] = vector; }
 
 
 //	Getters: UI
@@ -133,7 +133,7 @@ int InequalityLoader::getShapeIndex() 	{ return ui->comboBox_Shape->currentIndex
 
 int InequalityLoader::getCombination() 	{ return ui->comboBox_Combination->currentIndex(); }
 
-bool InequalityLoader::getSkip() 		{ return flag_Skip; }
+bool InequalityLoader::getSkip() 		{ return flag_skip; }
 
 QWidget* InequalityLoader::getFocusInWidget() { return ui->comboBox_Plot; }
 
@@ -206,13 +206,13 @@ QwtSymbol::Style InequalityLoader::getShape()
 //	Getters: Data
 //	--------------
 
-QVector<double> InequalityLoader::getX() { return m_XResults[m_CurrentPlot]; }
+QVector<double> InequalityLoader::getX() { return m_xResults[m_currentPlot]; }
 
-QVector<double> InequalityLoader::getY() { return m_YResults[m_CurrentPlot]; }
+QVector<double> InequalityLoader::getY() { return m_yResults[m_currentPlot]; }
 
-string InequalityLoader::getFile() { return m_Filename; }
+string InequalityLoader::getFile() { return m_filename; }
 
-string InequalityLoader::getErrors() { return m_ErrorMessage; }
+string InequalityLoader::getErrors() { return m_errorMessage; }
 
 
 //	Parsers
@@ -234,15 +234,15 @@ void InequalityLoader::parsePlotData(string json)
     }
     if (x_vector.size() != y_vector.size()){
 //        flag_problem = true;
-        m_ErrorMessage += "Parsing Error | Data | data set does not have the same amount of x-values as y-values\n";
+        m_errorMessage += "Parsing Error | Data | data set does not have the same amount of x-values as y-values\n";
     }
-    m_XResults.push_back(x_vector);
-    m_YResults.push_back(y_vector);
+    m_xResults.push_back(x_vector);
+    m_yResults.push_back(y_vector);
 }
 
 void InequalityLoader::parseProblem(string problem)
 {
-    m_ErrorMessage += "Error | Parsing| " + problem + "\n";
+    m_errorMessage += "Error | Parsing| " + problem + "\n";
 }
 
 string InequalityLoader::formatName(string token)
@@ -386,17 +386,17 @@ string InequalityLoader::formatExpressions(string json)
 string InequalityLoader::expressionToJSON()
 {
     return 	"\"case\":{\n"
-            "\"name\":\"" + m_Name + "\",\n"
-            "\"file\":\"" + m_Filename + "\",\n" +
-            m_DetailsJSON[m_CurrentPlot] +
+            "\"name\":\"" + m_name + "\",\n"
+            "\"file\":\"" + m_filename + "\",\n" +
+            m_detailsJSON[m_currentPlot] +
             "}\n";
 }
 
 string InequalityLoader::dataToJSON()
 {
     stringstream buffer;
-    QVector<double> x_vector = m_XResults[m_CurrentPlot];
-    QVector<double> y_vector = m_YResults[m_CurrentPlot];
+    QVector<double> x_vector = m_xResults[m_currentPlot];
+    QVector<double> y_vector = m_yResults[m_currentPlot];
 
     buffer << "\"data\":[";
     for (int j = 0; j < x_vector.size(); j++){
@@ -418,7 +418,7 @@ string InequalityLoader::dataToJSON()
 //	Evaluation
 //	-----------
 
-void InequalityLoader::setPlot() { m_CurrentPlot = ui->comboBox_Plot->currentIndex(); }
+void InequalityLoader::setPlot() { m_currentPlot = ui->comboBox_Plot->currentIndex(); }
 
 
 //	GUI
@@ -440,7 +440,7 @@ void InequalityLoader::setComboBoxPlot()
 {
     if (ui->comboBox_Plot->count() == 0){
         QStringList combo_data;
-        for (unsigned int i = 0; i < m_XResults.size(); i++){
+        for (unsigned int i = 0; i < m_xResults.size(); i++){
             stringstream buffer;
             buffer << "Plot " << i;
             combo_data << QString::fromStdString(buffer.str());
@@ -467,9 +467,9 @@ void InequalityLoader::on_pushButton_Details_clicked()
 {
     QMessageBox *dialog = new QMessageBox(0);
     QString message = "";
-    for (int i = 0; i < static_cast<int>(m_DetailsHTML.size()); i++){
+    for (int i = 0; i < static_cast<int>(m_detailsHTML.size()); i++){
         stringstream buffer;
-        buffer << "<b>Plot " << i << "</b><hr>" << m_DetailsHTML[i];
+        buffer << "<b>Plot " << i << "</b><hr>" << m_detailsHTML[i];
         message.append(QString::fromStdString(buffer.str()));
     }
     dialog->setText(message);
@@ -499,13 +499,13 @@ void InequalityLoader::on_comboBox_Combination_currentIndexChanged(int index)
 void InequalityLoader::on_checkBox_Skip_toggled(bool checked)
 {
    if(checked) {
-       flag_Skip = true;
+       flag_skip = true;
        ui->comboBox_Color->setEnabled(false);
        ui->comboBox_Shape->setEnabled(false);
        ui->comboBox_Combination->setEnabled(false);
    }
    else {
-       flag_Skip = false;
+       flag_skip = false;
        ui->comboBox_Color->setEnabled(true);
        ui->comboBox_Shape->setEnabled(true);
        if(ui->pushButton_Down->isEnabled())

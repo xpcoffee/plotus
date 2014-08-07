@@ -35,6 +35,9 @@
 #ifndef BAREMINIMUMPLOTTER_H
 #define BAREMINIMUMPLOTTER_H
 
+///	Includes
+///	=========
+
 #include <QMainWindow>
 #include <QtWidgets>
 #include <qwt_plot.h>
@@ -56,16 +59,28 @@
 #include "inequalityloader.h"
 #include "bluejson.h"
 
+
+///	Enumerated Types
+///	=================
+
 enum UIMode {
     Busy = 0,
     Available
 };
+
+
+///	Namespaces
+///	===========
 
 using namespace std;
 
 namespace Ui {
 class BareMinimumPlotter;
 }
+
+
+///	Class
+///	======
 
 class BareMinimumPlotter : public QMainWindow
 {
@@ -76,25 +91,30 @@ public:
     ~BareMinimumPlotter();
 
     //	overrides
-    void showEvent(QShowEvent* event);
+    void showEvent(QShowEvent *event);
 
     // 	plotting and evaluation
     void plot();
-    void plotNew(int gui_number, int progress);
-    void plotOld(int gui_number, int progress);
+    void configurePlot();
+    void configureAxes();
+    void plotNew(int gui_number);
+    void plotOld(int gui_number);
     void vectorCombineNone(int gui_number);
     void vectorCombineIntersection(int gui_number);
     void vectorCombineUnion(int gui_number);
     void vectorCombineSubtraction(int gui_number);
+    bool addVariables(InequalityInput *input);
+    void combineResults(int gui_number);
     void createQPoints();
     void addGraph(QwtSymbol::Style shape, QColor color);
     void addErrorGraph();
-    void setAxisVariables();
 
     // 	validation
     void print(QString message);
     void printclr();
     void printError();
+    bool checkVariables();
+    bool checkExpressions();
 
     // 	gui
     void clearGUI();
@@ -107,8 +127,8 @@ public:
     void determineButtonStates();
     void determineTabOrder();
     void setUIMode(UIMode mode);
-    QWidget *getFocusInWidget(QWidget* widget);
-    QWidget *getFocusOutWidget(QWidget* widget);
+    QWidget *getFocusInWidget(QWidget *widget);
+    QWidget *getFocusOutWidget(QWidget *widget);
 
     //	parsing and file i/o
     void save_JSON(QString filename);
@@ -125,7 +145,7 @@ public slots:
     void removeInequalityInput(int gui_number);
     void moveInequalityInputUp(int gui_number);
     void moveInequalityInputDown(int gui_number);
-    void setProgress(int progress, QString message);
+    void setProgress(int value, QString message);
 
 private slots:
     void menu_about();
@@ -149,18 +169,18 @@ private:
 
     //	plotter elements
     QwtPlot *plotter;
-    vector<VariableInput*> m_VariableInputs;
-    vector<InequalityInput*> m_InequalityInputs;
-    vector<InequalityLoader*> m_InequalityLoaders;
+    vector<VariableInput*> m_variableInputs;
+    vector<InequalityInput*> m_inequalityInputs;
+    vector<InequalityLoader*> m_inequalityLoaders;
 
     //	plotting
-    QString m_Title;
-    int m_Graph_Count;
-    int m_PrevCombination;
-    bool flag_Combination;
-    Variable m_XVariable, m_YVariable;
-    QVector<double> m_XResults, m_YResults, m_XResults_Problem, m_YResults_Problem;
-    QVector<QPointF> m_Samples, m_Samples_Problem;
+    QString m_title;
+    int m_graphCount;
+    int m_prevCombination;
+    bool flag_combination;
+    Variable m_xVariable, m_yVariable;
+    QVector<double> m_xResults, m_yResults, m_xResults_problem, m_yResults_problem;
+    QVector<QPointF> m_samples, m_samples_problem;
 
     //	gui management
     int m_VariableCount;
@@ -168,16 +188,21 @@ private:
     bool flag_Saved;
 
     //	error handling
-    bool flag_Problem;
-    bool flag_Empty;
-    QString m_ErrorMessage;
+    bool flag_problem;
+    bool flag_empty;
+    QString m_errorMessage;
 
     // 	settings
-    double m_CompPrecision;
-    QString m_DefaultDirectory;
+    double m_compPrec;
+    QString m_defaultDir;
 
     // experimental
 
 };
+
+
+///	Template Definitions
+///	=====================
+
 
 #endif // BAREMINIMUMPLOTTER_H

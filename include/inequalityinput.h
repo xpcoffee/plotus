@@ -124,6 +124,7 @@ public:
 
     //	validation
     bool highlightInvalidExpressionTerms();
+    bool checkVariablesInit();
 
     // 	formatting
     void clearFormatting();
@@ -156,22 +157,22 @@ private:
     Ui::InequalityInput *ui;
 
     // data
-    Inequality m_Inequality;
-    Variable m_VariableX, m_VariableY;
+    Inequality m_inequality;
+    Variable m_xVariable, m_yVariable;
 
     // meta
-    int m_GuiNumber;
-    int m_PrecisionIndex;
-    bool flag_Skip;
+    int m_guiNumber;
+    int m_precisionIndex;
+    bool flag_skip;
 
     // result vectors
-    vector<bool> m_PlotPoints;
-    vector<int> m_ProblemPoints;
-    QVector<double> m_X, m_Y, m_XProblem, m_YProblem;
+    vector<bool> m_points;
+    vector<int> m_points_problem;
+    QVector<double> m_x, m_y, m_x_problem, m_y_problem;
 
     // error handling
-    QString m_ErrorMessage;
-    QString m_BugMail;
+    QString m_errorMessage;
+    QString m_bugMail;
 };
 
 #endif // INEQUALITYINPUT_H
