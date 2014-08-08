@@ -66,51 +66,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
 
     //	SETUP UI CONTINUED
     //	general - things that can't be done in designer
-    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignVCenter);
-    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignVCenter);
-    QDoubleValidator *dValidator = new QDoubleValidator;
-    dValidator->setLocale(QLocale(QStringLiteral("de")));
-    ui->lineEdit_SettingsTolerance->setValidator(dValidator);
-
-    // add Qwt plot
-    QVBoxLayout *layout_Plot = new QVBoxLayout();
-    ui->container_Graph->setLayout(layout_Plot);
-    plotter = new QwtPlot(ui->centralWidget);
-    plotter->canvas()->setStyleSheet("QwtPlotCanvas{"
-                                     "border: 0px;"
-                                     "background: white;"
-                                     "}");
-    layout_Plot->addWidget(plotter);
-
-    //	make plot window fill the tab on startup
-    resetPlotWindow();
-
-    //	account for scrollbar sizes in ui
-    int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
-    QSize old_size = scroll_bar_spacer->sizeHint();
-    scroll_bar_spacer->changeSize(new_size, old_size.height());
-    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size, old_size.height());
-
-    //	buttons
-    ui->toolButton_AddInequality->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->toolButton_AddInequality->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
-    ui->toolButton_AddInequality->setIconSize(QSize(22,22));
-    ui->toolButton_AddInequalityLoader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->toolButton_AddInequalityLoader->setIcon(QPixmap("../bare_minimum_plotter/rsc/load-white.png"));
-    ui->toolButton_AddInequalityLoader->setIconSize(QSize(30,22));
-    ui->toolButton_AddVariable->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->toolButton_AddVariable->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
-    ui->toolButton_AddVariable->setIconSize(QSize(22,22));
-
-    //	disable splitter handles for inequality
-    for (int i = 0; i < ui->splitter_Inequality->count(); i++){
-        ui->splitter_Inequality->handle(i)->setEnabled(false);
-    }
-
-    //	layouts
-    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignTop);
-    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignTop);
+    setupUiCont();
 
     //	LOAD SETTINGS
     //	Comparation Precision
@@ -686,6 +642,82 @@ bool BareMinimumPlotter::checkExpressions()
 
 //	GUI
 //	---
+
+void BareMinimumPlotter::loadCSS()
+{
+    ifstream infile("../bare_minimum_plotter/rsc/centralwidget.css");
+    string token, css_string;
+    if (!infile.is_open())
+        return;
+    while (getline(infile, token)){
+        css_string += token + "\n";
+    }
+    infile.close();
+    ui->centralWidget->setStyleSheet(QString::fromStdString(css_string));
+}
+
+void BareMinimumPlotter::setupUiCont()
+{
+    ///	behaviour
+    //	input validation
+    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignVCenter);
+    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignVCenter);
+    QDoubleValidator *dValidator = new QDoubleValidator;
+    dValidator->setLocale(QLocale(QStringLiteral("de")));
+    ui->lineEdit_SettingsTolerance->setValidator(dValidator);
+
+    //	add Qwt plot
+    QVBoxLayout *layout_Plot = new QVBoxLayout();
+    ui->container_Graph->setLayout(layout_Plot);
+    plotter = new QwtPlot(ui->centralWidget);
+    plotter->canvas()->setStyleSheet("QwtPlotCanvas{"
+                                     "border: 0px;"
+                                     "background: white;"
+                                     "}");
+    layout_Plot->addWidget(plotter);
+
+    //	make plot window fill the tab on startup
+    resetPlotWindow();
+
+    //	account for scrollbar sizes in ui
+    int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+    QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
+    QSize old_size = scroll_bar_spacer->sizeHint();
+    scroll_bar_spacer->changeSize(new_size, old_size.height());
+    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size, old_size.height());
+
+    //	disable splitter handles for inequality
+    for (int i = 0; i < ui->splitter_Inequality->count(); i++){
+        if (i == 1)
+            continue;	//allow resizing of text fields only
+        ui->splitter_Inequality->handle(i)->setEnabled(false);
+    }
+
+    //	header scroll areas
+    QWidget *header = ui->horizontalLayout_InequalityHeaders->takeAt(1)->widget();
+    QWidget *header_widget = ui->scrollArea_InequalityInputs->getHeaderWidget();
+    QVBoxLayout *header_layout = new QVBoxLayout();
+    header_layout->addWidget(header);
+    header_widget->setLayout(header_layout);
+
+    ///	look
+    //	tool buttons
+    ui->toolButton_AddInequality->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->toolButton_AddInequality->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
+    ui->toolButton_AddInequality->setIconSize(QSize(22,22));
+    ui->toolButton_AddInequalityLoader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->toolButton_AddInequalityLoader->setIcon(QPixmap("../bare_minimum_plotter/rsc/load-white.png"));
+    ui->toolButton_AddInequalityLoader->setIconSize(QSize(30,22));
+    ui->toolButton_AddVariable->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->toolButton_AddVariable->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
+    ui->toolButton_AddVariable->setIconSize(QSize(22,22));
+    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignTop);
+    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignTop);
+
+    //	load CSS
+    loadCSS();
+
+}
 
 void BareMinimumPlotter::clearGUI()
 {

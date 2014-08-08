@@ -58,6 +58,7 @@
 #include "inequalityinput.h"
 #include "inequalityloader.h"
 #include "bluejson.h"
+#include "headerscrollarea.h"
 
 
 ///	Enumerated Types
@@ -117,6 +118,9 @@ public:
     bool checkExpressions();
 
     // 	gui
+    void loadCSS();
+    void setupUiCont();
+
     void clearGUI();
     void clearFormatting();
     void resetPlotWindow();
@@ -127,6 +131,7 @@ public:
     void determineButtonStates();
     void determineTabOrder();
     void setUIMode(UIMode mode);
+
     QWidget *getFocusInWidget(QWidget *widget);
     QWidget *getFocusOutWidget(QWidget *widget);
 

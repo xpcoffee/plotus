@@ -20,7 +20,8 @@ SOURCES += src/main.cpp \
     src/expression.cpp \
     src/inequalityinput.cpp \
     src/inequalityloader.cpp \
-    src/variableinput.cpp
+    src/variableinput.cpp \
+    src/headerscrollarea.cpp
 
 HEADERS  += include/variableinput.h \
     include/bareminimumplotter.h \
@@ -29,7 +30,8 @@ HEADERS  += include/variableinput.h \
     include/inequality.h \
     include/inequalityinput.h \
     include/inequalityloader.h \
-    include/variable.h
+    include/variable.h \
+    include/headerscrollarea.h
 
 FORMS    +=  xml/bareminimumplotter.ui \
     xml/inequalityinput.ui \
