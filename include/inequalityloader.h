@@ -58,6 +58,7 @@ public:
     void loadCase(string filename);
     void setX(QVector<double> vector);
     void setY(QVector<double> vector);
+    void clearCombinationResults();
 
     //	getters: ui
     int getNumber();
@@ -72,6 +73,8 @@ public:
     //	getters: data
     QVector<double> getX();
     QVector<double> getY();
+    QVector<double> getXProblem();
+    QVector<double> getYProblem();
     string getFile();
     string getErrors();
 
@@ -116,8 +119,9 @@ private:
     Ui::InequalityLoader *ui;
 
     //	data
-    vector<QVector<double> > m_xResults;
-    vector<QVector<double> > m_yResults;
+    vector< QVector<double> > m_xResults, m_yResults;
+    vector< QVector<double> > m_xResults_Problem, m_yResults_Problem;
+    QVector<double> m_xResults_combination, m_yResults_combination;
     vector<string> m_detailsHTML;
     vector<string> m_detailsJSON;
     string m_detail;

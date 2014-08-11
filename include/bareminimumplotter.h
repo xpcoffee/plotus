@@ -98,17 +98,31 @@ public:
     void plot();
     void configurePlot();
     void configureAxes();
+    void evaluate();
+    void combine();
     void plotNew(int gui_number);
     void plotOld(int gui_number);
-    void vectorCombineNone(int gui_number);
-    void vectorCombineIntersection(int gui_number);
-    void vectorCombineUnion(int gui_number);
-    void vectorCombineSubtraction(int gui_number);
+
+    template <typename input_type>
+    void combineResults(input_type *inequality);
+
+    template <typename input_type>
+    void vectorCombineNone(input_type *inequality);
+
+    template <typename input_type>
+    void vectorCombineIntersection(input_type *inequality);
+
+    template <typename input_type>
+    void vectorCombineUnion(input_type *inequality);
+
+    template <typename input_type>
+    void vectorCombineSubtraction(input_type *inequality);
+
     bool addVariables(InequalityInput *input);
-    void combineResults(int gui_number);
-    void createQPoints();
+    void createQwtSamples();
     void addGraph(QwtSymbol::Style shape, QColor color);
     void addErrorGraph();
+
 
     // 	validation
     void print(QString message);
@@ -118,12 +132,18 @@ public:
     bool checkExpressions();
 
     // 	gui
-    void loadCSS();
     void setupUiCont();
+    void setupInputValidation();
+    void setupQwtPlot();
+    void setupScrollAreas();
+    void setupButtons();
+    void setupDynamicUi();
+    void loadCSS();
+    void loadSettings();
 
     void clearGUI();
     void clearFormatting();
-    void resetPlotWindow();
+    void resetQwtPlotWindow();
     void addVariableInput();
     void addInequalityInput();
     void addInequalityLoader(QString filename = "");
@@ -136,8 +156,9 @@ public:
     QWidget *getFocusOutWidget(QWidget *widget);
 
     //	parsing and file i/o
-    void save_JSON(QString filename);
-    void open_variables(string json);
+    void saveCase_JSON(QString filename);
+    void openCase(QString filename);
+    void openVariables(string json);
 
 signals:
     void variableSplitterMoved(QList<int> sizes);
@@ -184,13 +205,15 @@ private:
     int m_prevCombination;
     bool flag_combination;
     Variable m_xVariable, m_yVariable;
-    QVector<double> m_xResults, m_yResults, m_xResults_problem, m_yResults_problem;
+    QVector<double> m_xResults, m_yResults;
+    QVector<double> m_xResults_problem, m_yResults_problem;
+    QVector<double> m_xResults_combination, m_yResults_combination;
     QVector<QPointF> m_samples, m_samples_problem;
 
     //	gui management
-    int m_VariableCount;
-    int m_InequalityCount;
-    bool flag_Saved;
+    int m_variableCount;
+    int m_inequalityCount;
+    bool flag_saved;
 
     //	error handling
     bool flag_problem;
@@ -208,6 +231,5 @@ private:
 
 ///	Template Definitions
 ///	=====================
-
 
 #endif // BAREMINIMUMPLOTTER_H

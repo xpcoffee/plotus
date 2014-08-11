@@ -533,7 +533,7 @@ QCheckBox::indicator:checked {
                  <x>0</x>
                  <y>0</y>
                  <width>722</width>
-                 <height>166</height>
+                 <height>173</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -755,7 +755,7 @@ QCheckBox::indicator:checked {
                  </layout>
                 </item>
                 <item>
-                 <widget class="HeaderScrollArea" name="scrollArea_InequalityInputs">
+                 <widget class="QScrollArea" name="scrollArea_InequalityInputs">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -804,7 +804,7 @@ QCheckBox::indicator:checked {
                      <x>0</x>
                      <y>0</y>
                      <width>689</width>
-                     <height>120</height>
+                     <height>127</height>
                     </rect>
                    </property>
                    <property name="focusPolicy">
@@ -936,7 +936,7 @@ QCheckBox::indicator:checked {
                  <x>0</x>
                  <y>0</y>
                  <width>722</width>
-                 <height>148</height>
+                 <height>144</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1325,7 +1325,7 @@ QCheckBox::indicator:checked {
                      <x>0</x>
                      <y>0</y>
                      <width>689</width>
-                     <height>102</height>
+                     <height>98</height>
                     </rect>
                    </property>
                    <property name="autoFillBackground">
@@ -1791,14 +1791,6 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>HeaderScrollArea</class>
-   <extends>QScrollArea</extends>
-   <header>include/headerscrollarea.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>toolButton_Plot</tabstop>

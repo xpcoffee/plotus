@@ -119,9 +119,15 @@ void InequalityLoader::loadCase(string filename)
 
 }
 
-void InequalityLoader::setX(QVector<double> vector) { m_xResults[m_currentPlot] = vector; }
+void InequalityLoader::setX(QVector<double> vector) { m_xResults_combination = vector; }
 
-void InequalityLoader::setY(QVector<double> vector) { m_yResults[m_currentPlot] = vector; }
+void InequalityLoader::setY(QVector<double> vector) { m_yResults_combination = vector; }
+
+void InequalityLoader::clearCombinationResults()
+{
+    m_xResults_combination.clear();
+    m_yResults_combination.clear();
+}
 
 
 //	Getters: UI
@@ -206,9 +212,29 @@ QwtSymbol::Style InequalityLoader::getShape()
 //	Getters: Data
 //	--------------
 
-QVector<double> InequalityLoader::getX() { return m_xResults[m_currentPlot]; }
+QVector<double> InequalityLoader::getX()
+{
+    return m_xResults_combination.empty() ? m_xResults[m_currentPlot] : m_xResults_combination;
+}
 
-QVector<double> InequalityLoader::getY() { return m_yResults[m_currentPlot]; }
+QVector<double> InequalityLoader::getY()
+{
+    return m_yResults_combination.empty() ? m_yResults[m_currentPlot] : m_yResults_combination;
+}
+
+QVector<double> InequalityLoader::getXProblem()
+{
+    //	not yet implemented
+    QVector <double> emptything = QVector<double>();
+    return emptything;
+}
+
+QVector<double> InequalityLoader::getYProblem()
+{
+    //	not yet implemented
+    QVector <double> emptything = QVector<double>();
+    return emptything;
+}
 
 string InequalityLoader::getFile() { return m_filename; }
 
