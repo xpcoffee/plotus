@@ -40,17 +40,20 @@
 
 #include <QMainWindow>
 #include <QtWidgets>
+#include <QThread>
+#include <qvalidator.h>
+#include <qlocale.h>
+
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 #include <qwt_legend.h>
-#include <qvalidator.h>
-#include <qlocale.h>
+
 #include <vector>
 #include <string>
-#include <iostream>
 #include <fstream>
 #include <sstream>
+
 #include "variable.h"
 #include "inequality.h"
 #include "expression.h"
@@ -58,7 +61,8 @@
 #include "inequalityinput.h"
 #include "inequalityloader.h"
 #include "bluejson.h"
-#include "headerscrollarea.h"
+//#include "headerscrollarea.h"
+#include "plotworker.h"
 
 
 ///	Enumerated Types
@@ -69,6 +73,14 @@ enum UIMode {
     Available
 };
 
+///	TypeDefs
+///	=========
+
+typedef vector<VariableInput*> VarInputArray;
+typedef vector<InequalityInput*> IneqInputArray;
+typedef vector<InequalityLoader*> IneqLoaderArray;
+typedef QVector<QPointF> PlottingVector;
+typedef QwtSymbol::Style PlotStyle;
 
 ///	Namespaces
 ///	===========
@@ -98,34 +110,9 @@ public:
     void plot();
     void configurePlot();
     void configureAxes();
-    void evaluate();
-    void combine();
-    void plotNew(int gui_number);
-    void plotOld(int gui_number);
-
-    template <typename input_type>
-    void combineResults(input_type *inequality);
-
-    template <typename input_type>
-    void vectorCombineNone(input_type *inequality);
-
-    template <typename input_type>
-    void vectorCombineIntersection(input_type *inequality);
-
-    template <typename input_type>
-    void vectorCombineUnion(input_type *inequality);
-
-    template <typename input_type>
-    void vectorCombineSubtraction(input_type *inequality);
-
     bool addVariables(InequalityInput *input);
-    void createQwtSamples();
-    void addGraph(QwtSymbol::Style shape, QColor color);
-    void addErrorGraph();
-
 
     // 	validation
-    void print(QString message);
     void printclr();
     void printError();
     bool checkVariables();
@@ -164,6 +151,12 @@ signals:
     void variableSplitterMoved(QList<int> sizes);
     void inequalitySplitterMoved(QList<int> sizes);
     void plotThreadCancel();
+    void feedPlotWorker(VarInputArray var_inputs,
+                        IneqInputArray ineq_inputs,
+                        IneqLoaderArray ineq_loaders,
+                        Variable x_variable,
+                        Variable y_variable,
+                        double comparison_precision);
 
 public slots:
     void checkAxisMode(int gui_number);
@@ -171,7 +164,16 @@ public slots:
     void removeInequalityInput(int gui_number);
     void moveInequalityInputUp(int gui_number);
     void moveInequalityInputDown(int gui_number);
+
+    void sendWorkerData();
     void setProgress(int value, QString message);
+    void addGraph(PlottingVector qwt_samples, PlotStyle shape, QColor color);
+    void addErrorGraph(PlottingVector qwt_problem_samples);
+    void registerMemberChanges(VarInputArray var_inputs,
+                    IneqInputArray ineq_inputs,
+                    IneqLoaderArray ineq_loaders);
+    void log(QString message);
+    void plottingFinished();
 
 private slots:
     void menu_about();
@@ -190,25 +192,24 @@ private slots:
     void on_lineEdit_PlotTitle_textChanged(const QString &arg1);
     void on_lineEdit_PlotTitle_editingFinished();
 
+    void on_pushButton_Cancel_clicked();
+
 private:
     Ui::BareMinimumPlotter *ui;
 
     //	plotter elements
     QwtPlot *plotter;
-    vector<VariableInput*> m_variableInputs;
-    vector<InequalityInput*> m_inequalityInputs;
-    vector<InequalityLoader*> m_inequalityLoaders;
+    VarInputArray m_variableInputs;
+    IneqInputArray m_inequalityInputs;
+    IneqLoaderArray m_inequalityLoaders;
 
     //	plotting
     QString m_title;
     int m_graphCount;
     int m_prevCombination;
-    bool flag_combination;
     Variable m_xVariable, m_yVariable;
-    QVector<double> m_xResults, m_yResults;
-    QVector<double> m_xResults_problem, m_yResults_problem;
-    QVector<double> m_xResults_combination, m_yResults_combination;
-    QVector<QPointF> m_samples, m_samples_problem;
+    QThread *thread;
+    PlotWorker *worker;
 
     //	gui management
     int m_variableCount;

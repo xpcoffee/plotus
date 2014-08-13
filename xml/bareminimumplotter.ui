@@ -7,302 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>846</width>
-    <height>556</height>
+    <height>439</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>BareMinimumPlotter</string>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">/*Background*/
-QWidget#centralWidget {
-	background: rgb(80,80,80);
-}
-
-/*Tab Widget*/
-QWidget#tab_input, QWidget#tab_plot, QWidget#tab_settings {
-	background: black;
-}
-
-QTabWidget::tab-bar {
-	alignment: center;
-}
-
-QTabWidget::pane {
-	position: absolute;
-	top: -8px;
-}
-
-QTabBar::tab {
-	color: rgb(80,80,80);
-	font: bold 13px calibri;
-	background: white;
-	border: 2px solid black;
-	border-radius: 10px;
-	height: 20px;
-	width:	80px;
-
-}
-
-QTabBar::tab:selected {
-	background: black;
-	color: white;
-	font: bold 13px calibri;
-}
-
-/*Containers*/
-QFrame#verticalFrame_Inequality {
-	background: transparent;
-}
-
-QScrollArea, QScrollArea &gt; QWidget &gt; QWidget{
-	background:transparent;
-}
-
-QGroupBox{
-	font-weight: bold calibri;
-	color: white;
-	background-color: rgb(80,80,80);
-}
-
-QWidget#container_Graph{
-	background:white;
-}
-
-/*Labels*/
-QLabel {
-	color: white;
-	font: bold 13px calibri;
-}
-
-/*Buttons*/
-QToolButton {
-	color: white;
-	font: bold 13px calibri;
-	background: rgb(100,100,100);
-	border-radius:0px;
-	alignment:center;
-}
-
-QPushButton {
-	color: white;
-	font: bold 13px calibri;
-	background: rgb(100,100,100);
-	border-radius:0px;
-}
-
-QPushButton#pushButton_Down{
-	color: transparent;
-	image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
-}
-
-QPushButton#pushButton_Up{
-	color: transparent;
-	image: url(../bare_minimum_plotter/rsc/up-arrow-white.png);
-}
-
-QPushButton#pushButton_Delete{
-	color: transparent;
-	image: url(../bare_minimum_plotter/rsc/cross-white.png);
-}
-
-QPushButton:disabled{
-	background: rgb(210, 210, 210);
-}
-
-QPushButton:pressed, QToolButton:pressed{
-	background: rgb(255, 172, 39)
-}
-
-/*LineEdits*/
-QLineEdit {
-	background: white;
-	border-radius: 0px;
-}
-
-QLineEdit:focus {
-	border: 1px solid rgb(63, 98, 255); /*blue*/
-}
-
-QLineEdit#lineEdit_PlotTitle{
-	color: white;
-	font: bold 18px calibri;
-	background: transparent;
-}
-
-QLineEdit#lineEdit_PlotTitle:focus{
-	color: back;
-	background: white;
-}
-
-
-/*Text Edit*/
-QTextEdit{
-	color: black;
-	background: rgb(241, 241, 241)
-}
-
-/*Splitters*/
-QSplitterHandle {
-	background: black;
-}
-
-QSplitter#splitter_Inequality, QSplitter#splitter_Variable {
-	background: rgb(80,80,80);
-}
-
-/*Comboboxes*/
-QComboBox {
-	background: rgb(63, 98, 255); /*blue*/
-	border-radius:0;
-	color: white;
-	font: 13px calibri;
-}
-
-QComboBox:focus {
-	border: 1px outset white;
-}
-
-QComboBox::drop-down {
-	border-left: 2px solid black;
-	width: 20px;
-}
-
-QComboBox::down-arrow {
-	border-image: url(../bare_minimum_plotter/rsc/down-arrow-white.png);
-	width: 10px;
-	height: 10px;
-}
-
-QComboBox::QListView {
-	background: white;
-}
-
-QComboBox:disabled{
-	background: rgb(210,210,210);
-	color: transparent;
-}
-
-
-/*Progress Bar*/
-QProgressBar {
-	background: transparent;
-	color: white;
-	font: bold 13px calibri;
-}
-
-QProgressBar::chunk {
-	background: rgb(37, 158, 0);
-	width: 10px;
-}
-
-/*Slider*/
-QSlider::handle:disabled{
-	background: transparent;
-}
-
-/*Scroll Area*/
-QScrollArea{
-border:none;
-border-radius:0px;
-}
-
-/*Scrollbar*/
- QScrollBar {
-     background: rgb(100,100,100);
-     width: 15px;
-     margin: 15px 0px 15px 0px;
- }
-
- QScrollBar::handle:enabled {
-     background: rgb(63, 98, 255);
-	 border-top: 2px solid black;
-	 border-bottom: 2px solid black;
-     min-height: 7px;
- }
-
- QScrollBar::add-line:enabled { /*down arrow box*/
-     background: rgb(100,100,100);
-     height: 15px;
-     subcontrol-position: bottom;
-     subcontrol-origin: margin;
- }
-
- QScrollBar::sub-line:enabled { /*top arrow box*/
-     background: rgb(100,100,100);
-     height: 15px;
-     subcontrol-position: top;
-     subcontrol-origin: margin;
- }
-
- QScrollBar:up-arrow:enabled {
-     width: 7px;
-     height: 7px;
- 	 image: url(../bare_minimum_plotter/rsc/up-arrow-white-small.png);
-
- }
-
- QScrollBar:down-arrow:enabled {
-     width: 7px;
-     height: 7px;
- 	 image: url(../bare_minimum_plotter/rsc/down-arrow-white-small.png);
- }
-
- QScrollBar::add-page, QScrollBar::sub-page {
-     background: none;
- }
-
-/*Scrollbar: Disabled*/
-QScrollBar:disabled{
-	background: transparent;
-}
-
- QScrollBar::handle:disabled {
-     background: transparent;
-     min-height: 7px;
- }
-
- QScrollBar::add-line:disabled { /*down arrow box*/
-     background: transparent;
-     height: 15px;
-     subcontrol-position: bottom;
-     subcontrol-origin: margin;
- }
-
- QScrollBar::sub-line:disabled { /*top arrow box*/
-     background: transparent;
-     height: 15px;
-     subcontrol-position: top;
-     subcontrol-origin: margin;
- }
-
- QScrollBar:up-arrow:disabled {
-     width: 3px;
-     height: 3px;
-     background: transparent;
- }
-
- QScrollBar:down-arrow:disabled {
-     width: 3px;
-     height: 3px;
-     background: transparent;
- }
-
-/*Checkbox*/
-QCheckBox {
-	background: transparent;
-	border-radius: 0px;
-}
-
-QCheckBox::indicator:unchecked {
-	image: url(../bare_minimum_plotter/rsc/unchecked-white.png);
-	padding-right: 12px;
-}
-
-QCheckBox::indicator:checked {
-	image: url(../bare_minimum_plotter/rsc/checked-white.png);
-	padding-right: 12px;
-}</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -533,7 +242,7 @@ QCheckBox::indicator:checked {
                  <x>0</x>
                  <y>0</y>
                  <width>722</width>
-                 <height>173</height>
+                 <height>115</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -803,15 +512,15 @@ QCheckBox::indicator:checked {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>689</width>
-                     <height>127</height>
+                     <width>687</width>
+                     <height>52</height>
                     </rect>
                    </property>
                    <property name="focusPolicy">
                     <enum>Qt::TabFocus</enum>
                    </property>
                    <property name="autoFillBackground">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true"/>
@@ -935,8 +644,8 @@ QCheckBox::indicator:checked {
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>722</width>
-                 <height>144</height>
+                 <width>714</width>
+                 <height>115</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1324,12 +1033,12 @@ QCheckBox::indicator:checked {
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>689</width>
-                     <height>98</height>
+                     <width>679</width>
+                     <height>52</height>
                     </rect>
                    </property>
                    <property name="autoFillBackground">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="styleSheet">
                     <string notr="true"/>

@@ -32,8 +32,6 @@
 #include<stdlib.h>
 #include<string>
 #include<vector>
-#include<iomanip>
-#include<iostream>
 #include<sstream>
 #include<cassert>
 #include<locale.h>

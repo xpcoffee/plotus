@@ -28,7 +28,6 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
-#include <iostream>
 #include "inequalityinput.h"	// CombinationMode, ComboBoxColor, ComboBoxShape
 #include "bluejson.h"
 
@@ -64,6 +63,7 @@ public:
     int getNumber();
     int getShapeIndex();
     int getCombination();
+    int getPlot();
     bool getSkip();
     QWidget *getFocusInWidget();
     QWidget *getFocusOutWidget();
@@ -90,7 +90,7 @@ public:
     string dataToJSON();
 
     //	evaluation
-    void setPlot();
+    void setPlot(int index = -1);
 
     //	gui
     void enablePositionButtons(bool flag_enable);

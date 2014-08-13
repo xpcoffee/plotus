@@ -42,7 +42,7 @@ void fitLineEditToContents(QLineEdit* edit){
 }
 
 
-//    cout << "Debug point:" << __LINE__ << ", " << __FILE__ << endl;
+//    qDebug() << "Debug point:" << __LINE__ << ", " << __FILE__ << endl;
 
 
 ///	Public Functions
@@ -56,7 +56,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     ui(new Ui::BareMinimumPlotter),
     m_title("untitled_case"),
     m_prevCombination (0),
-    flag_combination (false),
     m_variableCount(0),
     m_inequalityCount(0),
     flag_saved(true),
@@ -114,28 +113,42 @@ void BareMinimumPlotter::plot()
         return;
     }
 
-    for (int i = 0; i < static_cast<int>(ui->layout_Inequality->count()+1); i++){
-        bool flag_skip;
-        for (int j = 0; j < static_cast<int>(m_inequalityInputs.size()); j++){
-            if ( m_inequalityInputs[j]->getNumber() == i ){
-                if ( m_inequalityInputs[j]->getSkip() ) { flag_skip = true; break; }
-                plotNew(j);
-            }
-        }
-        for (int j = 0; j < static_cast<int>(m_inequalityLoaders.size()); j++){
-            if ( m_inequalityLoaders[j]->getNumber() == i ){
-                if ( m_inequalityLoaders[j]->getSkip() ) { flag_skip = true; break; }
-                plotOld(j);
-            }
-        }
-        if (flag_skip)
-            continue;
-    }
+    thread = new QThread();
+    worker = new PlotWorker();
+    worker->moveToThread(thread);
 
+    qRegisterMetaType<VarInputArray>("VarInputArray");
+    qRegisterMetaType<IneqInputArray>("IneqInputArray");
+    qRegisterMetaType<IneqLoaderArray>("IneqLoaderArray");
+    qRegisterMetaType<PlottingVector>("PlottingVector");
+    qRegisterMetaType<PlotStyle>("PlotStyle");
+    qRegisterMetaType<Variable>("Variable");
 
-    flag_saved = false;
+    QWidget::connect(thread, SIGNAL	(started()), worker, SLOT	(createWorker()));
 
-    setUIMode(Available);
+    QWidget::connect(worker, SIGNAL	(dataRequest()),
+                     this, SLOT		(sendWorkerData()));
+    QWidget::connect(this, SIGNAL	(feedPlotWorker(VarInputArray,IneqInputArray,IneqLoaderArray,Variable,Variable,double)),
+                     worker, SLOT	(workerInit(VarInputArray,IneqInputArray,IneqLoaderArray,Variable,Variable,double)));
+    QWidget::connect(worker, SIGNAL	(logMessage(QString)),
+                     this, SLOT		(log(QString)));
+    QWidget::connect(worker, SIGNAL	(progressUpdate(int, QString)),
+                     this, SLOT		(setProgress(int, QString)));
+    QWidget::connect(worker, SIGNAL	(newGraph(PlottingVector,PlotStyle,QColor)),
+                     this, SLOT		(addGraph(PlottingVector, PlotStyle, QColor)));
+    QWidget::connect(worker, SIGNAL	(newErrorGraph(PlottingVector)),
+                     this, SLOT		(addErrorGraph(PlottingVector)));
+    QWidget::connect(worker, SIGNAL(memberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)),
+                     this, SLOT(registerMemberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)));
+    QWidget::connect(worker, SIGNAL	(workFinished()),
+                     this, SLOT		(plottingFinished()));
+
+    QWidget::connect(worker, SIGNAL(workFinished()), thread, SLOT(quit()));
+    QWidget::connect(worker, SIGNAL(workFinished()), worker, SLOT(deleteLater()));
+    QWidget::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+    thread->start();
+
 }
 
 void BareMinimumPlotter::configurePlot()
@@ -189,232 +202,6 @@ void BareMinimumPlotter::configureAxes()
     plotter->setAxisScale(QwtPlot::xBottom, m_xVariable.min(), m_xVariable.max());
 }
 
-void BareMinimumPlotter::plotNew(int gui_number)
-{
-    InequalityInput *input = m_inequalityInputs[gui_number];
-    QString gui_number_str = QString::number(gui_number);
-
-    setProgress(0, "Evaluating inequality " + gui_number_str + "...");
-    input->setXYVariables(m_xVariable, m_yVariable);
-    if(!input->evaluate()){
-        printError();
-        return;
-    }
-
-    setProgress(40, "Combining results, inequality " + gui_number_str + "...");
-    combineResults(input);
-    createQwtSamples();
-
-    m_prevCombination = input->getCombination();
-    if (m_prevCombination != CombinationNone){	//	do not plot if combination requested
-        setProgress(100, "Done.");
-        return;
-    }
-
-    setProgress(80, "Plotting results, inequality " + gui_number_str + "..." );
-    addGraph(input->getShape(), input->getColor());
-    m_graphCount++;
-
-    if (!m_xResults_problem.isEmpty()){
-        addErrorGraph();
-        m_graphCount++;
-    }
-
-    printError();
-    setProgress(100, "Done.");
-    flag_empty = false;
-
-    //	switch to plot tab
-    ui->tabWidget->setCurrentIndex(1);
-}
-
-
-void BareMinimumPlotter::plotOld(int gui_number)
-{
-    InequalityLoader* loader = m_inequalityLoaders[gui_number];
-    QString gui_number_str = QString::number(gui_number);
-
-    loader->setPlot();
-
-    setProgress(40, "Combining results, inequality " + gui_number_str + "...");
-//    combineResults(loader->getNumber());
-    combineResults(loader);
-    createQwtSamples();
-
-    // log combination mode
-    m_prevCombination = loader->getCombination();
-    if (m_prevCombination != CombinationNone){	//	do not plot if combination requested
-        setProgress(100, "Done.");
-        return;
-    }
-
-    setProgress(80, "Plotting results, inequality " + gui_number_str + "..." );
-    addGraph(loader->getShape(), loader->getColor());
-    m_graphCount++;
-
-    if (!m_xResults_problem.isEmpty()){
-        addErrorGraph();
-        m_graphCount++;
-    }
-
-    printError();
-    setProgress(100, "Done.");
-    flag_empty = false;
-
-    //	switch to plot tab
-    ui->tabWidget->setCurrentIndex(1);
-}
-
-template<typename T>
-void BareMinimumPlotter::combineResults(T *inequality)
-{
-    switch(m_prevCombination){
-    case CombinationNone:
-        vectorCombineNone(inequality);
-        break;
-    case CombinationIntersect:
-        vectorCombineIntersection(inequality);
-        break;
-    case CombinationUnion:
-        vectorCombineUnion(inequality);
-        break;
-    case CombinationSubtract:
-        vectorCombineSubtraction(inequality);
-        break;
-    default:
-        break;
-    }
-}
-
-template<typename T>
-void BareMinimumPlotter::vectorCombineNone(T *inequality)
-{
-        m_xResults = inequality->getX();
-        m_yResults = inequality->getY();
-        m_xResults_problem = inequality->getXProblem();
-        m_yResults_problem = inequality->getYProblem();
-}
-
-template<typename T>
-void BareMinimumPlotter::vectorCombineIntersection(T *inequality)
-{
-    cout << "one" << endl;
-    flag_combination = true;
-    QVector<double> x_resultsOld = m_xResults;
-    QVector<double> y_resultsOld = m_yResults;
-    QVector<double> x_resultsNew;
-    QVector<double> y_resultsNew;
-
-    int max_size = ( x_resultsOld.size() > x_resultsNew.size() ) ? x_resultsOld.size() : x_resultsNew.size();
-    m_xResults.clear();
-    m_yResults.clear();
-    m_xResults.reserve(max_size);
-    m_yResults.reserve(max_size);
-
-    x_resultsNew = inequality->getX();
-    y_resultsNew = inequality->getY();
-    m_xResults_problem = inequality->getXProblem();
-    m_yResults_problem = inequality->getYProblem();
-
-    for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-       for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
-           // ApproxEqualPrecision is in case you are comparing results of different precisions.
-           if (Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_compPrec) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_compPrec)) {
-               m_xResults.push_back(x_resultsOld[i]);
-               m_yResults.push_back(y_resultsOld[i]);
-           }
-       }
-    }
-
-    // save results for plotting
-    if (inequality->getCombination() == CombinationNone){
-        inequality->setX(m_xResults);
-        inequality->setY(m_yResults);
-    }
-}
-
-template<typename T>
-void BareMinimumPlotter::vectorCombineUnion(T *inequality)
-{
-    QVector<double> x_resultsOld = m_xResults;
-    QVector<double> y_resultsOld = m_yResults;
-    QVector<double> x_resultsNew;
-    QVector<double> y_resultsNew;
-
-    int max_size = ( x_resultsOld.size() > x_resultsNew.size() ) ? x_resultsOld.size() : x_resultsNew.size();
-    m_xResults.clear();
-    m_yResults.clear();
-    m_xResults.reserve(max_size);
-    m_yResults.reserve(max_size);
-
-    x_resultsNew = inequality->getX();
-    y_resultsNew = inequality->getY();
-    m_xResults_problem = inequality->getXProblem();
-    m_yResults_problem = inequality->getYProblem();
-
-    for (m_xVariable.resetPosition(); !m_xVariable.isEnd(); m_xVariable.nextPosition()){
-        for (m_yVariable.resetPosition(); !m_yVariable.isEnd(); m_yVariable.nextPosition()){
-            for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-                if (Expression::approxEqual(m_xVariable.getCurrentValue(), x_resultsOld[i], m_compPrec) &&
-                        Expression::approxEqual(m_yVariable.getCurrentValue(), y_resultsOld[i], m_compPrec)){
-                    m_xResults.push_back(m_xVariable.getCurrentValue());
-                    m_yResults.push_back(m_yVariable.getCurrentValue());
-                }
-            }
-            for (int i = 0; i < static_cast<int>(x_resultsNew.size()); i++){
-                if ((m_xVariable.getCurrentValue() == x_resultsNew[i]) && (m_yVariable.getCurrentValue() == y_resultsNew[i])){
-                    m_xResults.push_back(m_xVariable.getCurrentValue());
-                    m_yResults.push_back(m_yVariable.getCurrentValue());
-                }
-            }
-        }
-    }
-
-    if (inequality->getCombination() == CombinationNone){
-        inequality->setX(m_xResults);
-        inequality->setY(m_yResults);
-    }
-
-}
-
-template<typename T>
-void BareMinimumPlotter::vectorCombineSubtraction(T *inequality)
-{
-    flag_combination = true;
-    QVector<double> x_resultsOld = m_xResults;
-    QVector<double> y_resultsOld = m_yResults;
-    QVector<double> x_resultsNew;
-    QVector<double> y_resultsNew;
-
-    m_xResults.clear();
-    m_yResults.clear();
-
-    x_resultsNew = inequality->getX();
-    y_resultsNew = inequality->getY();
-    m_xResults_problem = inequality->getXProblem();
-    m_yResults_problem = inequality->getYProblem();
-
-    bool flag_keep;
-
-    for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-       flag_keep = true;
-       for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
-           if ((Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_compPrec) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_compPrec))) {
-               flag_keep = false;
-           }
-       }
-       if (flag_keep){
-           m_xResults.push_back(x_resultsOld[i]);
-           m_yResults.push_back(y_resultsOld[i]);
-       }
-    }
-
-    if (inequality->getCombination() == CombinationNone){
-        inequality->setX(m_xResults);
-        inequality->setY(m_yResults);
-    }
-}
-
 bool BareMinimumPlotter::addVariables(InequalityInput* input)
 {
     bool flag_ok = true;
@@ -435,71 +222,9 @@ bool BareMinimumPlotter::addVariables(InequalityInput* input)
     return flag_ok;
 }
 
-void BareMinimumPlotter::createQwtSamples()
-{
-    m_samples.clear();
-    m_samples_problem.clear();
-
-    for (int i = 0; i < m_xResults.size(); i++){
-       m_samples << QPointF(m_xResults[i], m_yResults[i]);
-    }
-    for (int i = 0; i < m_xResults_problem.size(); i++){
-       m_samples_problem << QPointF(m_xResults_problem[i], m_yResults_problem[i]);
-    }
-}
-
-void BareMinimumPlotter::addGraph(QwtSymbol::Style shape, QColor marker_color)
-{
-        QwtPlotCurve *plot = new QwtPlotCurve("test");
-
-        if (shape == QwtSymbol::UserStyle){
-            //	Dots style
-            plot->setStyle(QwtPlotCurve::Dots);
-            plot->setPen(marker_color);
-            plot->setRenderThreadCount(0); // ideal thread count
-        }
-        else {
-            int marker_line_width = 1;
-            QSize marker_size = QSize(5,5);
-            QwtSymbol *marker = new QwtSymbol(shape, QBrush(),
-                                              QPen(marker_color, marker_line_width),
-                                              marker_size);
-            plot->setSymbol(marker);
-            plot->setStyle(QwtPlotCurve::NoCurve);
-        }
-
-        //	set data
-        plot->setSamples(m_samples);
-        //	add graph
-        plot->attach(plotter);
-        plotter->replot();
-}
-
-void BareMinimumPlotter::addErrorGraph()
-{
-        QwtPlotCurve *plot = new QwtPlotCurve();
-        QwtSymbol *marker = new QwtSymbol(QwtSymbol::Star1,
-                   QBrush(), QPen(Qt::red, 2),
-                   QSize(4,4));
-        //	add style
-        plot->setSymbol(marker);
-        plot->setStyle(QwtPlotCurve::NoCurve);
-        plot->setTitle("Problem Points");
-        //	add data
-        plot->setSamples(m_samples_problem);
-        //	add graph
-        plot->attach(plotter);
-        plotter->replot();
-}
-
 
 //	Validation
 //	----------
-void BareMinimumPlotter::print(QString message)
-{
-    m_errorMessage += message;
-    ui->textEdit_Error->setText(m_errorMessage);
-}
 
 void BareMinimumPlotter::printclr()
 {
@@ -517,7 +242,8 @@ void BareMinimumPlotter::printError()
     for (int i = 0; i < static_cast<int>(m_inequalityLoaders.size()); i++){
         m_errorMessage += QString::fromStdString(m_inequalityLoaders[i]->getErrors());
     }
-    ui->textEdit_Error->setText(m_errorMessage);
+
+    log(m_errorMessage);
 
     // progress bar
     setProgress(100, "Error.");
@@ -663,14 +389,14 @@ void BareMinimumPlotter::setupDynamicUi()
 void BareMinimumPlotter::loadCSS()
 {
     ifstream infile("../bare_minimum_plotter/rsc/centralwidget.css");
-    string token, css_string;
+    string token, stylesheet;
     if (!infile.is_open())
         return;
     while (getline(infile, token)){
-        css_string += token + "\n";
+        stylesheet += token + "\n";
     }
     infile.close();
-    ui->centralWidget->setStyleSheet(QString::fromStdString(css_string));
+    ui->centralWidget->setStyleSheet(QString::fromStdString(stylesheet));
 }
 
 void BareMinimumPlotter::loadSettings()
@@ -709,7 +435,7 @@ void BareMinimumPlotter::clearFormatting()
     for (vector<VariableInput*>::iterator it = m_variableInputs.begin(); it != m_variableInputs.end(); it++){
         (*it)->clearFormatting();
     }
-    ui->progressBar->setValue(0);
+    setProgress(0, "");
 }
 
 void BareMinimumPlotter::resetQwtPlotWindow()
@@ -1270,17 +996,99 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
         }
 }
 
+void BareMinimumPlotter::sendWorkerData()
+{
+    emit feedPlotWorker(m_variableInputs,
+                        m_inequalityInputs,
+                        m_inequalityLoaders,
+                        m_xVariable,
+                        m_yVariable,
+                        m_compPrec);
+}
+
 void BareMinimumPlotter::setProgress(int value, QString message)
 {
-    int progress = floor( ( value/100 + m_graphCount )/ui->layout_Inequality->count() * 100);
+    int progress = floor( ( value/100.0 + m_graphCount )/ui->layout_Inequality->count() * 100);
     ui->progressBar->setValue(progress);
     ui->progressBar->setFormat(message);
 
-    if(message == "Error"){
-        ui->progressBar->setStyleSheet("QProgressBar {background: red;}");
+    if(message == "Error."){
+        ui->progressBar->setStyleSheet("QProgressBar::chunk {background: red;}");
+        ui->progressBar->setValue(100);
+    } else if(message == "Cancelling..." ){
+        ui->progressBar->setStyleSheet("QProgressBar::chunk {background: rgb(255, 170, 0);}");
+        ui->progressBar->setValue(100);
+    } else if(message == "Cancelled."){
+        ui->progressBar->setStyleSheet("QProgressBar::chunk {background: rgb(208, 139, 0);}");
+        ui->progressBar->setValue(100);
+    } else {
+        ui->progressBar->setStyleSheet("QProgressBar::chunk {background: rgb(37, 158, 0);}");
     }
 }
 
+void BareMinimumPlotter::addGraph(QVector<QPointF> qwt_samples, PlotStyle shape, QColor marker_color)
+{
+        QwtPlotCurve *plot = new QwtPlotCurve("test");
+
+        if (shape == QwtSymbol::UserStyle){
+            //	Dots style
+            plot->setStyle(QwtPlotCurve::Dots);
+            plot->setPen(marker_color);
+            plot->setRenderThreadCount(0); // ideal thread count
+        }
+        else {
+            int marker_line_width = 1;
+            QSize marker_size = QSize(5,5);
+            QwtSymbol *marker = new QwtSymbol(shape, QBrush(),
+                                              QPen(marker_color, marker_line_width),
+                                              marker_size);
+            plot->setSymbol(marker);
+            plot->setStyle(QwtPlotCurve::NoCurve);
+        }
+
+        //	set data
+        plot->setSamples(qwt_samples);
+        //	add graph
+        plot->attach(plotter);
+        plotter->replot();
+
+        m_graphCount++;
+}
+
+void BareMinimumPlotter::addErrorGraph(QVector<QPointF> qwt_problem_samples)
+{
+        QwtPlotCurve *plot = new QwtPlotCurve();
+        QwtSymbol *marker = new QwtSymbol(QwtSymbol::Star1,
+                   QBrush(), QPen(Qt::red, 2),
+                   QSize(4,4));
+        //	add style
+        plot->setSymbol(marker);
+        plot->setStyle(QwtPlotCurve::NoCurve);
+        plot->setTitle("Problem Points");
+        //	add data
+        plot->setSamples(qwt_problem_samples);
+        //	add graph
+        plot->attach(plotter);
+        plotter->replot();
+}
+
+void BareMinimumPlotter::registerMemberChanges(VarInputArray var_inputs,
+                                       IneqInputArray ineq_inputs,
+                                       IneqLoaderArray ineq_loaders)
+{
+    m_variableInputs = var_inputs;
+    m_inequalityInputs = ineq_inputs;
+    m_inequalityLoaders = ineq_loaders;
+}
+
+void BareMinimumPlotter::log(QString message) { ui->textEdit_Error->setText(message); }
+
+void BareMinimumPlotter::plottingFinished()
+{
+    setUIMode(Available);
+    if (ui->progressBar->text() != "Cancelled.")
+        ui->tabWidget->setCurrentIndex(1); // switch to plot pane
+}
 
 ///	Private Slots
 /// ==============
@@ -1313,11 +1121,11 @@ void BareMinimumPlotter::menu_open()
 
 void BareMinimumPlotter::menu_saveAs()
 {
-    if (flag_empty){
-        m_errorMessage = "Error | Input | Plot not complete. Cannot save.";
-        printError();
-        return;
-    }
+//    if (flag_empty){
+//        m_errorMessage = "Error | Input | Plot not complete. Cannot save.";
+//        printError();
+//        return;
+//    }
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", m_defaultDir, "JSON (*.json)");
@@ -1405,3 +1213,8 @@ void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
     }
 }
 
+void BareMinimumPlotter::on_pushButton_Cancel_clicked()
+{
+    worker->flag_cancel = true;
+    setProgress(100, "Cancelling...");
+}

@@ -134,7 +134,7 @@ void VariableInput::setAxisMode(int axis_mode)
         ui->comboBox_Axes->setCurrentIndex(PlotConstant);
         break;
     default:
-        cerr << "[ERROR] VariableInput | setAxisMode | " << "Unknown axis mode: " << axis_mode << endl;
+        assert(false && "VariableInput: Unknown axis mode. " && __LINE__ && __FILE__);
         break;
     }
 }

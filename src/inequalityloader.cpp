@@ -139,6 +139,8 @@ int InequalityLoader::getShapeIndex() 	{ return ui->comboBox_Shape->currentIndex
 
 int InequalityLoader::getCombination() 	{ return ui->comboBox_Combination->currentIndex(); }
 
+int InequalityLoader::getPlot() { return ui->comboBox_Plot->currentIndex(); }
+
 bool InequalityLoader::getSkip() 		{ return flag_skip; }
 
 QWidget* InequalityLoader::getFocusInWidget() { return ui->comboBox_Plot; }
@@ -444,7 +446,14 @@ string InequalityLoader::dataToJSON()
 //	Evaluation
 //	-----------
 
-void InequalityLoader::setPlot() { m_currentPlot = ui->comboBox_Plot->currentIndex(); }
+void InequalityLoader::setPlot(int index)
+{
+    if (index < 0 ||
+        index > (ui->comboBox_Plot->count() -1) ){
+        m_currentPlot = ui->comboBox_Plot->currentIndex();
+    }
+    else { m_currentPlot = index; }
+}
 
 
 //	GUI

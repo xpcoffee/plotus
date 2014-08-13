@@ -89,14 +89,14 @@ void Expression::subVariableValues(){
             if (m_Variables[i].name() == term){
                 ostringstream buffer;
 
-                buffer << m_Variables[i].getCurrentValue();
+                buffer << m_Variables[i].currentValue();
                 m_WorkingExpression[j] = buffer.str();
 
                 flag_initialized = true;
             } else if (("-" + m_Variables[i].name()) == term){
                 ostringstream buffer;
 
-                buffer << -1 * m_Variables[i].getCurrentValue();
+                buffer << -1 * m_Variables[i].currentValue();
                 m_WorkingExpression[j] = buffer.str();
 
                 flag_initialized = true;

@@ -24,7 +24,6 @@
 
 #include<string>
 #include<vector>
-#include<iostream>
 #include<cassert>
 #include"variable.h"
 #include"expression.h"
@@ -179,7 +178,6 @@ public:
                     break;
                 }
             default:
-                cerr << "Unknown symbol" << endl;
                 assert (false && "Unknown inequality operator");
                 break;
             }

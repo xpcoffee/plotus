@@ -23,7 +23,6 @@
 
 #include<string>
 #include<vector>
-#include<iostream>
 #include<cassert>
 #include<math.h>
 
@@ -106,9 +105,11 @@ public:
 
     double max() { return m_max; }
 
-    double getCurrentValue() { return m_domain[m_pos]; }
+    double currentValue() { return m_domain[m_pos]; }
 
-    Spacing getDomainSpacing() { return m_domainSpacing; }
+    Spacing domainSpacing() { return m_domainSpacing; }
+
+    vector<double> domain() { return m_domain; }
 
 
     //	Domain Creation

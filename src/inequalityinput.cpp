@@ -486,7 +486,6 @@ bool InequalityInput::evaluate(){
         default:
             m_errorMessage += 	"Bug | Unhandled input error. Please report this bug to the following email address:\n" +
                                 m_bugMail + "\n";
-            cerr << e << endl;
             return false;
         }
     }
@@ -507,13 +506,13 @@ bool InequalityInput::evaluate(){
     vector<int>::iterator it_ProblemSpace = m_points_problem.begin();
     for(int i = 0; i < static_cast<int>(m_points.size()); i++){
         if(!m_points_problem.empty() && i == *it_ProblemSpace){ 	// problem point - add to problem vectors
-            m_x_problem.push_back(m_xVariable.getCurrentValue());
-            m_y_problem.push_back(m_yVariable.getCurrentValue());
+            m_x_problem.push_back(m_xVariable.currentValue());
+            m_y_problem.push_back(m_yVariable.currentValue());
             it_ProblemSpace++;
         }
         else if (m_points[i]) { 	// not a problem point - add to the normal graph vectors
-            m_x.push_back(m_xVariable.getCurrentValue());
-            m_y.push_back(m_yVariable.getCurrentValue());
+            m_x.push_back(m_xVariable.currentValue());
+            m_y.push_back(m_yVariable.currentValue());
         }
 
         //	TODO: XBeforeY more elegantly
