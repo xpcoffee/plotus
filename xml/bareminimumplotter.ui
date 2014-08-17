@@ -1425,6 +1425,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1469,6 +1470,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>&amp;Open</string>
    </property>
+   <property name="toolTip">
+    <string>Open previously saved case</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
@@ -1496,6 +1500,17 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export...</string>
+   </property>
+   <property name="toolTip">
+    <string>Export plot results as image or vector</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>
@@ -1591,6 +1606,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionExport</sender>
+   <signal>triggered()</signal>
+   <receiver>BareMinimumPlotter</receiver>
+   <slot>menu_export()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>422</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>menu_about()</slot>
@@ -1598,5 +1629,6 @@ p, li { white-space: pre-wrap; }
   <slot>menu_saveAs()</slot>
   <slot>menu_new()</slot>
   <slot>menu_quit()</slot>
+  <slot>menu_export()</slot>
  </slots>
 </ui>

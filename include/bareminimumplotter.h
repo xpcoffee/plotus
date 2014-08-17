@@ -48,6 +48,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 #include <qwt_legend.h>
+#include <qwt_plot_renderer.h>
 
 #include <vector>
 #include <string>
@@ -63,6 +64,7 @@
 #include "bluejson.h"
 //#include "headerscrollarea.h"
 #include "plotworker.h"
+#include "exportdialog.h"
 
 
 ///	Enumerated Types
@@ -179,8 +181,12 @@ private slots:
     void menu_about();
     void menu_open();
     void menu_saveAs();
+    void menu_export();
     void menu_new();
     void menu_quit();
+    void menu_qwt_context(const QPoint &pos);
+    void exportQwt(int width, int height, int dpi);
+    void copyQwtToClipboard();
     void on_toolButton_AddVariable_clicked();
     void on_toolButton_AddInequality_clicked();
     void on_toolButton_Plot_clicked();
@@ -191,7 +197,6 @@ private slots:
     void on_lineEdit_PlotTitle_returnPressed();
     void on_lineEdit_PlotTitle_textChanged(const QString &arg1);
     void on_lineEdit_PlotTitle_editingFinished();
-
     void on_pushButton_Cancel_clicked();
 
 private:

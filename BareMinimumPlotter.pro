@@ -22,7 +22,8 @@ SOURCES += src/main.cpp \
     src/inequalityloader.cpp \
     src/variableinput.cpp \
     src/headerscrollarea.cpp \
-    src/plotworker.cpp
+    src/plotworker.cpp \
+    src/exportdialog.cpp
 
 HEADERS  += include/variableinput.h \
     include/bareminimumplotter.h \
@@ -33,7 +34,8 @@ HEADERS  += include/variableinput.h \
     include/inequalityloader.h \
     include/variable.h \
     include/headerscrollarea.h \
-    include/plotworker.h
+    include/plotworker.h \
+    include/exportdialog.h
 
 FORMS    +=  xml/bareminimumplotter.ui \
     xml/inequalityinput.ui \
