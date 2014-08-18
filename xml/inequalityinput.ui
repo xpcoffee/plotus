@@ -81,7 +81,7 @@
       </property>
       <widget class="QLineEdit" name="lineEdit_Left">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -90,6 +90,12 @@
         <size>
          <width>50</width>
          <height>20</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
         </size>
        </property>
        <property name="toolTip">
@@ -164,6 +170,12 @@
         </sizepolicy>
        </property>
        <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="baseSize">
         <size>
          <width>50</width>
          <height>0</height>
@@ -256,26 +268,26 @@
        <item>
         <widget class="QComboBox" name="comboBox_Shape">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>80</width>
+           <width>70</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>80</width>
+           <width>70</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="baseSize">
           <size>
-           <width>80</width>
+           <width>70</width>
            <height>0</height>
           </size>
          </property>

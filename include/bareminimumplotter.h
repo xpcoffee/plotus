@@ -62,7 +62,7 @@
 #include "inequalityinput.h"
 #include "inequalityloader.h"
 #include "bluejson.h"
-//#include "headerscrollarea.h"
+#include "headerscrollarea.h"
 #include "plotworker.h"
 #include "exportdialog.h"
 
@@ -125,6 +125,7 @@ public:
     void setupInputValidation();
     void setupQwtPlot();
     void setupScrollAreas();
+    void setupInequalityScrollArea();
     void setupButtons();
     void setupDynamicUi();
     void loadCSS();

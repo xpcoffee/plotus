@@ -328,26 +328,51 @@ void BareMinimumPlotter::setupQwtPlot()
 
 void BareMinimumPlotter::setupScrollAreas()
 {
-    //	account for scrollbar sizes in ui
-    int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
-    QSize old_size = scroll_bar_spacer->sizeHint();
-    scroll_bar_spacer->changeSize(new_size, old_size.height());
-    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size, old_size.height());
-
     //	disable splitter handles for inequality
-    for (int i = 0; i < ui->splitter_Inequality->count(); i++){
-        if (i == 1)
-            continue;	//allow resizing of text fields only
-        ui->splitter_Inequality->handle(i)->setEnabled(false);
-    }
+//    for (int i = 0; i < ui->splitter_Inequality->count(); i++){
+//        if (i == 1)
+//            continue;	//allow resizing of text fields only
+//        ui->splitter_Inequality->handle(i)->setEnabled(false);
+//    }
 
     //	header scroll areas
-//    QWidget *header = ui->horizontalLayout_InequalityHeaders->takeAt(1)->widget();
-//    QWidget *header_widget = ui->scrollArea_InequalityInputs->getHeaderWidget();
-//    QVBoxLayout *header_layout = new QVBoxLayout();
-//    header_layout->addWidget(header);
-//    header_widget->setLayout(header_layout);
+    QWidget *ineq_header = ui->layout_ContainerInequalities->takeAt(0)->widget();
+    QWidget *ineq_header_widget = ui->scrollArea_InequalityInputs->getHeaderWidget();
+    QVBoxLayout *ineq_header_layout = new QVBoxLayout();
+    ineq_header_layout->addWidget(ineq_header);
+    ineq_header_widget->setLayout(ineq_header_layout);
+
+    QWidget *var_header = ui->layout_ContainerVariables->takeAt(0)->widget();
+    QWidget *var_header_widget = ui->scrollArea_VariableInputs->getHeaderWidget();
+    QVBoxLayout *var_header_layout = new QVBoxLayout();
+    var_header_layout->addWidget(var_header);
+    var_header_widget->setLayout(var_header_layout);
+}
+
+void BareMinimumPlotter::setupInequalityScrollArea()
+{
+    QWidget *header = ui->scrollArea_InequalityInputs->getHeaderWidget();
+    QHBoxLayout *layout = new QHBoxLayout(header);
+    QSplitter *splitter = new QSplitter(header);
+
+    QLabel *label_num = new QLabel("#", header);
+    QLabel *label_ineq = new QLabel("Inequality", header);
+    QLabel *label_plot = new QLabel("Plotting", header);
+    QLabel *label_pos = new QLabel("Position", header);
+    QLabel *label_combi = new QLabel("Combination", header);
+    QLabel *label_skip = new QLabel("Skip", header);
+    QLabel *label_del = new QLabel("Del.", header);
+
+    splitter->addWidget(label_num);
+    splitter->addWidget(label_ineq);
+    splitter->addWidget(label_plot);
+    splitter->addWidget(label_pos);
+    splitter->addWidget(label_combi);
+    splitter->addWidget(label_skip);
+    splitter->addWidget(label_del);
+
+    layout->addWidget(splitter);
+    header->setLayout(layout);
 }
 
 void BareMinimumPlotter::setupButtons()
@@ -389,6 +414,7 @@ void BareMinimumPlotter::setupDynamicUi()
     ui->layout_Inequality->setAlignment(Qt::AlignTop);
     addInequalityInput();
     m_inequalityInputs.front()->enablePositionButtons(false);
+//    ui->scrollArea_InequalityInputs->setInnerWidget(m_inequalityInputs.front());
 }
 
 void BareMinimumPlotter::loadCSS()
