@@ -17,11 +17,12 @@ HeaderScrollArea::HeaderScrollArea(QWidget *parent, int header_height ) :
 
         m_headerWidget = new QWidget(this);
         m_headerWidget->setObjectName("header_widget");
-        m_headerWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        m_headerWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
         layout_head->addWidget(m_headerWidget);
         layout_main->addLayout(layout_head);
         layout_main->addWidget(viewport());
+        this->setLayout(layout_main);
     }
 
 void HeaderScrollArea::resizeEvent(QResizeEvent* e)
@@ -33,10 +34,17 @@ void HeaderScrollArea::resizeEvent(QResizeEvent* e)
 
     if (inner_layout->count() > 0){
         // inner layout > object
-        rect = inner_layout->itemAt(0)->widget()->geometry();
+        QWidget *item = inner_layout->itemAt(0)->widget();
+        rect = item->geometry();
+        m_headerWidget->setMinimumWidth(rect.width());
+        if (rect.width() > pos.width()){
+            QScrollArea::resizeEvent(e);
+            return;
+        }
     }
 
-    m_headerWidget->setGeometry(rect.x() - 6 , pos.y() - m_topMargin, rect.width() - 6, m_topMargin);
+//    m_headerWidget->setGeometry(rect.x() - 6 , pos.y() - m_topMargin, rect.width() - 6, m_topMargin);
+    m_headerWidget->resize(rect.width() - 6, m_topMargin);
     int scroll = -1 * (horizontalScrollBar()->value() / 2);
     m_headerWidget->scroll(scroll, 0);
 

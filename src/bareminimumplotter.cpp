@@ -138,8 +138,8 @@ void BareMinimumPlotter::plot()
                      this, SLOT		(addGraph(PlottingVector, PlotStyle, QColor)));
     QWidget::connect(worker, SIGNAL	(newErrorGraph(PlottingVector)),
                      this, SLOT		(addErrorGraph(PlottingVector)));
-    QWidget::connect(worker, SIGNAL(memberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)),
-                     this, SLOT(registerMemberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)));
+    QWidget::connect(worker, SIGNAL	(memberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)),
+                     this, SLOT		(registerMemberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)));
     QWidget::connect(worker, SIGNAL	(workFinished()),
                      this, SLOT		(plottingFinished()));
 
