@@ -17,6 +17,9 @@
 #include "include/bareminimumplotter.h"
 #include "ui_bareminimumplotter.h"
 
+#ifndef DEBUG_POINT
+#define DEBUG_POINT qDebug() << "Debug marker. | In file " << __FILE__ << " at line " << __LINE__;
+#endif
 
 ///	Namespaces
 ///	===========
@@ -40,9 +43,6 @@ void fitLineEditToContents(QLineEdit* edit){
     edit->setMinimumWidth(width + 10);
     edit->setMaximumWidth(width + 10);
 }
-
-
-//    qDebug() << "Debug point:" << __LINE__ << ", " << __FILE__ << endl;
 
 
 ///	Public Functions
@@ -171,6 +171,8 @@ void BareMinimumPlotter::configurePlot()
     //	clear previous plots
     plotter->detachItems();
     plotter->replot();
+
+    flag_empty = true;
 }
 
 void BareMinimumPlotter::configureAxes()
@@ -316,6 +318,9 @@ void BareMinimumPlotter::setupQwtPlot()
                                      "background: white;"
                                      "}");
     layout_Plot->addWidget(plotter);
+    plotter->setContextMenuPolicy(Qt::CustomContextMenu);
+    QWidget::connect (plotter, SIGNAL(customContextMenuRequested(const QPoint &)),
+                      this, SLOT(menu_qwt_context(const QPoint &)));
 
     //	make plot window fill the tab on startup
     resetQwtPlotWindow();
@@ -753,6 +758,7 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
     }
 }
 
+
 void BareMinimumPlotter::openCase(QString filename)
 {
     BlueJSON parser;
@@ -1060,6 +1066,7 @@ void BareMinimumPlotter::addGraph(QVector<QPointF> qwt_samples, PlotStyle shape,
         plotter->replot();
 
         m_graphCount++;
+        flag_empty = false;
 }
 
 void BareMinimumPlotter::addErrorGraph(QVector<QPointF> qwt_problem_samples)
@@ -1128,16 +1135,30 @@ void BareMinimumPlotter::menu_open()
 
 void BareMinimumPlotter::menu_saveAs()
 {
-//    if (flag_empty){
-//        m_errorMessage = "Error | Input | Plot not complete. Cannot save.";
-//        printError();
-//        return;
-//    }
+    if (flag_empty){
+        m_errorMessage = "Empty/incomplete graph. Nothing to save.";
+        printError();
+        return;
+    }
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", m_defaultDir, "JSON (*.json)");
-    saveCase_JSON(filename);
+    if (filename.indexOf(".json") > 0)
+        saveCase_JSON(filename);
     flag_saved = true;
+}
+
+void BareMinimumPlotter::menu_export()
+{
+    if (flag_empty){
+        m_errorMessage = "Error | Input | Plot not complete. Cannot save.";
+        printError();
+        return;
+    }
+    ExportDialog *dialog = new ExportDialog(this);
+    dialog->show();
+    QWidget::connect(dialog, SIGNAL(exportOptions(int,int,int)), this, SLOT(exportQwt(int,int,int)));
+
 }
 
 void BareMinimumPlotter::menu_new()
@@ -1170,6 +1191,18 @@ void BareMinimumPlotter::menu_quit()
     }
 }
 
+void BareMinimumPlotter::menu_qwt_context(const QPoint &)
+{
+    QAction *copy_qwt = new QAction(this);
+    copy_qwt->setText("Copy");
+
+    QMenu *context_menu = new QMenu();
+    context_menu->addAction(copy_qwt);
+    connect(copy_qwt, SIGNAL(triggered()), this, SLOT(copyQwtToClipboard()));
+    context_menu->popup(QCursor::pos());
+
+}
+
 void BareMinimumPlotter::on_toolButton_Plot_clicked()
 {
     setUIMode(Busy);
@@ -1177,6 +1210,19 @@ void BareMinimumPlotter::on_toolButton_Plot_clicked()
     plot();
 
     flag_saved = false;
+}
+
+void BareMinimumPlotter::exportQwt(int width, int height, int dpi)
+{
+    QwtPlotRenderer *renderer = new QwtPlotRenderer();
+    renderer->exportTo(plotter, m_title, QSizeF(width, height), dpi);
+}
+
+void BareMinimumPlotter::copyQwtToClipboard()
+{
+    //	BUG: getting "QImage::pixel: coordinate (...,...) out of range" when application quits
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setPixmap(plotter->grab(plotter->geometry()));
 }
 
 void BareMinimumPlotter::on_toolButton_AddVariable_clicked() { addVariableInput(); }
