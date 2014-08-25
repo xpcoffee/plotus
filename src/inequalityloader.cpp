@@ -74,23 +74,29 @@ void InequalityLoader::loadCase(string filename)
 
     //	read in file
     m_filename = filename;
-    m_name = cropFileName(filename);
-    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_name + "</b></i>"));
     BlueJSON parser;
     parser.readInFile(filename);
 
     //	parse
     m_detailsHTML.clear();
 
-    string case_name, variables, plot, expressions, data;
+    string case_name, variables, plot, expressions, data, desc;
 
     parser.getNextKeyValue("name", case_name); 		// case name
+    parser.getStringToken(case_name);
+    if (case_name.empty())
+        m_name = cropFileName(filename);
+    else
+        m_name = case_name;
+    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_name + "</b></i>"));
     ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + case_name + "</b></i>"));
 
     parser.getNextKeyValue("variables", variables); // variables
 
     while (parser.getNextKeyValue("plot", plot)){ 	// get plots
         BlueJSON plotparser = BlueJSON(plot);
+
+        // description
 
         // expressions
         plotparser.getNextKeyValue("expressions", expressions);
@@ -99,7 +105,9 @@ void InequalityLoader::loadCase(string filename)
         m_detailsHTML.push_back(formatVariables(variables) +					//	Formatted for display
                             "<hr>" +
                             "<table align=\"center\" cellspacing=\"10\">" +
-                            "<tr><th>Expressions</th><th>Combination</th></tr>" +
+                            "<tr><th>Description</th>" +
+                            "<th>Expression</th>" +
+                            "<th>Combination</th></tr>" +
                             formatExpressions(expressions) +
                             "</table>");
 
@@ -132,6 +140,8 @@ void InequalityLoader::clearCombinationResults()
 
 //	Getters: UI
 //	------------
+
+QString InequalityLoader::getName() 		{ return ui->comboBox_Plot->currentText(); }
 
 int	InequalityLoader::getNumber() 		{ return m_guiNumber; }
 
@@ -341,6 +351,16 @@ string InequalityLoader::formatInequality(string json)
     BlueJSON parser = BlueJSON(json + ","); // comma allows final value to be parsed
     stringstream buffer;
     string token;
+
+//  description
+    if (!parser.getNextKeyValue("description", token)){
+        parseProblem("Inequality | description");
+        return "";
+    }
+    buffer << "<td align=\"center\">";
+    buffer << token;
+    buffer << "</td>";
+
 //	left expression
     if (!parser.getNextKeyValue("left expression", token)){
         parseProblem("Inequality | left expression");
@@ -349,6 +369,7 @@ string InequalityLoader::formatInequality(string json)
     buffer << "<td align=\"center\">";
     parser.getStringToken(token);
     buffer << token << " ";
+
 //	symbol
     if (!parser.getNextKeyValue("symbol", token)){
         parseProblem("Inequality | symbol");
@@ -356,6 +377,7 @@ string InequalityLoader::formatInequality(string json)
     }
     parser.getStringToken(token);
     buffer << token << " ";
+
 //	right expression
     if (!parser.getNextKeyValue("right expression", token)){
         parseProblem("Inequality | right expression");
@@ -364,6 +386,7 @@ string InequalityLoader::formatInequality(string json)
     parser.getStringToken(token);
     buffer << token << " ";
     buffer << "</td>";
+
 //	combination
     buffer << "<td align=\"center\">";
     if (!parser.getNextKeyValue("combination", token)){
@@ -373,6 +396,7 @@ string InequalityLoader::formatInequality(string json)
     parser.getStringToken(token);
     buffer << token;
     buffer << "</td>";
+
 //	return
     return buffer.str();
 }
@@ -449,7 +473,7 @@ string InequalityLoader::dataToJSON()
 void InequalityLoader::setPlot(int index)
 {
     if (index < 0 ||
-        index > (ui->comboBox_Plot->count() -1) ){
+        index > (ui->comboBox_Plot->count() - 1) ){
         m_currentPlot = ui->comboBox_Plot->currentIndex();
     }
     else { m_currentPlot = index; }
@@ -477,7 +501,11 @@ void InequalityLoader::setComboBoxPlot()
         QStringList combo_data;
         for (unsigned int i = 0; i < m_xResults.size(); i++){
             stringstream buffer;
-            buffer << "Plot " << i;
+            if (m_descriptions.count() < i){
+                buffer << m_descriptions[i].toStdString();
+            } else {
+                buffer << "Plot " << i;
+            }
             combo_data << QString::fromStdString(buffer.str());
         }
         ui->comboBox_Plot->clear();
@@ -504,7 +532,7 @@ void InequalityLoader::on_pushButton_Details_clicked()
     QString message = "";
     for (int i = 0; i < static_cast<int>(m_detailsHTML.size()); i++){
         stringstream buffer;
-        buffer << "<b>Plot " << i << "</b><hr>" << m_detailsHTML[i];
+        buffer << "<b>" << m_name << "</b><hr>" << m_detailsHTML[i];
         message.append(QString::fromStdString(buffer.str()));
     }
     dialog->setText(message);

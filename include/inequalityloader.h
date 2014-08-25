@@ -60,6 +60,7 @@ public:
     void clearCombinationResults();
 
     //	getters: ui
+    QString getName();
     int getNumber();
     int getShapeIndex();
     int getCombination();
@@ -127,6 +128,7 @@ private:
     string m_detail;
 
     //	meta
+    QStringList m_descriptions;
     int m_guiNumber;
     bool flag_skip;
     bool flag_problem;

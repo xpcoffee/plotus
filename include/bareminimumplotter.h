@@ -164,10 +164,13 @@ public slots:
     void removeInequalityInput(int gui_number);
     void moveInequalityInputUp(int gui_number);
     void moveInequalityInputDown(int gui_number);
+    void scrollInequalityHeader(int value);
+    void scrollVariableHeader(int value);
+
 
     void sendWorkerData();
     void setProgress(int value, QString message);
-    void addGraph(PlottingVector qwt_samples, PlotStyle shape, QColor color);
+    void addGraph(PlottingVector qwt_samples, PlotStyle shape, QColor color, QString tag = "");
     void addErrorGraph(PlottingVector qwt_problem_samples);
     void registerMemberChanges(VarInputArray var_inputs,
                     IneqInputArray ineq_inputs,
@@ -186,8 +189,8 @@ private slots:
     void on_toolButton_Plot_clicked();
     void on_toolButton_AddInequalityLoader_clicked();
     void on_lineEdit_SettingsTolerance_editingFinished();
-    void on_splitter_Variable_splitterMoved(int pos, int index);
-    void on_splitter_Inequality_splitterMoved(int pos, int index);
+    void on_splitter_VariableHeader_splitterMoved(int pos, int index);
+    void on_splitter_InequalityHeader_splitterMoved(int pos, int index);
     void on_lineEdit_PlotTitle_returnPressed();
     void on_lineEdit_PlotTitle_textChanged(const QString &arg1);
     void on_lineEdit_PlotTitle_editingFinished();

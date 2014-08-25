@@ -118,7 +118,7 @@ void PlotWorker::plotNew(int gui_number)
         return;
 
     emit progressUpdate(80, "Plotting results, inequality " + gui_number_str + "..." );
-    emit newGraph(m_samples, input->getShape(), input->getColor());
+    emit newGraph(m_samples, input->getShape(), input->getColor(), input->getName());
 
     if (!m_xResults_problem.isEmpty())
         emit newErrorGraph(m_samples_problem);
@@ -149,7 +149,7 @@ void PlotWorker::plotOld(int gui_number)
     }
 
     emit progressUpdate(80, "Plotting results, inequality " + gui_number_str + "..." );
-    emit newGraph(m_samples, loader->getShape(), loader->getColor());
+    emit newGraph(m_samples, loader->getShape(), loader->getColor(), loader->getName());
 
     if (!m_xResults_problem.isEmpty())
         emit newErrorGraph(m_samples_problem);

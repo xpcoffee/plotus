@@ -94,8 +94,8 @@ void BareMinimumPlotter::showEvent(QShowEvent *event)
     //	gui things that can only be done once gui is shown
 
     //	align splitters
-    variableSplitterMoved(ui->splitter_Variable->sizes());
-    inequalitySplitterMoved(ui->splitter_Inequality->sizes());
+    variableSplitterMoved(ui->splitter_VariableHeader->sizes());
+    inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 }
 
 
@@ -134,8 +134,8 @@ void BareMinimumPlotter::plot()
                      this, SLOT		(log(QString)));
     QWidget::connect(worker, SIGNAL	(progressUpdate(int, QString)),
                      this, SLOT		(setProgress(int, QString)));
-    QWidget::connect(worker, SIGNAL	(newGraph(PlottingVector,PlotStyle,QColor)),
-                     this, SLOT		(addGraph(PlottingVector, PlotStyle, QColor)));
+    QWidget::connect(worker, SIGNAL	(newGraph(PlottingVector,PlotStyle,QColor, QString)),
+                     this, SLOT		(addGraph(PlottingVector, PlotStyle, QColor, QString)));
     QWidget::connect(worker, SIGNAL	(newErrorGraph(PlottingVector)),
                      this, SLOT		(addErrorGraph(PlottingVector)));
     QWidget::connect(worker, SIGNAL(memberChanges(VarInputArray,IneqInputArray,IneqLoaderArray)),
@@ -325,20 +325,18 @@ void BareMinimumPlotter::setupScrollAreas()
 {
     //	account for scrollbar sizes in ui
     int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    QSpacerItem *scroll_bar_spacer = ui->horizontalSpacer_VariableScrollBar;
+    QSpacerItem *scroll_bar_spacer = ui->spacer_VariableHeaderScroll;
     QSize old_size = scroll_bar_spacer->sizeHint();
     scroll_bar_spacer->changeSize(new_size, old_size.height());
-    ui->horizontalSpacer_InequalityScrollBar->changeSize(new_size, old_size.height());
+    ui->spacer_InequalityHeaderScroll->changeSize(new_size, old_size.height());
 
-    //	disable splitter handles for inequality
-    for (int i = 0; i < ui->splitter_Inequality->count(); i++){
-        if (i == 1)
-            continue;	//allow resizing of text fields only
-        ui->splitter_Inequality->handle(i)->setEnabled(false);
-    }
+    QWidget::connect(ui->scrollArea_InequalityInputs->horizontalScrollBar(), SIGNAL(sliderMoved(int)),
+                     this, SLOT(scrollInequalityHeader(int)));
+    QWidget::connect(ui->scrollArea_VariableInputs->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+                     this, SLOT(scrollVariableHeader(int)));
 
     //	header scroll areas
-//    QWidget *header = ui->horizontalLayout_InequalityHeaders->takeAt(1)->widget();
+//    QWidget *header = ui->layout_InequalityHeaders->takeAt(1)->widget();
 //    QWidget *header_widget = ui->scrollArea_InequalityInputs->getHeaderWidget();
 //    QVBoxLayout *header_layout = new QVBoxLayout();
 //    header_layout->addWidget(header);
@@ -347,8 +345,8 @@ void BareMinimumPlotter::setupScrollAreas()
 
 void BareMinimumPlotter::setupButtons()
 {
-    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignVCenter);
-    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignVCenter);
+    ui->layout_VariableButtons->setAlignment(Qt::AlignVCenter);
+    ui->layout_InequalityButtons->setAlignment(Qt::AlignVCenter);
 
     //	tool buttons
     ui->toolButton_AddInequality->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -363,8 +361,8 @@ void BareMinimumPlotter::setupButtons()
     ui->toolButton_AddVariable->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
     ui->toolButton_AddVariable->setIconSize(QSize(22,22));
 
-    ui->verticalLayout_VariableButtons->setAlignment(Qt::AlignTop);
-    ui->verticalLayout_InequalityButtons->setAlignment(Qt::AlignTop);
+    ui->layout_VariableButtons->setAlignment(Qt::AlignTop);
+    ui->layout_InequalityButtons->setAlignment(Qt::AlignTop);
 }
 
 void BareMinimumPlotter::setupDynamicUi()
@@ -377,8 +375,8 @@ void BareMinimumPlotter::setupDynamicUi()
     m_variableInputs[1]->setAxisMode(PlotVertical);
     m_variableInputs[0]->enableRemoveButton(false);
     m_variableInputs[1]->enableRemoveButton(false);
-    m_variableInputs[0]->setSplitterSizes(ui->splitter_Variable->sizes());
-    m_variableInputs[1]->setSplitterSizes(ui->splitter_Variable->sizes());
+    m_variableInputs[0]->setSplitterSizes(ui->splitter_VariableHeader->sizes());
+    m_variableInputs[1]->setSplitterSizes(ui->splitter_VariableHeader->sizes());
 
     // 	add original inequality input
     ui->layout_Inequality->setAlignment(Qt::AlignTop);
@@ -479,7 +477,7 @@ void BareMinimumPlotter::addVariableInput()
     //	set tab order
     determineTabOrder();
     //	resize according to splitter
-    variableSplitterMoved(ui->splitter_Variable->sizes());
+    variableSplitterMoved(ui->splitter_VariableHeader->sizes());
     flag_saved = false;
 }
 
@@ -504,7 +502,7 @@ void BareMinimumPlotter::addInequalityInput()
     //	set tab order
     determineTabOrder();
     //	resize according to splitter
-    inequalitySplitterMoved(ui->splitter_Inequality->sizes());
+    inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
     flag_saved = false;
 }
 
@@ -534,7 +532,7 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
     //	set tab order
     determineTabOrder();
     //	resize according to splitter
-    inequalitySplitterMoved(ui->splitter_Inequality->sizes());
+    inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 
     flag_saved = false;
 }
@@ -628,16 +626,16 @@ void BareMinimumPlotter::setUIMode(UIMode mode)
 {
     if (mode == Busy){
         ui->pushButton_Cancel->setEnabled(true);
-        ui->container_Inequalities->setEnabled(false);
-        ui->container_Variables->setEnabled(false);
+        ui->container_InequalityMain->setEnabled(false);
+        ui->container_VariableMain->setEnabled(false);
         ui->toolButton_Plot->setEnabled(false);
         ui->toolButton_AddInequality->setEnabled(false);
         ui->toolButton_AddInequalityLoader->setEnabled(false);
         ui->toolButton_AddVariable->setEnabled(false);
     } else if (mode == Available){
         ui->pushButton_Cancel->setEnabled(false);
-        ui->container_Inequalities->setEnabled(true);
-        ui->container_Variables->setEnabled(true);
+        ui->container_InequalityMain->setEnabled(true);
+        ui->container_VariableMain->setEnabled(true);
         ui->toolButton_Plot->setEnabled(true);
         ui->toolButton_AddInequality->setEnabled(true);
         ui->toolButton_AddInequalityLoader->setEnabled(true);
@@ -996,6 +994,15 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
         }
 }
 
+void BareMinimumPlotter::scrollInequalityHeader(int value)
+{
+    int scroll_amt = ui->scrollAreaWidget_InequalityInputs->geometry().x() + value/2;
+    ui->splitter_InequalityHeader->scroll(scroll_amt, 0);
+    ui->splitter_InequalityHeader->scroll(0, 0);
+}
+
+void BareMinimumPlotter::scrollVariableHeader(int value) { ui->splitter_InequalityHeader->scroll(-value/2, 0); }
+
 void BareMinimumPlotter::sendWorkerData()
 {
     emit feedPlotWorker(m_variableInputs,
@@ -1026,9 +1033,9 @@ void BareMinimumPlotter::setProgress(int value, QString message)
     }
 }
 
-void BareMinimumPlotter::addGraph(QVector<QPointF> qwt_samples, PlotStyle shape, QColor marker_color)
+void BareMinimumPlotter::addGraph(QVector<QPointF> qwt_samples, PlotStyle shape, QColor marker_color, QString tag)
 {
-        QwtPlotCurve *plot = new QwtPlotCurve("test");
+        QwtPlotCurve *plot = new QwtPlotCurve(tag);
 
         if (shape == QwtSymbol::UserStyle){
             //	Dots style
@@ -1178,16 +1185,16 @@ void BareMinimumPlotter::on_toolButton_AddInequality_clicked() { addInequalityIn
 
 void BareMinimumPlotter::on_toolButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
 
-void BareMinimumPlotter::on_splitter_Variable_splitterMoved(int /*pos*/, int /*index*/)
+void BareMinimumPlotter::on_splitter_VariableHeader_splitterMoved(int /*pos*/, int /*index*/)
 {
-    elideLable(ui->label_VariablePlotMode, "Mode");
-    elideLable(ui->label_VariablePointChooser, "Point Chooser");
-    emit variableSplitterMoved(ui->splitter_Variable->sizes());
+    elideLable(ui->label_VariableMode, "Mode");
+    elideLable(ui->label_VariableConst, "Const. Chooser");
+    emit variableSplitterMoved(ui->splitter_VariableHeader->sizes());
 }
 
-void BareMinimumPlotter::on_splitter_Inequality_splitterMoved(int /*pos*/, int /*index*/)
+void BareMinimumPlotter::on_splitter_InequalityHeader_splitterMoved(int /*pos*/, int /*index*/)
 {
-    emit inequalitySplitterMoved(ui->splitter_Inequality->sizes());
+    emit inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 }
 
 void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()

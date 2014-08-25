@@ -40,7 +40,7 @@ public:
 signals:
     void dataRequest();
     void progressUpdate(int value, QString message);
-    void newGraph(PlottingVector qwt_samples, PlotStyle shape, QColor color);
+    void newGraph(PlottingVector qwt_samples, PlotStyle shape, QColor color, QString tag);
     void newErrorGraph(PlottingVector qwt_problem_samples);
     void logMessage(QString message);
     void memberChanges(VarInputArray var_inputs,

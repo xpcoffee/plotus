@@ -81,6 +81,10 @@ public:
     void fromJSON(string json);
 
     //	gui
+    void setupUiCont();
+    void setupInputValidation();
+    void setupDefaultColors();
+    void setupSplitters();
     void enableRemoveButton(bool flag_enable = true);
     void setSplitterSizes(QList<int> sizes);
     void formatLineEdit(QLineEdit* edit, QString fg, QString bg);

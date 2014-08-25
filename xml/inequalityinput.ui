@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
+    <width>740</width>
     <height>24</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="spacing">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -48,9 +48,6 @@
     <widget class="QSplitter" name="splitter_InequalityInput">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
      </property>
      <widget class="QLabel" name="label_Index">
       <property name="minimumSize">
@@ -72,7 +69,30 @@
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
+     <widget class="QLineEdit" name="lineEdit_Name">
+      <property name="minimumSize">
+       <size>
+        <width>80</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Condition</string>
+      </property>
+     </widget>
      <widget class="QSplitter" name="splitter_Inequality">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>215</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -179,7 +199,7 @@
       <widget class="QLineEdit" name="lineEdit_Precision">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-         <horstretch>3</horstretch>
+         <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -205,7 +225,7 @@
         <string>Precision of Approximation</string>
        </property>
        <property name="text">
-        <string>Prec.</string>
+        <string>Tol.</string>
        </property>
        <property name="frame">
         <bool>true</bool>
@@ -237,7 +257,7 @@
         <height>0</height>
        </size>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_Plot">
+      <layout class="QHBoxLayout" name="layout_Plot">
        <property name="spacing">
         <number>5</number>
        </property>
@@ -428,7 +448,7 @@
         <height>16777215</height>
        </size>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_Position">
+      <layout class="QHBoxLayout" name="layout_Position">
        <property name="spacing">
         <number>5</number>
        </property>
@@ -447,7 +467,7 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
+       <item alignment="Qt::AlignRight">
         <widget class="QPushButton" name="pushButton_Up">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -488,7 +508,7 @@
           <string>⋀</string>
          </property>
          <property name="flat">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -533,7 +553,7 @@
           <string>⋁</string>
          </property>
          <property name="flat">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -655,7 +675,7 @@
        <string>X</string>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

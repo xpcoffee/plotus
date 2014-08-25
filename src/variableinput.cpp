@@ -23,36 +23,21 @@ VariableInput::VariableInput(QWidget *parent) :
     flag_initialized(false)
 {
     ui->setupUi(this);
+
+    setupUiCont();
+
     // global variable initialization
     setAccessibleDescription("variable-input");
-
-    DefaultColors <<
-         //! Normal Background
-         "white" <<
-         //! Normal Foreground
-         "black" <<
-         //! Error Background
-         "red" <<
-         //! Error Foreground
-         "white";
-
-    // input validation
-    QDoubleValidator *dValidator = new QDoubleValidator;
-    QIntValidator *iValidator = new QIntValidator;
-    dValidator->setLocale(QLocale(QStringLiteral("de")));
-    ui->lineEdit_Elements->setValidator(iValidator);
-    ui->lineEdit_Max->setValidator(dValidator);
-    ui->lineEdit_Min->setValidator(dValidator);
-    //	splitters
-    for(int i = 0; i < ui->splitter->count(); i++){
-        ui->splitter->handle(i)->setEnabled(false);
-    }
 }
 
 VariableInput::~VariableInput()
 {
     delete ui;
 }
+
+
+//	Validation
+//	-----------
 
 bool VariableInput::checkInput()
 {
@@ -99,15 +84,9 @@ bool VariableInput::checkInput()
     return flag_isOK;
 }
 
-void VariableInput::highlightName(){ formatLineEdit(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG); }
 
-void VariableInput::clearFormatting()
-{
-    formatLineEditNormal(ui->lineEdit_Name);
-    formatLineEditNormal(ui->lineEdit_Elements);
-    formatLineEditNormal(ui->lineEdit_Min);
-    formatLineEditNormal(ui->lineEdit_Max);
-}
+//	Formatting
+//	-----------
 
 void VariableInput::clearFields()
 {
@@ -117,6 +96,20 @@ void VariableInput::clearFields()
     ui->lineEdit_Elements->clear();
     ui->comboBox_Axes->setCurrentIndex(0);
 }
+
+void VariableInput::clearFormatting()
+{
+    formatLineEditNormal(ui->lineEdit_Name);
+    formatLineEditNormal(ui->lineEdit_Elements);
+    formatLineEditNormal(ui->lineEdit_Min);
+    formatLineEditNormal(ui->lineEdit_Max);
+}
+
+void VariableInput::highlightName(){ formatLineEdit(ui->lineEdit_Name, COLOR_ERROR_FG, COLOR_ERROR_BG); }
+
+
+//	Setters
+//	--------
 
 void VariableInput::setAxisMode(int axis_mode)
 {
@@ -138,6 +131,10 @@ void VariableInput::setAxisMode(int axis_mode)
         break;
     }
 }
+
+
+//	Getters
+//	--------
 
 void VariableInput::setNumber(int gui_number){ m_guiNumber = gui_number; }
 
@@ -187,7 +184,10 @@ QWidget* VariableInput::getFocusOutWidget()
     return ui->lineEdit_Units;
 }
 
-// TODO: Make this more elegant
+
+//	Parsing
+//	--------
+
 void VariableInput::fromJSON(string json)
 {
    BlueJSON parser = BlueJSON(json);
@@ -228,6 +228,48 @@ void VariableInput::fromJSON(string json)
         ui->comboBox_Axes->setCurrentIndex(PlotHorizontal);
     if (token == "y")
         ui->comboBox_Axes->setCurrentIndex(PlotVertical);
+}
+
+
+//	GUI
+//	----
+
+void VariableInput::setupUiCont()
+{
+    setupInputValidation();
+    setupSplitters();
+    setupDefaultColors();
+}
+
+void VariableInput::setupInputValidation()
+{
+    QDoubleValidator *dValidator = new QDoubleValidator;
+    QIntValidator *iValidator = new QIntValidator;
+    dValidator->setLocale(QLocale(QStringLiteral("de")));
+    ui->lineEdit_Elements->setValidator(iValidator);
+    ui->lineEdit_Max->setValidator(dValidator);
+    ui->lineEdit_Min->setValidator(dValidator);
+
+}
+
+void VariableInput::setupSplitters()
+{
+    for(int i = 0; i < ui->splitter->count(); i++){
+        ui->splitter->handle(i)->setEnabled(false);
+    }
+}
+
+void VariableInput::setupDefaultColors()
+{
+    DefaultColors <<
+         //! Normal Background
+         "white" <<
+         //! Normal Foreground
+         "black" <<
+         //! Error Background
+         "red" <<
+         //! Error Foreground
+         "white";
 }
 
 void VariableInput::enableRemoveButton(bool flag_enable)

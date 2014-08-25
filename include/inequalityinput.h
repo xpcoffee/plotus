@@ -102,6 +102,7 @@ public:
     void fromJSON(string);
 
     //	getters: ui
+    QString getName();
     int getNumber();
     int getShapeIndex();
     int getCombination();
@@ -161,6 +162,7 @@ private:
     Variable m_xVariable, m_yVariable;
 
     // meta
+    QString m_name;
     int m_guiNumber;
     int m_precisionIndex;
     bool flag_skip;

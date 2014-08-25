@@ -56,7 +56,7 @@ InequalityInput::InequalityInput(QWidget *parent) :
     dValidator->setLocale(QLocale(QStringLiteral("de")));
     ui->lineEdit_Precision->setValidator(dValidator);
 
-    //	initialize precision line edit
+    //	initialize tolerance line edit
     m_precisionIndex = ui->splitter_Inequality->indexOf(ui->lineEdit_Precision);
     on_comboBox_Inequality_currentIndexChanged(0);
 
@@ -77,7 +77,7 @@ InequalityInput::~InequalityInput()
 
 void InequalityInput::setNumber(int nNumber){
     m_guiNumber = nNumber;
-        ui->label_Index->setNum(nNumber+1);
+    ui->label_Index->setNum(nNumber+1);
 }
 
 void InequalityInput::setXYVariables(Variable mX, Variable mY){
@@ -91,14 +91,19 @@ void InequalityInput::setY(QVector<double> vY){ m_y = vY; }
 
 bool InequalityInput::createInequality(){
     m_errorMessage = "";
+
+    m_name = ui->lineEdit_Name->text();
+
     // input expressions
     m_inequality = Inequality(ui->lineEdit_Left->text().toStdString(),
                              getSymbol(),
                              ui->lineEdit_Right->text().toStdString());
     m_inequality.setPrecision(atof(ui->lineEdit_Precision->text().toStdString().c_str()));
+
     // remove whitespace
     ui->lineEdit_Left->setText(QString::fromStdString(m_inequality.getExpressionLHS()));
     ui->lineEdit_Right->setText(QString::fromStdString(m_inequality.getExpressionRHS()));
+
     //check expression
     if(highlightInvalidExpressionTerms())
         return false;
@@ -124,6 +129,7 @@ void InequalityInput::resetCombinations(){ ui->comboBox_Interact->setCurrentInde
 string InequalityInput::expressionToJSON() {
     stringstream buffer;
     buffer <<	"\"inequality\":{" <<
+                "\"description\":\"" << getName().toStdString() << "\"," <<
                 "\"left expression\":" << "\""<< getLeftExpression().toStdString() << "\"," <<
                 "\"symbol\":" << "\"" << ui->comboBox_Inequality->currentText().toStdString() << "\",";
     if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
@@ -178,7 +184,11 @@ void InequalityInput::fromJSON(string sInput){
     stringstream iss;
     iss << sInput;
     while (getline (iss, token, '"')){
-        if (token == "left expression")	{
+        if (token == "description")	{
+            if (getline (iss, token, '"'))
+                if (getline (iss, token, '"'))
+                    ui->lineEdit_Name->setText(QString::fromStdString(token));
+        } else if (token == "left expression")	{
             if (getline (iss, token, '"'))
                 if (getline (iss, token, '"'))
                     ui->lineEdit_Left->setText(QString::fromStdString(token));
@@ -220,6 +230,8 @@ void InequalityInput::fromJSON(string sInput){
 
 //	Getters: UI
 //	------------
+
+QString InequalityInput::getName(){ return m_name; }
 
 int InequalityInput::getNumber(){ return m_guiNumber; }
 
