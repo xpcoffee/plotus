@@ -5,12 +5,11 @@
 /// -------
 
 BlueJSON::BlueJSON(string text):
-    m_text(text),
     m_valueStart(0),
     flag_inString(false),
     m_token("")
 {
-    m_it = m_text.begin();
+    setText(text);
 }
 
 

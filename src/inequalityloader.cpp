@@ -4,14 +4,19 @@
 ///	Static Functions
 ///	=================
 
-static string cropFileName(string filename)
+static QString cropFileName(QString filename)
 {
-        string filename_short;
-        stringstream ss_name;
-        ss_name << filename;
+        int pos0 = 0, pos1 = 0;
 
-        while (getline(ss_name, filename_short, '/')){}
-        return filename_short.substr(0, filename_short.size() - 5); // .json is 5 characters long
+        for (int i = 0; i < filename.size(); i++)
+            if (filename[i] == '/')
+                pos0 = i;
+
+        for (int i = 0; i < filename.size(); i++)
+            if (filename[i] == '.')
+                pos1= i;
+
+        return filename.mid(pos0 + 1, pos1 - pos0);
 }
 
 ///	Public Functions
@@ -57,71 +62,77 @@ void InequalityLoader::setNumber(int number = -1)
     ui->label_Number->setNum(number + 1);
 }
 
-void InequalityLoader::setCaseName(string value)
+void InequalityLoader::setCaseName(QString value)
 {
-    if (!value.empty())
-        ui->label_CaseOut->setText(QString::fromStdString(value));
+    if (!value.isEmpty())
+        ui->label_CaseOut->setText(value);
 }
 
 
 //	TODO: insert error checking (flag_problem)
 
-void InequalityLoader::loadCase(string filename)
+void InequalityLoader::loadCase(QString filename)
 {
-    if (filename.empty()){
+    if (filename.isEmpty()){
         emit killThis(m_guiNumber);
         return;
     }
 
     //	read in file
-    m_filename = filename;
-    BlueJSON parser;
-    parser.readInFile(filename);
+    m_file.setFileName(filename);
 
-    //	parse
-    m_detailsHTML.clear();
-
-    string case_name, plot, expressions, data;
-
-    //! main case
-    parser.getNextKeyValue("name", case_name); 		// case name
-
-    if (case_name.empty()) { m_name = cropFileName(filename); }
-    else {
-        parser.getStringToken(case_name);
-        m_name = case_name;
+    if(!m_file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        emit killThis(m_guiNumber);
+        return;
     }
 
-    createDetailItem(m_detailLevel, "Case", QString::fromStdString(m_name), "", "");
+    QString contents =  QString::fromUtf8(m_file.readAll());
+    m_file.close();
+
+    //	parse
+    BlueJSON parser = BlueJSON(contents.toStdString());
+    string token;
+
+    //! main case
+    parser.getNextKeyValue("name", token); 		// case name
+
+    if (token.empty()) { m_name = cropFileName(filename); }
+    else {
+        parser.getStringToken(token);
+        m_name = QString::fromStdString(token);
+    }
+
+    createDetailItem(m_detailLevel, "Case", m_name, "", "");
     m_detailLevel++;
 
-    ui->label_CaseOut->setText(QString::fromStdString("<b><i>" + m_name + "</b></i>"));
+    ui->label_CaseOut->setText("<b><i>" + m_name + "</b></i>");
 
     //! main case variables
-    parser.getNextKeyValue("variables", m_variables);
+    parser.getNextKeyValue("variables", token);
+    m_variables = QString::fromStdString(token);
+
     formatVariables(m_variables);
 
     //! main case plots
-    while (parser.getNextKeyValue("plot", plot)){
-        BlueJSON plotparser = BlueJSON(plot);
+    while (parser.getNextKeyValue("plot", token)){
+        BlueJSON plotparser = BlueJSON(token);
 
         createDetailItem(m_detailLevel, "Plot", "", "", "");
         m_detailLevel++;
 
         // expressions
-        plotparser.getNextKeyValue("expressions", expressions);
+        plotparser.getNextKeyValue("expressions", token);
+        QString expressions = QString::fromStdString(token);
 
-        m_detailsJSON.push_back("\"expressions\":{" + expressions + "}\n");
+        m_detailsJSON << "\"expressions\":{" + expressions + "}\n";
         formatExpressions(expressions);
 
         // data
-        plotparser.getNextKeyValue("data", data);
-        parsePlotData(data);
+        plotparser.getNextKeyValue("data", token);
+        parsePlotData(QString::fromStdString(token));
 
         m_detailLevel--;
     }
-
-    m_detailsHTML.push_back( "End Case: <b>" + m_name + "</b>" );
 
     setComboBoxPlot();
     return;
@@ -267,20 +278,20 @@ QVector<double> InequalityLoader::getYProblem()
     return emptything;
 }
 
-string InequalityLoader::getFile() { return m_filename; }
+QString InequalityLoader::getFile() { return m_file.fileName(); }
 
-string InequalityLoader::getErrors() { return m_errorMessage; }
+QString InequalityLoader::getErrors() { return m_errorMessage; }
 
 
 //	Parsers
 //	--------
 
-void InequalityLoader::parsePlotData(string json)
+void InequalityLoader::parsePlotData(QString json)
 {
     string token;
     double point;
     QVector<double> x_vector, y_vector;
-    BlueJSON parser = BlueJSON(json);
+    BlueJSON parser = BlueJSON(json.toStdString());
 
     while ( parser.getNextKeyValue("x", token) ){
         parser.getDoubleToken(point);
@@ -296,21 +307,21 @@ void InequalityLoader::parsePlotData(string json)
         parseProblem("Data | data set does not have the same amount of x-values as y-values\n");
     }
 
-    m_xResults.push_back(x_vector);
-    m_yResults.push_back(y_vector);
+    m_xResults << x_vector;
+    m_yResults << y_vector;
 }
 
-void InequalityLoader::parseProblem(string problem)
+void InequalityLoader::parseProblem(QString problem)
 {
     m_errorMessage += "Error | Parsing | " + problem + "\n";
 }
 
-void InequalityLoader::formatVariables(string json)
+void InequalityLoader::formatVariables(QString json)
 {
     string name, units, axis, token;
     int steps;
     double min, max;
-    BlueJSON parser = BlueJSON(json);
+    BlueJSON parser = BlueJSON(json.toStdString());
 
     while (parser.getNextKeyValue("name", name)){
         parser.getStringToken(name);
@@ -335,9 +346,9 @@ void InequalityLoader::formatVariables(string json)
     }
 }
 
-void InequalityLoader::formatInequality(string json)
+void InequalityLoader::formatInequality(QString json)
 {
-    BlueJSON parser = BlueJSON(json + ","); // comma allows final value to be parsed
+    BlueJSON parser = BlueJSON(json.toStdString() + ","); // comma allows final value to be parsed
     string desc, l_exp, sym, r_exp, comb;
 
     parser.getNextKeyValue("description", desc);
@@ -360,9 +371,9 @@ void InequalityLoader::formatInequality(string json)
                      QString::fromStdString(buffer.str()), QString::fromStdString(comb));
 }
 
-void InequalityLoader::formatCase(string json)
+void InequalityLoader::formatCase(QString json)
 {
-    BlueJSON parser = BlueJSON(json);
+    BlueJSON parser = BlueJSON(json.toStdString());
     string case_name, variables, expressions;
 
     parser.getNextKeyValue("name", case_name);
@@ -373,15 +384,15 @@ void InequalityLoader::formatCase(string json)
 
     createDetailItem(m_detailLevel, "Case", QString::fromStdString(case_name), "", "");
     m_detailLevel++;
-    formatVariables(variables);
-    formatExpressions(expressions);
+    formatVariables(QString::fromStdString(variables));
+    formatExpressions(QString::fromStdString(expressions));
     m_detailLevel--;
 }
 
-void InequalityLoader::formatExpressions(string json)
+void InequalityLoader::formatExpressions(QString json)
 {
     string token;
-    BlueJSON parser = BlueJSON(json);
+    BlueJSON parser = BlueJSON(json.toStdString());
     vector<string> keys;
 
     keys.push_back("inequality");
@@ -390,23 +401,23 @@ void InequalityLoader::formatExpressions(string json)
 
     while (parser.getNextKeyValue(keys, token, closest_key)){
         //	case found
-        if (closest_key == 1){ formatCase(token); }
+        if (closest_key == 1){ formatCase(QString::fromStdString(token)); }
         //	inequality found
-        else { formatInequality(token); }
+        else { formatInequality(QString::fromStdString(token)); }
     }
 }
 
-string InequalityLoader::expressionToJSON()
+QString InequalityLoader::expressionToJSON()
 {
     return 	"\"case\":{\n"
             "\"name\":\"" + m_name + "\",\n"
-            "\"file\":\"" + m_filename + "\",\n"
+            "\"file\":\"" + m_file.fileName() + "\",\n"
             "\"variables\":[" + m_variables + "],\n" +
             m_detailsJSON[m_currentPlot] +
             "}\n";
 }
 
-string InequalityLoader::dataToJSON()
+QString InequalityLoader::dataToJSON()
 {
     stringstream buffer;
     QVector<double> x_vector = m_xResults[m_currentPlot];
@@ -425,7 +436,7 @@ string InequalityLoader::dataToJSON()
     }
     // close plot data
     buffer << "]\n";
-    return buffer.str();
+    return QString::fromStdString(buffer.str());
 }
 
 template <typename T>
@@ -492,7 +503,7 @@ void InequalityLoader::setComboBoxPlot()
 {
     if (ui->comboBox_Plot->count() == 0){
         QStringList combo_data;
-        for (unsigned int i = 0; i < m_xResults.size(); i++){
+        for (int i = 0; i < m_xResults.count(); i++){
             stringstream buffer;
             if (i < m_dropDownList.count()){
                 buffer << m_dropDownList[i].toStdString();
@@ -521,30 +532,55 @@ void InequalityLoader::splitterResize(QList<int> sizes){ ui->splitter_Inequality
 
 void InequalityLoader::on_pushButton_Details_clicked()
 {
-    QMessageBox *dialog = new QMessageBox(0);
-    QString message = "";
+    QDialog *dialog = new QDialog(0);
+    QTreeWidget *tree = new QTreeWidget(dialog);
+    QList<QTreeWidgetItem*> *parents = new QList<QTreeWidgetItem*>();
+    int prev_lvl = 0;
+    int cur_lvl;
 
-    stringstream buffer;
-        buffer << htmlTableRow( htmlTableHeader("Level") +
-                                htmlTableHeader("Type", "align=\"left\"") +
-                                htmlTableHeader("Description") +
-                                htmlTableHeader("Data1") +
-                                htmlTableHeader("Data2") );
+    QTreeWidgetItem *header = tree->headerItem();
+    header->setText(0, "Type");
+    header->setText(1, "Description");
+    header->setText(2, "Data 1");
+    header->setText(3, "Data 2");
 
-    for (int i = 0; i < m_details.count(); i++){
-        QString indent = "";
-        for (int j = 0; j < m_details[i].level; j++)
-            indent.append("~");
+    QTreeWidgetItem *child = new QTreeWidgetItem(tree);
+    child->setText(0, m_details[0].type);
+    child->setText(1, m_details[0].description);
+    child->setText(2, m_details[0].data1);
+    child->setText(3, m_details[0].data2);
+    parents->push_back(child);
+    prev_lvl++;
 
-        buffer << htmlTableRow( htmlTableCell(m_details[i].level) +
-                                htmlTableCell(indent.toStdString() + m_details[i].type.toStdString()) +
-                                htmlTableCell(m_details[i].description.toStdString()) +
-                                htmlTableCell(m_details[i].data1.toStdString()) +
-                                htmlTableCell(m_details[i].data2.toStdString()) );
+    for (int i = 1; i < m_details.count(); i++){
+        cur_lvl = m_details[i].level;
+
+        while(prev_lvl > cur_lvl){
+            parents->takeLast();
+            prev_lvl--;
+        }
+        if ( prev_lvl < cur_lvl){
+            parents->append(child);
+        }
+
+        child = new QTreeWidgetItem( parents->last() );
+
+                    m_details[i].type <<
+                    m_details[i].description <<
+                    m_details[i].data1 <<
+                    m_details[i].data2;
+
+        child->setText(0, m_details[i].type);
+        child->setText(1, m_details[i].description);
+        child->setText(2, m_details[i].data1);
+        child->setText(3, m_details[i].data2);
+
+        prev_lvl = cur_lvl;
     }
-    message.append(QString::fromStdString( htmlTable(buffer.str(), "cellspacing=\"10\" align=\"left\"") ));
 
-    dialog->setText(message);
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->addWidget(tree);
+    dialog->setLayout(layout);
     dialog->show();
 }
 

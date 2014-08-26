@@ -242,7 +242,7 @@ void BareMinimumPlotter::printError()
         m_errorMessage += m_inequalityInputs[i]->getErrors();
     }
     for (int i = 0; i < static_cast<int>(m_inequalityLoaders.size()); i++){
-        m_errorMessage += QString::fromStdString(m_inequalityLoaders[i]->getErrors());
+        m_errorMessage += m_inequalityLoaders[i]->getErrors();
     }
 
     log(m_errorMessage);
@@ -531,7 +531,7 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
     if (filename == ""){
         filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)");
     }
-    new_inequality->loadCase(filename.toStdString());
+    new_inequality->loadCase(filename);
     // enable/disable combination menu
     determineButtonStates();
     //	set tab order
@@ -722,7 +722,7 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
         if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "loader"){
             InequalityLoader *current_inequality = qobject_cast<InequalityLoader*>(ui->layout_Inequality->itemAt(i)->widget());
             // expression
-            case_subelement_buffer << current_inequality->expressionToJSON();
+            case_subelement_buffer << current_inequality->expressionToJSON().toStdString();
             if (current_inequality->getCombination() == CombinationNone){ // save only combined results
                 // start plot brace
                 case_element_buffer << "\"plot\":{";
@@ -730,7 +730,7 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
                 case_element_buffer << "\"expressions\":{\n" <<  case_subelement_buffer.str()<< "\n},\n";
                 case_subelement_buffer.str("");
                 // encapsulate plot data
-                case_element_buffer << current_inequality->dataToJSON();
+                case_element_buffer << current_inequality->dataToJSON().toStdString();
                 // end plot brace
                 case_element_buffer << "}";
                 // comma after plot if not at end

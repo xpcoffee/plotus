@@ -329,7 +329,7 @@ void PlotWorker::printError()
         m_errorMessage += m_inequalityInputs[i]->getErrors();
     }
     for (int i = 0; i < static_cast<int>(m_inequalityLoaders.size()); i++){
-        m_errorMessage += QString::fromStdString(m_inequalityLoaders[i]->getErrors());
+        m_errorMessage += m_inequalityLoaders[i]->getErrors();
     }
 
     emit logMessage(m_errorMessage);

@@ -65,8 +65,8 @@ public:
 
     //	setters
     void setNumber(int number);
-    void setCaseName(string value);
-    void loadCase(string filename);
+    void setCaseName(QString value);
+    void loadCase(QString filename);
     void setX(QVector<double> vector);
     void setY(QVector<double> vector);
     void clearCombinationResults();
@@ -89,18 +89,18 @@ public:
     QVector<double> getY();
     QVector<double> getXProblem();
     QVector<double> getYProblem();
-    string getFile();
-    string getErrors();
+    QString getFile();
+    QString getErrors();
 
     //	parsers
-    void parsePlotData(string json);
-    void parseProblem(string problem);
-    void formatVariables(string json);
-    void formatInequality(string json);
-    void formatCase(string json);
-    void formatExpressions(string json);
-    string expressionToJSON();
-    string dataToJSON();
+    void parsePlotData(QString json);
+    void parseProblem(QString problem);
+    void formatVariables(QString json);
+    void formatInequality(QString json);
+    void formatCase(QString json);
+    void formatExpressions(QString json);
+    QString expressionToJSON();
+    QString dataToJSON();
 
     template <typename T>
     inline string htmlTable(T value, string options = "align=\"center\"");
@@ -141,23 +141,22 @@ private:
     Ui::InequalityLoader *ui;
 
     //	data
-    vector< QVector<double> > m_xResults, m_yResults;
-    vector< QVector<double> > m_xResults_Problem, m_yResults_Problem;
+    QList< QVector<double> > m_xResults, m_yResults;
+    QList< QVector<double> > m_xResults_Problem, m_yResults_Problem;
     QVector<double> m_xResults_combination, m_yResults_combination;
-    vector<string> m_detailsHTML;
-    vector<string> m_detailsJSON;
+    QStringList m_detailsJSON;
+    QList<DetailItem> m_details;
 
     //	meta
-    QStringList m_dropDownList;
-    QList<DetailItem> m_details;
     int m_guiNumber;
     int m_detailLevel;
     bool flag_skip;
     bool flag_problem;
-    string m_name;
-    string m_filename;
-    string m_variables;
-    string m_errorMessage;
+    QFile m_file;
+    QString m_name;
+    QString m_variables;
+    QString m_errorMessage;
+    QStringList m_dropDownList;
 
     //	evaluation
     unsigned int m_currentPlot;
