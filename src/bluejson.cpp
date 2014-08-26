@@ -170,11 +170,11 @@ bool BlueJSON::getNextKeyValue(vector<string> keys, string &value, int &closest_
 
 bool BlueJSON::getStringToken(string &token)
 {
-    if (m_token.empty() || m_token.size() < 2)
+    if (token.empty() || token.size() < 2)
         return false;
-    if ((*m_token.begin() != '"') || (*(m_token.end()-1) != '"'))
+    if ((*token.begin() != '"') || (*(token.end()-1) != '"'))
         return false;
-    token = m_token.substr(1,m_token.size()-2);
+    token = token.substr(1,token.size()-2);
     return true;
 }
 

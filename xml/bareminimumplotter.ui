@@ -1356,10 +1356,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QWidget" name="tab_settings">
        <property name="styleSheet">
-        <string notr="true">QLabel {
-	color: white;
-	font: bold 13px calibri;
-}</string>
+        <string notr="true"/>
        </property>
        <attribute name="title">
         <string>Settings</string>

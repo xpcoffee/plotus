@@ -40,6 +40,18 @@ namespace Ui {
 class InequalityLoader;
 }
 
+///	Structs
+///	========
+
+struct DetailItem
+{
+    int level;
+    QString type;
+    QString description;
+    QString data1;
+    QString data2;
+};
+
 ///	Class
 /// ======
 
@@ -58,6 +70,7 @@ public:
     void setX(QVector<double> vector);
     void setY(QVector<double> vector);
     void clearCombinationResults();
+    void createDetailItem(int level, QString type, QString desc, QString data1, QString data2);
 
     //	getters: ui
     QString getName();
@@ -82,13 +95,21 @@ public:
     //	parsers
     void parsePlotData(string json);
     void parseProblem(string problem);
-    string formatName(string json);
-    string formatVariables(string json);
-    string formatInequality(string json);
-    string formatCase(string json);
-    string formatExpressions(string json);
+    void formatVariables(string json);
+    void formatInequality(string json);
+    void formatCase(string json);
+    void formatExpressions(string json);
     string expressionToJSON();
     string dataToJSON();
+
+    template <typename T>
+    inline string htmlTable(T value, string options = "align=\"center\"");
+    template <typename T>
+    inline string htmlTableCell (T value, string options = "align=\"center\"");
+    template <typename T>
+    inline string htmlTableRow (T value, string options = "");
+    template <typename T>
+    inline string htmlTableHeader (T value, string options = "");
 
     //	evaluation
     void setPlot(int index = -1);
@@ -125,15 +146,17 @@ private:
     QVector<double> m_xResults_combination, m_yResults_combination;
     vector<string> m_detailsHTML;
     vector<string> m_detailsJSON;
-    string m_detail;
 
     //	meta
-    QStringList m_descriptions;
+    QStringList m_dropDownList;
+    QList<DetailItem> m_details;
     int m_guiNumber;
+    int m_detailLevel;
     bool flag_skip;
     bool flag_problem;
     string m_name;
     string m_filename;
+    string m_variables;
     string m_errorMessage;
 
     //	evaluation

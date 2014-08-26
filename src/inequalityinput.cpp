@@ -261,10 +261,11 @@ QString InequalityInput::getErrors()
 
 }
 
-QWidget* InequalityInput::getFocusInWidget() { return ui->lineEdit_Left; }
+QWidget* InequalityInput::getFocusInWidget() { return ui->lineEdit_Name; }
 
 QWidget* InequalityInput::getFocusOutWidget()
 {
+    QWidget::setTabOrder(ui->lineEdit_Name, ui->lineEdit_Left);
     QWidget::setTabOrder(ui->lineEdit_Left, ui->comboBox_Inequality);
     QWidget::setTabOrder(ui->comboBox_Inequality, ui->lineEdit_Right);
 
