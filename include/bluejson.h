@@ -78,6 +78,22 @@ public:
     bool getDoubleToken(double &token);
     bool getBoolToken(bool &token);
 
+    //	utility
+
+    string jsonObject(string json);
+    string jsonObject(string properties[]);
+
+    template <typename T>
+    string jsonArray(T values[]);
+
+    template <typename T>
+    string jsonKeyValue(string key, T value);
+
+    template <typename T>
+    string jsonValue(T value);
+    string jsonValue(string value);
+    string jsonValue(char value);
+
 
 };
 

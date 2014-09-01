@@ -41,6 +41,7 @@
 #include <QMainWindow>
 #include <QtWidgets>
 #include <QThread>
+#include <QDesktopServices>
 #include <qvalidator.h>
 #include <qlocale.h>
 
@@ -191,6 +192,7 @@ private slots:
     void menu_qwt_context(const QPoint &pos);
     void exportQwt(int width, int height, int dpi);
     void copyQwtToClipboard();
+    void openLink_github();
     void on_toolButton_AddVariable_clicked();
     void on_toolButton_AddInequality_clicked();
     void on_toolButton_Plot_clicked();

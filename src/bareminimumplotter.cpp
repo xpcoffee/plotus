@@ -73,6 +73,9 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     setupDynamicUi();
 
     flag_saved = true;
+
+    string array[] = {"one", "two", "three"};
+    BlueJSON::jsonArray()
 }
 
 
@@ -296,7 +299,7 @@ void BareMinimumPlotter::setupUiCont()
 
     setupButtons();
 
-    loadCSS();
+//    loadCSS();
 }
 
 void BareMinimumPlotter::setupInputValidation()
@@ -309,20 +312,21 @@ void BareMinimumPlotter::setupInputValidation()
 
 void BareMinimumPlotter::setupQwtPlot()
 {
-    //	add Qwt plot
     QVBoxLayout *layout_Plot = new QVBoxLayout();
-    ui->container_Graph->setLayout(layout_Plot);
     plotter = new QwtPlot(ui->centralWidget);
+
     plotter->canvas()->setStyleSheet("QwtPlotCanvas{"
                                      "border: 0px;"
                                      "background: white;"
                                      "}");
-    layout_Plot->addWidget(plotter);
     plotter->setContextMenuPolicy(Qt::CustomContextMenu);
+
     QWidget::connect (plotter, SIGNAL(customContextMenuRequested(const QPoint &)),
                       this, SLOT(menu_qwt_context(const QPoint &)));
 
-    //	make plot window fill the tab on startup
+    layout_Plot->addWidget(plotter);
+    ui->container_Graph->setLayout(layout_Plot);
+
     resetQwtPlotWindow();
 }
 
@@ -391,15 +395,13 @@ void BareMinimumPlotter::setupDynamicUi()
 
 void BareMinimumPlotter::loadCSS()
 {
-    ifstream infile("../bare_minimum_plotter/rsc/centralwidget.css");
-    string token, stylesheet;
-    if (!infile.is_open())
-        return;
-    while (getline(infile, token)){
-        stylesheet += token + "\n";
-    }
-    infile.close();
-    ui->centralWidget->setStyleSheet(QString::fromStdString(stylesheet));
+    QFile file (":/style/theme_dark.css");
+
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
+
+    QString theme = file.readAll();
+    ui->centralWidget->setStyleSheet(theme);
+    file.close();
 }
 
 void BareMinimumPlotter::loadSettings()
@@ -463,26 +465,29 @@ void BareMinimumPlotter::addVariableInput()
 {
     m_variableInputs.push_back(new VariableInput());
     VariableInput *new_variable = m_variableInputs.back();
-    //	add to gui
+
     new_variable->setNumber(m_variableCount++);
     ui->layout_Variable->addWidget(new_variable);
-    //	connect slots to signals
-    QObject::connect(new_variable, SIGNAL(axisModeChanged(int)), 	// axis mode synch
+
+    QObject::connect(new_variable, SIGNAL(axisModeChanged(int)),
                      this, SLOT(checkAxisMode(int)));
-    QObject::connect(new_variable, SIGNAL(killThis(int)),			// delete
+    QObject::connect(new_variable, SIGNAL(killThis(int)),
                      this, SLOT(removeVariableInput(int)));
-    QObject::connect(this, SIGNAL(variableSplitterMoved(QList<int>)), 		// splitter resize
+    QObject::connect(this, SIGNAL(variableSplitterMoved(QList<int>)),
                      new_variable, SLOT(splitterResize(QList<int>)));
+
     //	enable remove buttons
     if (m_variableInputs.size() > 2){
         new_variable->setAxisMode(PlotConstant);
         m_variableInputs[0]->enableRemoveButton(true);
         m_variableInputs[1]->enableRemoveButton(true);
     }
-    //	set tab order
+
     determineTabOrder();
+
     //	resize according to splitter
     variableSplitterMoved(ui->splitter_VariableHeader->sizes());
+
     flag_saved = false;
 }
 
@@ -490,10 +495,10 @@ void BareMinimumPlotter::addInequalityInput()
 {
     m_inequalityInputs.push_back(new InequalityInput());
     InequalityInput *new_inequality = m_inequalityInputs.back();
-    //	add to gui
+
     ui->layout_Inequality->addWidget(new_inequality);
     new_inequality->setNumber(ui->layout_Inequality->count()-1);
-    //	connect slots to signals
+
     QObject::connect(new_inequality, SIGNAL(killThis(int)),
                         this, SLOT(removeInequalityInput(int)));
     QObject::connect(new_inequality, SIGNAL(moveUp(int)),
@@ -502,12 +507,14 @@ void BareMinimumPlotter::addInequalityInput()
                         this, SLOT(moveInequalityInputDown(int)));
     QObject::connect(this, SIGNAL(inequalitySplitterMoved(QList<int>)),
                         new_inequality, SLOT(splitterResize(QList<int>)));
-    //	enable/disable combination menu
+
     determineButtonStates();
-    //	set tab order
+
     determineTabOrder();
+
     //	resize according to splitter
     inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
+
     flag_saved = false;
 }
 
@@ -515,10 +522,10 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
 {
     m_inequalityLoaders.push_back(new InequalityLoader);
     InequalityLoader *new_inequality = m_inequalityLoaders.back();
-    //	add to gui
+
     ui->layout_Inequality->addWidget(new_inequality);
     new_inequality->setNumber(ui->layout_Inequality->count()-1);
-    //	connect slots to signals
+
     QObject::connect(new_inequality, SIGNAL(killThis(int)),
                         this, SLOT(removeInequalityInput(int)));
     QObject::connect(new_inequality, SIGNAL(moveUp(int)),
@@ -527,15 +534,17 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
                         this, SLOT(moveInequalityInputDown(int)));
     QObject::connect(this, SIGNAL(inequalitySplitterMoved(QList<int>)),
                         new_inequality, SLOT(splitterResize(QList<int>)));
+
     // load data
     if (filename == ""){
         filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)");
     }
     new_inequality->loadCase(filename);
-    // enable/disable combination menu
+
     determineButtonStates();
-    //	set tab order
+
     determineTabOrder();
+
     //	resize according to splitter
     inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 
@@ -565,6 +574,7 @@ void BareMinimumPlotter::determineButtonStates()
 {
     int nSize = ui->layout_Inequality->count()-1;
     QWidget *front_item = ui->layout_Inequality->itemAt(0)->widget();
+
     // disable movement buttons if only 1 widget in layout
     if (ui->layout_Inequality->count() < 2){
         if(front_item->accessibleDescription() == "input")
@@ -572,6 +582,7 @@ void BareMinimumPlotter::determineButtonStates()
         if(front_item->accessibleDescription() == "loader")
             m_inequalityLoaders.front()->enablePositionButtons(false);
     }
+
     // enable position buttons if more than 1 widget
     if (ui->layout_Inequality->count() > 1){
         if(front_item->accessibleDescription() == "input")
@@ -579,6 +590,7 @@ void BareMinimumPlotter::determineButtonStates()
         if(front_item->accessibleDescription() == "loader")
             m_inequalityLoaders.front()->enablePositionButtons(true);
     }
+
     // disable the combinations of last item
     QWidget *back_item = ui->layout_Inequality->itemAt(nSize)->widget();
     if(back_item->accessibleDescription() == "input"){
@@ -589,6 +601,7 @@ void BareMinimumPlotter::determineButtonStates()
         qobject_cast<InequalityLoader*>(back_item)->enableCombinations(false);
         qobject_cast<InequalityLoader*>(back_item)->resetCombinations();
     }
+
     // enable combinations of second last item
     if (ui->layout_Inequality->count() > 1){
         QWidget *second_last_item = ui->layout_Inequality->itemAt(nSize)->widget();
@@ -606,19 +619,23 @@ void BareMinimumPlotter::determineTabOrder()
     QWidget *widget;
     QWidget *current;
     QWidget *prev;
+
     prev = ui->tabWidget;
+
     for (int i = 0; i < ui->layout_Inequality->count(); i++){
         widget = ui->layout_Inequality->itemAt(i)->widget();
         current = getFocusInWidget(widget);
         QWidget::setTabOrder(prev, current);
         prev = getFocusOutWidget(widget);
     }
+
     for (int i = 0; i < ui->layout_Variable->count(); i++){
         widget = ui->layout_Variable->itemAt(i)->widget();
         current = getFocusInWidget(widget);
         QWidget::setTabOrder(prev, current);
         prev = getFocusOutWidget(widget);
     }
+
     QWidget::setTabOrder(prev, ui->toolButton_Plot);
     QWidget::setTabOrder(ui->toolButton_Plot, ui->toolButton_AddInequality);
     QWidget::setTabOrder(ui->toolButton_AddInequality, ui->toolButton_AddInequalityLoader);
@@ -691,6 +708,7 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
             case_element_buffer << ",";
         case_element_buffer << "\n";
     }
+
     // encapsulate variables
     case_buffer << "\"variables\":[\n" << case_element_buffer.str() << "],\n";
     case_element_buffer.str("");
@@ -699,18 +717,24 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
     for (int i = 0; i < ui->layout_Inequality->count(); i++){
         if (ui->layout_Inequality->itemAt(i)->widget()->accessibleDescription() == "input"){
             InequalityInput *current_inequality = qobject_cast<InequalityInput*>(ui->layout_Inequality->itemAt(i)->widget());
+
             // expression
             case_subelement_buffer << current_inequality->expressionToJSON();
+
             if (current_inequality->getCombination() == CombinationNone){ // save only combined results
                 // start plot brace
                 case_element_buffer << "\"plot\":{";
+
                 // encapsulate expressions
                 case_element_buffer << "\"expressions\":{\n" <<  case_subelement_buffer.str()<< "\n},\n";
                 case_subelement_buffer.str("");
+
                 // encapsulate plot data
                 case_element_buffer << current_inequality->dataToJSON();
+
                 // end plot brace
                 case_element_buffer << "}";
+
                 // comma after plot if not at end
                 if (i != ui->layout_Inequality->count()-1){
                     case_element_buffer << ",\n";
@@ -1125,46 +1149,60 @@ void BareMinimumPlotter::menu_about()
     QLabel *message = new QLabel(dialog);
     QLabel *icon = new QLabel (dialog);
     QLabel *link = new QLabel (dialog);
-    QLabel *octocat = new QLabel (dialog);
+    QPushButton *octocat = new QPushButton (dialog);
     QHBoxLayout *layout = new QHBoxLayout(dialog);
-    QVBoxLayout *sublayout = new QVBoxLayout();
+    QVBoxLayout *sublayout_right = new QVBoxLayout();
+    QVBoxLayout *sublayout_left = new QVBoxLayout();
     QHBoxLayout *linklayout = new QHBoxLayout();
     QHBoxLayout *buttonlayout = new QHBoxLayout();
     QPushButton *ok = new QPushButton(dialog);
 
+    icon->setPixmap(QPixmap(":/images_icons/Icon64.png"));
+
+    title->setText("BareMinimumPlotter");
+
     QString msg;
-    msg = "build 0.5\n"
+    msg = "build 0.5 (Alpha)\n\n"
           "Emerick Bosch\n"
           "September 2014";
+    message->setText(msg);
+
+    octocat->setIcon(QIcon(":/images_icons/GitHub-Mark-32px.png"));
+    octocat->setIconSize(QSize(32,32));
+    octocat->setMinimumWidth(40);
+    octocat->setMaximumWidth(40);
+    connect(octocat, SIGNAL(clicked()), this, SLOT(openLink_github()));
+
+    link->setText("Github | xpcoffee");
 
     ok->setText("OK");
     ok->setMinimumWidth(80);
     ok->setMaximumWidth(80);
     QWidget::connect(ok, SIGNAL(clicked()), dialog, SLOT(close()) );
 
-    dialog->setWindowTitle("BareMinimumPlotter :: About");
-    dialog->resize(300,200);
-
-    sublayout->setAlignment(Qt::AlignTop);
-
-    message->setText(msg);
-    title->setText("BareMinimumPlotter");
-    link->setText("Github | xpcoffee");
-    icon->setText("BMP icon");
-    octocat->setText("octocat icon");
-
-    linklayout->addWidget(link);
     linklayout->addWidget(octocat);
+    linklayout->addWidget(link);
+    linklayout->addStretch();
+
     buttonlayout->addStretch();
     buttonlayout->addWidget(ok);
-    sublayout->addWidget(title);
-    sublayout->addWidget(message);
-    sublayout->addLayout(linklayout);
-    sublayout->addLayout(buttonlayout);
-    layout->addWidget(icon);
-    layout->addLayout(sublayout);
+
+    sublayout_right->setAlignment(Qt::AlignTop);
+    sublayout_right->addWidget(title);
+    sublayout_right->addWidget(message);
+    sublayout_right->addLayout(linklayout);
+    sublayout_right->addLayout(buttonlayout);
+
+    sublayout_left->setAlignment(Qt::AlignTop);
+    sublayout_left->addWidget(icon);
+    sublayout_left->addStretch();
+
+    layout->addLayout(sublayout_left);
+    layout->addLayout(sublayout_right);
     dialog->setLayout(layout);
 
+    dialog->setWindowTitle("BareMinimumPlotter :: About");
+    dialog->setWindowFlags(dialog->windowFlags() |= Qt::MSWindowsFixedSizeDialogHint);
     dialog->show();
 }
 
@@ -1201,10 +1239,11 @@ void BareMinimumPlotter::menu_export()
         printError();
         return;
     }
+
     ExportDialog *dialog = new ExportDialog(this);
     dialog->show();
-    QWidget::connect(dialog, SIGNAL(exportOptions(int,int,int)), this, SLOT(exportQwt(int,int,int)));
 
+    QWidget::connect(dialog, SIGNAL(exportOptions(int,int,int)), this, SLOT(exportQwt(int,int,int)));
 }
 
 void BareMinimumPlotter::menu_new()
@@ -1213,12 +1252,13 @@ void BareMinimumPlotter::menu_new()
         clearGUI();
         return;
     }
+
     QString warning = "<b>The current work has not been saved.</b><br>Are you sure you want to start a new case?";
     QMessageBox *warnbox;
+
     int response  = warnbox->warning(0, "New Case", warning, "&Cancel", "&New Case");
-    if (response == 1){
-        clearGUI();
-    }
+
+    if (response == 1) clearGUI();
 }
 
 void BareMinimumPlotter::menu_quit()
@@ -1244,9 +1284,9 @@ void BareMinimumPlotter::menu_qwt_context(const QPoint &)
 
     QMenu *context_menu = new QMenu();
     context_menu->addAction(copy_qwt);
+
     connect(copy_qwt, SIGNAL(triggered()), this, SLOT(copyQwtToClipboard()));
     context_menu->popup(QCursor::pos());
-
 }
 
 void BareMinimumPlotter::on_toolButton_Plot_clicked()
@@ -1269,6 +1309,11 @@ void BareMinimumPlotter::copyQwtToClipboard()
     //	BUG: getting "QImage::pixel: coordinate (...,...) out of range" when application quits
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setPixmap(plotter->grab(plotter->geometry()));
+}
+
+void BareMinimumPlotter::openLink_github()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/xpcoffee"));
 }
 
 void BareMinimumPlotter::on_toolButton_AddVariable_clicked() { addVariableInput(); }

@@ -43,3 +43,6 @@ FORMS    +=  xml/bareminimumplotter.ui \
     xml/variableinput.ui
 
 OTHER_FILES +=
+
+RESOURCES += \
+    rsc/rsc.qrc

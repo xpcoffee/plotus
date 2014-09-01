@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>BareMinimumPlotter</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../rsc/rsc.qrc">
+    <normaloff>:/images_icons/Icon64.png</normaloff>:/images_icons/Icon64.png</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="layout_Main">
     <property name="leftMargin">
@@ -1554,7 +1558,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>pushButton_Cancel</tabstop>
   <tabstop>lineEdit_SettingsTolerance</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../rsc/rsc.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>

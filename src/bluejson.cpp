@@ -237,6 +237,69 @@ bool BlueJSON::getBoolToken(bool &token)
     return false;
 }
 
+string BlueJSON::jsonObject(string json)
+{
+    return "{" + json + "\n}";
+}
+
+string BlueJSON::jsonObject(string properties[])
+{
+    stringstream buffer;
+    int i = 0;
+
+    buffer << "{";
+    for (i; i < properties->size() - 1; i++){
+        buffer << properties[i];
+        buffer << ",\n";
+    }
+    buffer << properties[i];
+    buffer << "\n}";
+
+    return buffer.str();
+}
+
+template <typename T>
+string BlueJSON::jsonArray(T values[])
+{
+    stringstream buffer;
+    int i = 0;
+
+    buffer << "[";
+    for (i; i < values.size() - 1; i++){
+        buffer << jsonValue(values[i]);
+        buffer << ",\n";
+    }
+    buffer << jsonValue(values[i]);
+    buffer << "\n]";
+
+    return buffer.str();
+}
+
+template <typename T>
+string BlueJSON::jsonKeyValue(string key, T value)
+{
+    return "\"" + key + "\":" + jsonValue(value);
+}
+
+template <typename T>
+string BlueJSON::jsonValue(T value)
+{
+    stringstream buffer;
+    buffer << value;
+    return buffer.str();
+}
+
+string BlueJSON::jsonValue(string value)
+{
+    return "\"" + value + "\"";
+}
+
+string BlueJSON::jsonValue(char c)
+{
+    stringstream buffer;
+    buffer << "\"" << c << "\"";
+    return buffer.str();
+}
 
 ///	Private
 ///	--------
