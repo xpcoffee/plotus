@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <vector>
+#include <algorithm>
 #include "variableinput.h"
 #include "inequalityinput.h"
 #include "inequalityloader.h"
@@ -19,7 +20,6 @@ typedef vector<InequalityInput*> IneqInputArray;
 typedef vector<InequalityLoader*> IneqLoaderArray;
 typedef QVector<QPointF> PlottingVector;
 typedef QwtSymbol::Style PlotStyle;
-
 
 
 ///	Class
@@ -66,11 +66,16 @@ private:
 
     //	plotting
     int m_prevCombination;
+    int m_lastMatch;
+
     Variable m_xVariable, m_yVariable;
-    QVector<double> m_xResults, m_yResults;
-    QVector<double> m_xResults_problem, m_yResults_problem;
-    QVector<double> m_xResults_combination, m_yResults_combination;
-    PlottingVector m_samples, m_samples_problem;
+    PlottingVector m_results;
+    PlottingVector m_resultsProblem;
+    PlottingVector m_resultsCombined;
+    PlottingVector *m_findRange;
+
+
+//    PlottingVector m_samples, m_samples_problem;
 
     //	gui management
     int m_inequalityCount;
@@ -91,18 +96,18 @@ private:
     void combineResults(input_type *inequality);
 
     template <typename input_type>
-    void vectorCombineNone(input_type *inequality);
+    void combinationNone(input_type *inequality);
 
     template <typename input_type>
-    void vectorCombineIntersection(input_type *inequality);
+    void combinationIntersection(input_type *inequality);
 
     template <typename input_type>
-    void vectorCombineUnion(input_type *inequality);
+    void combinationUnion(input_type *inequality);
 
     template <typename input_type>
-    void vectorCombineSubtraction(input_type *inequality);
+    void combinationSubtraction(input_type *inequality);
 
-    void createQwtSamples();
+    PlottingVector createPlottingVector(QVector<double> x_values, QVector<double> y_values);
 
     //	notification
     void printError();

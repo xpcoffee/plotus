@@ -30,7 +30,7 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     ui(new Ui::InequalityLoader),
     m_guiNumber(-1),
     flag_skip(false),
-    flag_problem(false),
+    flag_ok(true),
     m_errorMessage(""),
     m_currentPlot(0)
 {
@@ -42,6 +42,7 @@ InequalityLoader::InequalityLoader(QWidget *parent) :
     }
     m_detailLevel = 0;
 }
+
 
 //	Destructor
 //	-----------
@@ -73,10 +74,11 @@ void InequalityLoader::setCaseName(QString value)
 
 void InequalityLoader::loadCase(QString filename)
 {
-    if (filename.isEmpty()){
-        emit killThis(m_guiNumber);
-        return;
-    }
+    bool flag_cumulOK = true;
+
+    flag_ok = !filename.isEmpty();
+    flag_cumulOK &=flag_ok;
+    checkOK("Could not open file: " + filename + ".");
 
     //	read in file
     m_file.setFileName(filename);
@@ -94,11 +96,13 @@ void InequalityLoader::loadCase(QString filename)
     string token;
 
     //! main case
-    parser.getNextKeyValue("name", token); 		// case name
+    flag_ok = parser.getNextKeyValue("name", token); 		// case name
+    flag_ok &= parser.getStringToken(token);
+    flag_cumulOK &=flag_ok;
+    checkOK("Main Case | Name.");
 
     if (token.empty()) { m_name = cropFileName(filename); }
     else {
-        parser.getStringToken(token);
         m_name = QString::fromStdString(token);
     }
 
@@ -108,9 +112,11 @@ void InequalityLoader::loadCase(QString filename)
     ui->label_CaseOut->setText("<b><i>" + m_name + "</b></i>");
 
     //! main case variables
-    parser.getNextKeyValue("variables", token);
-    m_variables = QString::fromStdString(token);
+    flag_ok = parser.getNextKeyValue("variables", token);
+    flag_cumulOK &=flag_ok;
+    checkOK("Main Case | Variables not found.");
 
+    m_variables = QString::fromStdString(token);
     formatVariables(m_variables);
 
     //! main case plots
@@ -121,28 +127,35 @@ void InequalityLoader::loadCase(QString filename)
         m_detailLevel++;
 
         // expressions
-        plotparser.getNextKeyValue("expressions", token);
-        QString expressions = QString::fromStdString(token);
+        flag_ok = plotparser.getNextKeyValue("expressions", token);
+        flag_cumulOK &=flag_ok;
+        checkOK("Plot | Expressions not found.");
 
+        QString expressions = QString::fromStdString(token);
         m_detailsJSON << "\"expressions\":{" + expressions + "}\n";
         formatExpressions(expressions);
 
         // data
-        plotparser.getNextKeyValue("data", token);
+        flag_ok = plotparser.getNextKeyValue("data", token);
+        flag_cumulOK &=flag_ok;
+        checkOK("Plot | Data not found.");
+
         parsePlotData(QString::fromStdString(token));
 
         m_detailLevel--;
     }
 
-    setComboBoxPlot();
-    return;
+    flag_ok = flag_cumulOK;
 
     //	if input was invalid, kill the widget
-    if (flag_problem){
+    if (!flag_ok){
         emit killThis(m_guiNumber);
         return;
     }
 
+    setComboBoxPlot();
+
+    return;
 }
 
 
@@ -294,18 +307,19 @@ void InequalityLoader::parsePlotData(QString json)
     BlueJSON parser = BlueJSON(json.toStdString());
 
     while ( parser.getNextKeyValue("x", token) ){
-        parser.getDoubleToken(point);
+        flag_ok &= parser.getDoubleToken(point);
         x_vector.push_back(point);
 
-        parser.getNextKeyValue("y", token);
-        parser.getDoubleToken(point);
+        flag_ok &= parser.getNextKeyValue("y", token);
+        flag_ok &= parser.getDoubleToken(point);
         y_vector.push_back(point);
     }
 
-    if (x_vector.size() != y_vector.size()){
-//        flag_problem = true;
-        parseProblem("Data | data set does not have the same amount of x-values as y-values\n");
-    }
+    checkOK("Data | problem parsing co-ordinate [" + QString::number(x_vector.count()) + "]");
+
+    if (x_vector.size() != y_vector.size()){ flag_ok = false; }
+
+    checkOK("Data | data set does not have the same amount of x-values as y-values\n");
 
     m_xResults << x_vector;
     m_yResults << y_vector;
@@ -324,17 +338,19 @@ void InequalityLoader::formatVariables(QString json)
     BlueJSON parser = BlueJSON(json.toStdString());
 
     while (parser.getNextKeyValue("name", name)){
-        parser.getStringToken(name);
-        parser.getNextKeyValue("min", token);
-        parser.getDoubleToken(min);
-        parser.getNextKeyValue("max", token);
-        parser.getDoubleToken(max);
-        parser.getNextKeyValue("elements", token);
-        parser.getIntToken(steps);
-        parser.getNextKeyValue("units", units);
-        parser.getStringToken(units);
-        parser.getNextKeyValue("axis", axis);
-        parser.getStringToken(axis);
+        flag_ok &= parser.getStringToken(name);
+        flag_ok &= parser.getNextKeyValue("min", token);
+        flag_ok &= parser.getDoubleToken(min);
+        flag_ok &= parser.getNextKeyValue("max", token);
+        flag_ok &= parser.getDoubleToken(max);
+        flag_ok &= parser.getNextKeyValue("elements", token);
+        flag_ok &= parser.getIntToken(steps);
+        flag_ok &= parser.getNextKeyValue("units", units);
+        flag_ok &= parser.getStringToken(units);
+        flag_ok &= parser.getNextKeyValue("axis", axis);
+        flag_ok &= parser.getStringToken(axis);
+
+        checkOK("Variable | Problem parsing [" + QString::fromStdString(name) + "]");
 
         stringstream buffer;
         buffer << "linear [" << min << ";" << max << "]"
@@ -351,17 +367,19 @@ void InequalityLoader::formatInequality(QString json)
     BlueJSON parser = BlueJSON(json.toStdString() + ","); // comma allows final value to be parsed
     string desc, l_exp, sym, r_exp, comb;
 
-    parser.getNextKeyValue("description", desc);
-    parser.getNextKeyValue("left expression", l_exp);
-    parser.getNextKeyValue("symbol", sym);
-    parser.getNextKeyValue("right expression", r_exp);
-    parser.getNextKeyValue("combination", comb);
+    flag_ok &= parser.getNextKeyValue("description", desc);
+    flag_ok &= parser.getNextKeyValue("left expression", l_exp);
+    flag_ok &= parser.getNextKeyValue("symbol", sym);
+    flag_ok &= parser.getNextKeyValue("right expression", r_exp);
+    flag_ok &= parser.getNextKeyValue("combination", comb);
 
-    parser.getStringToken(desc);
-    parser.getStringToken(l_exp);
-    parser.getStringToken(sym);
-    parser.getStringToken(r_exp);
-    parser.getStringToken(comb);
+    flag_ok &= parser.getStringToken(desc);
+    flag_ok &= parser.getStringToken(l_exp);
+    flag_ok &= parser.getStringToken(sym);
+    flag_ok &= parser.getStringToken(r_exp);
+    flag_ok &= parser.getStringToken(comb);
+
+    checkOK("Inequality | Problem parsing inequality.");
 
     m_dropDownList << QString::fromStdString(desc);
 
@@ -376,11 +394,13 @@ void InequalityLoader::formatCase(QString json)
     BlueJSON parser = BlueJSON(json.toStdString());
     string case_name, variables, expressions;
 
-    parser.getNextKeyValue("name", case_name);
-    parser.getNextKeyValue("variables", variables);
-    parser.getNextKeyValue("expressions", expressions);
+    flag_ok &= parser.getNextKeyValue("name", case_name);
+    flag_ok &= parser.getNextKeyValue("variables", variables);
+    flag_ok &= parser.getNextKeyValue("expressions", expressions);
 
-    parser.getStringToken(case_name);
+    flag_ok &= parser.getStringToken(case_name);
+
+    checkOK("Case | Problem parsing case.");
 
     createDetailItem(m_detailLevel, "Case", QString::fromStdString(case_name), "", "");
     m_detailLevel++;
@@ -420,6 +440,8 @@ QString InequalityLoader::expressionToJSON()
 QString InequalityLoader::dataToJSON()
 {
     stringstream buffer;
+    buffer.precision(precDouble::digits10);
+
     QVector<double> x_vector = m_xResults[m_currentPlot];
     QVector<double> y_vector = m_yResults[m_currentPlot];
 
@@ -439,37 +461,12 @@ QString InequalityLoader::dataToJSON()
     return QString::fromStdString(buffer.str());
 }
 
-template <typename T>
-inline string InequalityLoader::htmlTable(T value, string options)
+inline void InequalityLoader::checkOK(QString message)
 {
-    stringstream buffer;
-    buffer << "<table " << options << ">" << value << "</table>";
-    return buffer.str();
+   if(!flag_ok)
+       parseProblem(message);
 }
 
-template <typename T>
-inline string InequalityLoader::htmlTableCell(T value, string options)
-{
-    stringstream buffer;
-    buffer << "<td " << options << ">" << value << "</td>";
-    return buffer.str();
-}
-
-template <typename T>
-inline string InequalityLoader::htmlTableRow(T value, string options)
-{
-    stringstream buffer;
-    buffer << "<tr " << options << ">" << value << "</tr>";
-    return buffer.str();
-}
-
-template <typename T>
-inline string InequalityLoader::htmlTableHeader(T value, string options)
-{
-    stringstream buffer;
-    buffer << "<th " << options << ">" << value << "</th>";
-    return buffer.str();
-}
 
 //	Evaluation
 //	-----------
@@ -517,20 +514,7 @@ void InequalityLoader::setComboBoxPlot()
     }
 }
 
-
-///	Public Slots
-///	=============
-
-void InequalityLoader::splitterResize(QList<int> sizes){ ui->splitter_InequalityInput->setSizes(sizes); }
-
-
-///	Private Functions
-/// ==================
-
-//	Private Slots
-//	--------------
-
-void InequalityLoader::on_pushButton_Details_clicked()
+void InequalityLoader::createDetailDialog()
 {
     QDialog *dialog = new QDialog(0);
     QTreeWidget *tree = new QTreeWidget(dialog);
@@ -565,11 +549,6 @@ void InequalityLoader::on_pushButton_Details_clicked()
 
         child = new QTreeWidgetItem( parents->last() );
 
-                    m_details[i].type <<
-                    m_details[i].description <<
-                    m_details[i].data1 <<
-                    m_details[i].data2;
-
         child->setText(0, m_details[i].type);
         child->setText(1, m_details[i].description);
         child->setText(2, m_details[i].data1);
@@ -582,6 +561,24 @@ void InequalityLoader::on_pushButton_Details_clicked()
     layout->addWidget(tree);
     dialog->setLayout(layout);
     dialog->show();
+}
+
+
+///	Public Slots
+///	=============
+
+void InequalityLoader::splitterResize(QList<int> sizes){ ui->splitter_InequalityInput->setSizes(sizes); }
+
+
+///	Private Functions
+/// ==================
+
+//	Private Slots
+//	--------------
+
+void InequalityLoader::on_pushButton_Details_clicked()
+{
+    createDetailDialog();
 }
 
 void InequalityLoader::on_pushButton_Delete_clicked() { emit killThis(m_guiNumber); }

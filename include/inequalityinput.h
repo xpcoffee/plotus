@@ -30,6 +30,11 @@
 #include "inequality.h"
 #include "expression.h"
 
+///	Typedef
+///	========
+
+typedef std::numeric_limits<double> precDouble;
+
 
 ///	Enumerated Types
 ///	=================

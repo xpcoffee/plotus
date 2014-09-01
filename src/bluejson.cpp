@@ -24,17 +24,19 @@ void BlueJSON::setText(string text)
 
 void BlueJSON::readInFile(string filename)
 {
-    if (filename.empty())
-        return;
-// read in file
+    if (filename.empty()) return;
+
+    // read in file
     string token;
     string file = "";
     ifstream iss(filename.c_str());
-    if (!iss.is_open())
-        return;
+
+    if (!iss.is_open()) return;
+
     while (getline(iss, token)){
         file += token + "\n";
     }
+
     iss.close();
     setText(file);
 }
@@ -42,6 +44,7 @@ void BlueJSON::readInFile(string filename)
 void BlueJSON::setPosition(int pos){
     if ( (m_text.empty()) || (pos > static_cast<int>(m_text.size()-1)) )
         return;
+
     m_it = m_text.begin() + pos;
 }
 
@@ -57,8 +60,7 @@ int BlueJSON::getCurrentPos(){ return m_it - m_text.begin(); }
 
 bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
 {
-    if (m_text.empty() || key.empty())
-        return false;
+    if (m_text.empty() || key.empty()) return false;
 
     if (pos != -1){
         setPosition(pos);
@@ -66,7 +68,9 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
 
     flag_keyFound = false;
     flag_inString = false;
+
     stringstream buffer;
+    buffer.precision(precDouble::digits10);
 
     for (; m_it != m_text.end(); m_it++){
         char c = *m_it;
@@ -87,6 +91,10 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
 
         // find value
         else {
+            // check for strings
+            // - value start/end should not be triggered if found in a string
+            isStringDelimiter(c);
+
             if (isValueStart(c)){
                // start of value
                if (m_nestLevel == 0){
@@ -94,12 +102,15 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
                }
                if (c != ':') { m_nestLevel++; }
             }
+
             if (isValueEnd(c)){
                if (c != ',' && m_nestLevel != 0) { m_nestLevel--; }
                if (m_nestLevel == 0){	// end of value
                     unsigned int value_end = m_it - m_text.begin();
+
                     value = m_text.substr(m_valueStart, value_end - m_valueStart);	// return value
                     m_token = value;
+
                     return true;
                }
             }
@@ -111,16 +122,13 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
 
 bool BlueJSON::getNextKeyValue(vector<string> keys, string &value, int &closest_key)
 {
-    if (m_text.empty() || keys.empty())
-        return false;
-
-//    if (pos != -1){
-//        setPosition(pos);
-//    }
+    if (m_text.empty() || keys.empty()) return false;
 
     flag_keyFound = false;
     flag_inString = false;
+
     stringstream buffer;
+    buffer.precision(precDouble::digits10);
 
     for (; m_it != m_text.end(); m_it++){
         char c = *m_it;
@@ -133,6 +141,7 @@ bool BlueJSON::getNextKeyValue(vector<string> keys, string &value, int &closest_
                         flag_keyFound = true;
                         flag_inString = false;
                         m_nestLevel = 0;
+
                         if (closest_key != -1) // if integer was passed
                             closest_key = i;
                     }
@@ -145,16 +154,23 @@ bool BlueJSON::getNextKeyValue(vector<string> keys, string &value, int &closest_
 
         // find value
         else {
+            // check for strings - so that value start/end is not triggered if found in a string
+            isStringDelimiter(c);
+
             if (isValueStart(c)){
                // start of value
                if (m_nestLevel == 0){
                     m_valueStart = m_it - m_text.begin() + 1;
                }
+
                if (c != ':') { m_nestLevel++; }
             }
+
             if (isValueEnd(c)){
                if (c != ',' && m_nestLevel != 0) { m_nestLevel--; }
-               if (m_nestLevel == 0){	// end of value
+
+               // end of value
+               if (m_nestLevel == 0){
                     unsigned int value_end = m_it - m_text.begin();
                     value = m_text.substr(m_valueStart, value_end - m_valueStart);	// return value
                     m_token = value;
@@ -171,8 +187,10 @@ bool BlueJSON::getStringToken(string &token)
 {
     if (token.empty() || token.size() < 2)
         return false;
+
     if ((*token.begin() != '"') || (*(token.end()-1) != '"'))
         return false;
+
     token = token.substr(1,token.size()-2);
     return true;
 }
@@ -180,37 +198,42 @@ bool BlueJSON::getStringToken(string &token)
 bool BlueJSON::getIntToken(int &token)
 {
     stringstream ss;
-    if (m_token.empty())
-        return false;
+
+    if (m_token.empty()) return false;
+
     ss << m_token;
-    if(ss >> token)
-        return true;
+
+    if(ss >> token) return true;
     return false;
 }
 
 bool BlueJSON::getDoubleToken(double &token)
 {
     stringstream ss;
-    if (m_token.empty())
-        return false;
+    ss.precision(precDouble::digits10);
+
+    if (m_token.empty()) return false;
+
     ss << m_token;
-    if(ss >> token)
-        return true;
+
+    if(ss >> token) return true;
     return false;
 }
 
 bool BlueJSON::getBoolToken(bool &token)
 {
-    if (m_token.empty())
-        return false;
+    if (m_token.empty()) return false;
+
     if (m_token == "false"){
         token = true;
         return true;
     }
+
     if (m_token == "true"){
         token = false;
         return true;
     }
+
     return false;
 }
 
@@ -223,15 +246,15 @@ bool BlueJSON::getBoolToken(bool &token)
 
 bool BlueJSON::isValueStart(char c)
 {
-    if (flag_inString)
-        return false;
+    if (flag_inString) return false;
+
     return (c == '{') || (c == '[') || (c == ':');
 }
 
  bool BlueJSON::isValueEnd(char c)
 {
-     if (flag_inString)
-         return false;
+     if (flag_inString) return false;
+
      return (c == '}') || (c == ']') || (c == ',');
 }
 
@@ -241,5 +264,6 @@ bool BlueJSON::isStringDelimiter(char c)
         flag_inString = !flag_inString;
         return true;
     }
+
     return false;
 }

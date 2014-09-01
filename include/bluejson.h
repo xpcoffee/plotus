@@ -24,6 +24,12 @@
 #include <cstdlib>
 #include <vector>
 #include <cassert>
+#include <limits>
+
+///	Typedef
+///	========
+
+typedef std::numeric_limits<double> precDouble;
 
 
 ///	Namespace

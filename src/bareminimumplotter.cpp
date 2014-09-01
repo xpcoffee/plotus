@@ -679,6 +679,7 @@ QWidget* BareMinimumPlotter::getFocusOutWidget(QWidget* widget)
 void BareMinimumPlotter::saveCase_JSON(QString filename)
 {
     stringstream case_buffer, case_element_buffer, case_subelement_buffer;
+
     if (filename.isEmpty())
         return;
 
@@ -787,6 +788,7 @@ void BareMinimumPlotter::openCase(QString filename)
             BlueJSON subparser = BlueJSON(token);
             string file;
 
+            // PROBLEM: finding : in a filename like "E:somehing\somehting" and treating it as delimiter
             subparser.getNextKeyValue("file", file);
             subparser.getStringToken(file);
             addInequalityLoader(QString::fromStdString(file));
@@ -905,10 +907,13 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number)
 
     for (int i = 0; i < static_cast<int>(m_inequalityInputs.size()); i++){
         if (m_inequalityInputs[i]->getNumber() == gui_number){
+            // delete
             ui->layout_Inequality->removeWidget(m_inequalityInputs[i]);
             delete m_inequalityInputs[i];
+
             if (i < static_cast<int>(m_inequalityInputs.size()))
                 m_inequalityInputs.erase(m_inequalityInputs.begin()+i);
+
             // enable/disable position buttons
             determineInequalityOrder();
             determineButtonStates();
@@ -918,13 +923,18 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number)
     }
     for (int i = 0; i < static_cast<int>(m_inequalityLoaders.size()); i++){
         if (m_inequalityLoaders[i]->getNumber() == gui_number){
+
             // if there was a problem parsing, show it
             if (m_inequalityLoaders[i]->getErrors() != "")
                 printError();
+
+            // delete
             ui->layout_Inequality->removeWidget(m_inequalityLoaders[i]);
             delete m_inequalityLoaders[i];
+
             if (i < static_cast<int>(m_inequalityLoaders.size()))
                 m_inequalityLoaders.erase(m_inequalityLoaders.begin()+i);
+
             // enable/disable position buttons
             determineInequalityOrder();
             determineButtonStates();
@@ -1039,7 +1049,7 @@ void BareMinimumPlotter::setProgress(int value, QString message)
     }
 }
 
-void BareMinimumPlotter::addGraph(QVector<QPointF> qwt_samples, PlotStyle shape, QColor marker_color, QString tag)
+void BareMinimumPlotter::addGraph(PlottingVector qwt_samples, PlotStyle shape, QColor marker_color, QString tag)
 {
         QwtPlotCurve *plot = new QwtPlotCurve(tag);
 
@@ -1069,7 +1079,7 @@ void BareMinimumPlotter::addGraph(QVector<QPointF> qwt_samples, PlotStyle shape,
         flag_empty = false;
 }
 
-void BareMinimumPlotter::addErrorGraph(QVector<QPointF> qwt_problem_samples)
+void BareMinimumPlotter::addErrorGraph(PlottingVector qwt_problem_samples)
 {
         QwtPlotCurve *plot = new QwtPlotCurve();
         QwtSymbol *marker = new QwtSymbol(QwtSymbol::Star1,
@@ -1110,16 +1120,52 @@ void BareMinimumPlotter::plottingFinished()
 //	TODO: add github link instead of email. new dialog subclass?
 void BareMinimumPlotter::menu_about()
 {
-    QString title = "BareMinimumPlotter :: About";
-    QString info = "<h1><b>B</b>are<b>M</b>inimum<b>P</b>lotter</h1><br/> \
-                    Prototype - build 0.3<br/> \
-                    <br/>\
-                    Emerick Bosch<br/>\
-                    June 2014<br/>\
-                    <br/>\
-                    Send questions and feedback to: <a href=\"emerick.bosch+bugmail@gmail.com\">bugmail</a>";
+    QDialog *dialog = new QDialog(this);
+    QLabel *title = new QLabel(dialog);
+    QLabel *message = new QLabel(dialog);
+    QLabel *icon = new QLabel (dialog);
+    QLabel *link = new QLabel (dialog);
+    QLabel *octocat = new QLabel (dialog);
+    QHBoxLayout *layout = new QHBoxLayout(dialog);
+    QVBoxLayout *sublayout = new QVBoxLayout();
+    QHBoxLayout *linklayout = new QHBoxLayout();
+    QHBoxLayout *buttonlayout = new QHBoxLayout();
+    QPushButton *ok = new QPushButton(dialog);
 
-    QMessageBox::about(0, title, info);
+    QString msg;
+    msg = "build 0.5\n"
+          "Emerick Bosch\n"
+          "September 2014";
+
+    ok->setText("OK");
+    ok->setMinimumWidth(80);
+    ok->setMaximumWidth(80);
+    QWidget::connect(ok, SIGNAL(clicked()), dialog, SLOT(close()) );
+
+    dialog->setWindowTitle("BareMinimumPlotter :: About");
+    dialog->resize(300,200);
+
+    sublayout->setAlignment(Qt::AlignTop);
+
+    message->setText(msg);
+    title->setText("BareMinimumPlotter");
+    link->setText("Github | xpcoffee");
+    icon->setText("BMP icon");
+    octocat->setText("octocat icon");
+
+    linklayout->addWidget(link);
+    linklayout->addWidget(octocat);
+    buttonlayout->addStretch();
+    buttonlayout->addWidget(ok);
+    sublayout->addWidget(title);
+    sublayout->addWidget(message);
+    sublayout->addLayout(linklayout);
+    sublayout->addLayout(buttonlayout);
+    layout->addWidget(icon);
+    layout->addLayout(sublayout);
+    dialog->setLayout(layout);
+
+    dialog->show();
 }
 
 void BareMinimumPlotter::menu_open()

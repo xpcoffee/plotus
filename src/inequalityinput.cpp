@@ -144,6 +144,8 @@ string InequalityInput::expressionToJSON() {
 
 string InequalityInput::dataToJSON(){
     stringstream buffer;
+    buffer.precision(precDouble::digits10);
+
     buffer << "\"data\":[";
     for (int j = 0; j < m_x.size(); j++){
         buffer << "{"
@@ -181,20 +183,20 @@ string InequalityInput::problemDataToJSON(){
 
 void InequalityInput::fromJSON(string sInput){
     string token;
-    stringstream iss;
-    iss << sInput;
-    while (getline (iss, token, '"')){
+    stringstream ss;
+    ss << sInput;
+    while (getline (ss, token, '"')){
         if (token == "description")	{
-            if (getline (iss, token, '"'))
-                if (getline (iss, token, '"'))
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"'))
                     ui->lineEdit_Name->setText(QString::fromStdString(token));
         } else if (token == "left expression")	{
-            if (getline (iss, token, '"'))
-                if (getline (iss, token, '"'))
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"'))
                     ui->lineEdit_Left->setText(QString::fromStdString(token));
         } else if (token == "symbol") {
-            if (getline (iss, token, '"'))
-                if (getline (iss, token, '"')){
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"')){
                     InequalitySymbol symbol;
                     if (token == "<")
                         symbol = SmallerThan;
@@ -209,13 +211,13 @@ void InequalityInput::fromJSON(string sInput){
                     ui->comboBox_Inequality->setCurrentIndex(symbol);
                 }
         } else if (token == "right expression") {
-            if (getline (iss, token, '"'))
-                if (getline (iss, token, '"'))
+            if (getline (ss, token, '"'))
+                if (getline (ss, token, '"'))
                     ui->lineEdit_Right->setText(QString::fromStdString(token));
 
         } else if (token == "combination") {
-            if (getline (iss, token, '"'))
-                if (getline (iss, token, '"')){
+            if (getline (ss, token, '"')){
+                if (getline (ss, token, '"')){
                     stringstream ss;
                     int index;
                     ss << token;
@@ -223,6 +225,7 @@ void InequalityInput::fromJSON(string sInput){
                         index = 0;
                     ui->comboBox_Interact->setCurrentIndex(index);
                 }
+            }
         }
     }
 }

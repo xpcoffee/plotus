@@ -7,7 +7,8 @@
 PlotWorker::PlotWorker(QObject *parent) :
     QObject(parent),
     flag_cancel(false),
-    m_prevCombination(CombinationNone)
+    m_prevCombination(CombinationNone),
+    m_lastMatch(0)
 {
 }
 
@@ -103,7 +104,6 @@ void PlotWorker::plotNew(int gui_number)
 
     emit progressUpdate(40, "Combining results, inequality " + gui_number_str + "...");
     combineResults(input);
-    createQwtSamples();
 
     if (flag_cancel)
         return;
@@ -118,10 +118,10 @@ void PlotWorker::plotNew(int gui_number)
         return;
 
     emit progressUpdate(80, "Plotting results, inequality " + gui_number_str + "..." );
-    emit newGraph(m_samples, input->getShape(), input->getColor(), input->getName());
+    emit newGraph(m_results, input->getShape(), input->getColor(), input->getName());
 
-    if (!m_xResults_problem.isEmpty())
-        emit newErrorGraph(m_samples_problem);
+    if (!m_resultsProblem.isEmpty())
+        emit newErrorGraph(m_resultsProblem);
 
     printError();
     emit progressUpdate(100, "Done.");
@@ -137,22 +137,23 @@ void PlotWorker::plotOld(int gui_number)
     loader->setPlot();
 
     emit progressUpdate(40, "Combining results, inequality " + gui_number_str + "...");
-//    combineResults(loader->getNumber());
     combineResults(loader);
-    createQwtSamples();
+//    createQwtSamples();
 
     // log combination mode
     m_prevCombination = loader->getCombination();
-    if (m_prevCombination != CombinationNone){	//	do not plot if combination requested
+
+    // determine if need to plot
+    if (m_prevCombination != CombinationNone){
         emit progressUpdate(100, "Done.");
         return;
     }
 
     emit progressUpdate(80, "Plotting results, inequality " + gui_number_str + "..." );
-    emit newGraph(m_samples, loader->getShape(), loader->getColor(), loader->getName());
+    emit newGraph(m_results, loader->getShape(), loader->getColor(), loader->getName());
 
-    if (!m_xResults_problem.isEmpty())
-        emit newErrorGraph(m_samples_problem);
+    if (!m_resultsProblem.isEmpty())
+        emit newErrorGraph(m_resultsProblem);
 
     printError();
     emit progressUpdate(100, "Done.");
@@ -164,16 +165,16 @@ void PlotWorker::combineResults(T *inequality)
 {
     switch(m_prevCombination){
     case CombinationNone:
-        vectorCombineNone(inequality);
+        combinationNone(inequality);
         break;
     case CombinationIntersect:
-        vectorCombineIntersection(inequality);
+        combinationIntersection(inequality);
         break;
     case CombinationUnion:
-        vectorCombineUnion(inequality);
+        combinationUnion(inequality);
         break;
     case CombinationSubtract:
-        vectorCombineSubtraction(inequality);
+        combinationSubtraction(inequality);
         break;
     default:
         break;
@@ -181,145 +182,73 @@ void PlotWorker::combineResults(T *inequality)
 }
 
 template<typename T>
-void PlotWorker::vectorCombineNone(T *inequality)
+void PlotWorker::combinationNone(T *inequality)
 {
-        m_xResults = inequality->getX();
-        m_yResults = inequality->getY();
-        m_xResults_problem = inequality->getXProblem();
-        m_yResults_problem = inequality->getYProblem();
+        m_results = createPlottingVector(inequality->getX(), inequality->getY());
+        m_resultsProblem = createPlottingVector(inequality->getXProblem(), inequality->getYProblem());
 }
 
 template<typename T>
-void PlotWorker::vectorCombineIntersection(T *inequality)
+void PlotWorker::combinationIntersection(T *inequality)
 {
-    QVector<double> x_resultsOld = m_xResults;
-    QVector<double> y_resultsOld = m_yResults;
-    QVector<double> x_resultsNew;
-    QVector<double> y_resultsNew;
+    PlottingVector old_results = m_results;
+    PlottingVector new_results = createPlottingVector(inequality->getX(), inequality->getY());
+    m_results.clear();
 
-    int max_size = ( x_resultsOld.size() > x_resultsNew.size() ) ? x_resultsOld.size() : x_resultsNew.size();
-    m_xResults.clear();
-    m_yResults.clear();
-    m_xResults.reserve(max_size);
-    m_yResults.reserve(max_size);
+    PlottingVector *smallest = old_results.count() < new_results.count() ? &old_results : &new_results;
+    PlottingVector *biggest = old_results.count() > new_results.count() ? &old_results : &new_results;
 
-    x_resultsNew = inequality->getX();
-    y_resultsNew = inequality->getY();
-    m_xResults_problem = inequality->getXProblem();
-    m_yResults_problem = inequality->getYProblem();
-
-    for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-       for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
-           // ApproxEqualPrecision is in case you are comparing results of different precisions.
-           if (Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_compPrec) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_compPrec)) {
-               m_xResults.push_back(x_resultsOld[i]);
-               m_yResults.push_back(y_resultsOld[i]);
-           }
-       }
-    }
-
-    // save results for plotting
-    if (inequality->getCombination() == CombinationNone){
-        inequality->setX(m_xResults);
-        inequality->setY(m_yResults);
+    for (int i = 0; i < smallest->count(); i++){
+        if ( biggest->contains(smallest->at(i)) )
+            m_results << smallest->at(i);
     }
 }
 
 template<typename T>
-void PlotWorker::vectorCombineUnion(T *inequality)
+void PlotWorker::combinationUnion(T *inequality)
 {
-    QVector<double> x_resultsOld = m_xResults;
-    QVector<double> y_resultsOld = m_yResults;
-    QVector<double> x_resultsNew;
-    QVector<double> y_resultsNew;
+    PlottingVector old_results = m_results;
+    PlottingVector new_results = createPlottingVector(inequality->getX(), inequality->getY());
+    m_results.clear();
 
-    int max_size = ( x_resultsOld.size() > x_resultsNew.size() ) ? x_resultsOld.size() : x_resultsNew.size();
-    m_xResults.clear();
-    m_yResults.clear();
-    m_xResults.reserve(max_size);
-    m_yResults.reserve(max_size);
+    PlottingVector *smallest = old_results.count() < new_results.count() ? &old_results : &new_results;
+    PlottingVector *biggest = old_results.count() > new_results.count() ? &old_results : &new_results;
 
-    x_resultsNew = inequality->getX();
-    y_resultsNew = inequality->getY();
-    m_xResults_problem = inequality->getXProblem();
-    m_yResults_problem = inequality->getYProblem();
-
-    for (m_xVariable.resetPosition(); !m_xVariable.isEnd(); m_xVariable.nextPosition()){
-        for (m_yVariable.resetPosition(); !m_yVariable.isEnd(); m_yVariable.nextPosition()){
-            for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-                if (Expression::approxEqual(m_xVariable.currentValue(), x_resultsOld[i], m_compPrec) &&
-                        Expression::approxEqual(m_yVariable.currentValue(), y_resultsOld[i], m_compPrec)){
-                    m_xResults.push_back(m_xVariable.currentValue());
-                    m_yResults.push_back(m_yVariable.currentValue());
-                }
-            }
-            for (int i = 0; i < static_cast<int>(x_resultsNew.size()); i++){
-                if ((m_xVariable.currentValue() == x_resultsNew[i]) && (m_yVariable.currentValue() == y_resultsNew[i])){
-                    m_xResults.push_back(m_xVariable.currentValue());
-                    m_yResults.push_back(m_yVariable.currentValue());
-                }
-            }
-        }
+    for (int i = 0; i < smallest->count(); i++){
+        if ( biggest->contains(smallest->at(i)) )
+            continue;
+        m_results << smallest->at(i);
     }
-
-    if (inequality->getCombination() == CombinationNone){
-        inequality->setX(m_xResults);
-        inequality->setY(m_yResults);
+    for (int i = 0; i < biggest->count(); i++){
+        m_results << biggest->at(i);
     }
-
 }
 
 template<typename T>
-void PlotWorker::vectorCombineSubtraction(T *inequality)
+void PlotWorker::combinationSubtraction(T *inequality)
 {
-    QVector<double> x_resultsOld = m_xResults;
-    QVector<double> y_resultsOld = m_yResults;
-    QVector<double> x_resultsNew;
-    QVector<double> y_resultsNew;
+    PlottingVector old_results = m_results;
+    PlottingVector new_results = createPlottingVector(inequality->getX(), inequality->getY());
+    m_results.clear();
 
-    m_xResults.clear();
-    m_yResults.clear();
-
-    x_resultsNew = inequality->getX();
-    y_resultsNew = inequality->getY();
-    m_xResults_problem = inequality->getXProblem();
-    m_yResults_problem = inequality->getYProblem();
-
-    bool flag_keep;
-
-    for (int i = 0; i < static_cast<int>(x_resultsOld.size()); i++){
-       flag_keep = true;
-       for (int j = 0; j < static_cast<int>(x_resultsNew.size()); j++) {
-           if ((Expression::approxEqual(x_resultsOld[i], x_resultsNew[j], m_compPrec) && Expression::approxEqual(y_resultsOld[i], y_resultsNew[j], m_compPrec))) {
-               flag_keep = false;
-           }
-       }
-       if (flag_keep){
-           m_xResults.push_back(x_resultsOld[i]);
-           m_yResults.push_back(y_resultsOld[i]);
-       }
+    for (int i = 0; i < old_results.count(); i++){
+        if (new_results.contains(old_results.at(i)))
+            continue;
+        m_results << old_results.at(i);
     }
 
-    if (inequality->getCombination() == CombinationNone){
-        inequality->setX(m_xResults);
-        inequality->setY(m_yResults);
-    }
 }
 
-
-void PlotWorker::createQwtSamples()
+PlottingVector PlotWorker::createPlottingVector(QVector<double> x_values, QVector<double> y_values)
 {
-    m_samples.clear();
-    m_samples_problem.clear();
+   QVector<QPointF> points;
 
-    for (int i = 0; i < m_xResults.size(); i++){
-       m_samples << QPointF(m_xResults[i], m_yResults[i]);
-    }
-    for (int i = 0; i < m_xResults_problem.size(); i++){
-       m_samples_problem << QPointF(m_xResults_problem[i], m_yResults_problem[i]);
-    }
+   for (int i = 0; i < x_values.count(); i++){
+       points << QPointF(x_values[i], y_values[i]);
+   }
+
+   return points;
 }
-
 
 void PlotWorker::printError()
 {

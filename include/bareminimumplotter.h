@@ -54,6 +54,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 #include "variable.h"
 #include "inequality.h"
@@ -62,7 +63,6 @@
 #include "inequalityinput.h"
 #include "inequalityloader.h"
 #include "bluejson.h"
-//#include "headerscrollarea.h"
 #include "plotworker.h"
 #include "exportdialog.h"
 
@@ -83,6 +83,7 @@ typedef vector<InequalityInput*> IneqInputArray;
 typedef vector<InequalityLoader*> IneqLoaderArray;
 typedef QVector<QPointF> PlottingVector;
 typedef QwtSymbol::Style PlotStyle;
+typedef std::numeric_limits<double> precDouble	;
 
 ///	Namespaces
 ///	===========

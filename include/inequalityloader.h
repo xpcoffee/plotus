@@ -28,8 +28,17 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <limits>
+
 #include "inequalityinput.h"	// CombinationMode, ComboBoxColor, ComboBoxShape
 #include "bluejson.h"
+
+
+///	Typedef
+///	========
+
+typedef std::numeric_limits<double> precDouble;
+
 
 ///	Namespaces
 ///	===========
@@ -101,15 +110,7 @@ public:
     void formatExpressions(QString json);
     QString expressionToJSON();
     QString dataToJSON();
-
-    template <typename T>
-    inline string htmlTable(T value, string options = "align=\"center\"");
-    template <typename T>
-    inline string htmlTableCell (T value, string options = "align=\"center\"");
-    template <typename T>
-    inline string htmlTableRow (T value, string options = "");
-    template <typename T>
-    inline string htmlTableHeader (T value, string options = "");
+    inline void checkOK(QString message);
 
     //	evaluation
     void setPlot(int index = -1);
@@ -119,6 +120,7 @@ public:
     void enableCombinations(bool flag_enable);
     void resetCombinations();
     void setComboBoxPlot();
+    void createDetailDialog();
 
 signals:
     void moveUp(int guiNumber);
@@ -151,7 +153,7 @@ private:
     int m_guiNumber;
     int m_detailLevel;
     bool flag_skip;
-    bool flag_problem;
+    bool flag_ok;
     QFile m_file;
     QString m_name;
     QString m_variables;
