@@ -27,8 +27,10 @@
 #include <sstream>
 #include <qvalidator.h>
 #include <qwt_symbol.h>
+
 #include "inequality.h"
 #include "expression.h"
+#include "bluejson.h"
 
 ///	Typedef
 ///	========
@@ -80,6 +82,12 @@ class InequalityInput;
 }
 
 
+///	Static Variables
+///	=================
+
+static string s_combinations [] = { "none", "intersection", "union", "subtraction" };
+
+
 ///	Class
 ///	======
 
@@ -105,6 +113,7 @@ public:
     string dataToJSON();
     string problemDataToJSON();
     void fromJSON(string);
+    InequalitySymbol symbolFromString(string value);
 
     //	getters: ui
     QString getName();

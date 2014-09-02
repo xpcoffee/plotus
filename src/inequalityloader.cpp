@@ -74,16 +74,12 @@ void InequalityLoader::setCaseName(QString value)
 
 void InequalityLoader::loadCase(QString filename)
 {
-    bool flag_cumulOK = true;
-
-    flag_ok = !filename.isEmpty();
-    flag_cumulOK &=flag_ok;
-    checkOK("Could not open file: " + filename + ".");
-
     //	read in file
     m_file.setFileName(filename);
 
-    if(!m_file.open(QIODevice::ReadOnly | QIODevice::Text)){
+    flag_ok = m_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    checkOK("Could not open file: " + filename + ".");
+    if(!flag_ok){
         emit killThis(m_guiNumber);
         return;
     }
@@ -91,69 +87,7 @@ void InequalityLoader::loadCase(QString filename)
     QString contents =  QString::fromUtf8(m_file.readAll());
     m_file.close();
 
-    //	parse
-    BlueJSON parser = BlueJSON(contents.toStdString());
-    string token;
-
-    //! main case
-    flag_ok = parser.getNextKeyValue("name", token); 		// case name
-    flag_ok &= parser.getStringToken(token);
-    flag_cumulOK &=flag_ok;
-    checkOK("Main Case | Name.");
-
-    if (token.empty()) { m_name = cropFileName(filename); }
-    else {
-        m_name = QString::fromStdString(token);
-    }
-
-    createDetailItem(m_detailLevel, "Case", m_name, "", "");
-    m_detailLevel++;
-
-    ui->label_CaseOut->setText("<b><i>" + m_name + "</b></i>");
-
-    //! main case variables
-    flag_ok = parser.getNextKeyValue("variables", token);
-    flag_cumulOK &=flag_ok;
-    checkOK("Main Case | Variables not found.");
-
-    m_variables = QString::fromStdString(token);
-    formatVariables(m_variables);
-
-    //! main case plots
-    while (parser.getNextKeyValue("plot", token)){
-        BlueJSON plotparser = BlueJSON(token);
-
-        createDetailItem(m_detailLevel, "Plot", "", "", "");
-        m_detailLevel++;
-
-        // expressions
-        flag_ok = plotparser.getNextKeyValue("expressions", token);
-        flag_cumulOK &=flag_ok;
-        checkOK("Plot | Expressions not found.");
-
-        QString expressions = QString::fromStdString(token);
-        m_detailsJSON << "\"expressions\":{" + expressions + "}\n";
-        formatExpressions(expressions);
-
-        // data
-        flag_ok = plotparser.getNextKeyValue("data", token);
-        flag_cumulOK &=flag_ok;
-        checkOK("Plot | Data not found.");
-
-        parsePlotData(QString::fromStdString(token));
-
-        m_detailLevel--;
-    }
-
-    flag_ok = flag_cumulOK;
-
-    //	if input was invalid, kill the widget
-    if (!flag_ok){
-        emit killThis(m_guiNumber);
-        return;
-    }
-
-    setComboBoxPlot();
+    parseFile(contents);
 
     return;
 }
@@ -299,6 +233,82 @@ QString InequalityLoader::getErrors() { return m_errorMessage; }
 //	Parsers
 //	--------
 
+void InequalityLoader::parseFile(QString json)
+{
+    BlueJSON parser = BlueJSON(json.toStdString());
+    string token;
+    bool flag_cumulOK = true;
+
+
+    //	main case
+
+    flag_ok = parser.getNextKeyValue("name", token);
+    flag_ok &= parser.getStringToken(token);
+    checkOK("Main Case | Name.");
+    flag_cumulOK &=flag_ok;
+
+    if (token.empty()) { m_name = cropFileName(m_file.fileName()); }
+    else {
+        m_name = QString::fromStdString(token);
+    }
+
+    ui->label_CaseOut->setText("<b><i>" + m_name + "</b></i>");
+
+    createDetailItem(m_detailLevel, "Case", m_name, "", "");
+    m_detailLevel++;
+
+    flag_ok = parser.getNextKeyValue("variables", token);
+    checkOK("Main Case | Variables not found.");
+    flag_cumulOK &=flag_ok;
+
+    m_variables = QString::fromStdString(token);
+    formatVariables(m_variables);
+
+
+    //	main case plots
+
+    while (parser.getNextKeyValue("plot", token)){
+        BlueJSON plotparser = BlueJSON(token);
+
+        formatPlot();
+        m_detailLevel++;
+
+        // expressions
+        flag_ok = plotparser.getNextKeyValue("expressions", token);
+        checkOK("Plot | Expressions not found.");
+        flag_cumulOK &=flag_ok;
+
+
+        token = BlueJSON::jsonObject(token);
+        QString expressions = QString::fromStdString(token);
+
+        m_expressions << expressions;
+        formatExpressions(expressions);
+
+        // data
+        flag_ok = plotparser.getNextKeyValue("data", token);
+        checkOK("Plot | Data not found.");
+        flag_cumulOK &=flag_ok;
+
+        parsePlotData(QString::fromStdString(token));
+
+        m_detailLevel--;
+    }
+
+    flag_ok = flag_cumulOK;
+
+
+
+    //	if input was invalid, kill the widget
+    if (!flag_ok){
+        emit killThis(m_guiNumber);
+        return;
+    }
+
+    setComboBoxPlot();
+
+}
+
 void InequalityLoader::parsePlotData(QString json)
 {
     string token;
@@ -328,6 +338,11 @@ void InequalityLoader::parsePlotData(QString json)
 void InequalityLoader::parseProblem(QString problem)
 {
     m_errorMessage += "Error | Parsing | " + problem + "\n";
+}
+
+void InequalityLoader::formatPlot()
+{
+    createDetailItem(m_detailLevel, "Plot", "", "", "");
 }
 
 void InequalityLoader::formatVariables(QString json)
@@ -429,36 +444,35 @@ void InequalityLoader::formatExpressions(QString json)
 
 QString InequalityLoader::expressionToJSON()
 {
-    return 	"\"case\":{\n"
-            "\"name\":\"" + m_name + "\",\n"
-            "\"file\":\"" + m_file.fileName() + "\",\n"
-            "\"variables\":[" + m_variables + "],\n" +
-            m_detailsJSON[m_currentPlot] +
-            "}\n";
+    vector<string> properties;
+    properties.push_back(BlueJSON::jsonKeyValue("name", m_name.toStdString()));
+    properties.push_back(BlueJSON::jsonKeyValue("file", m_file.fileName().toStdString()));
+    properties.push_back(BlueJSON::jsonKeyValue("variables", BlueJSON::jsonArray(m_variables.toStdString(), Flat)));
+    properties.push_back(BlueJSON::jsonKeyValue("name", m_name.toStdString()));
+    properties.push_back(BlueJSON::jsonKeyValue("expressions", m_expressions[m_currentPlot].toStdString()));
+
+    string json = BlueJSON::jsonObject(properties);
+    return QString::fromStdString(BlueJSON::jsonKeyValue("case", json));
 }
 
 QString InequalityLoader::dataToJSON()
 {
-    stringstream buffer;
-    buffer.precision(precDouble::digits10);
+    QVector<double> x= getX();
+    QVector<double> y= getY();
+    vector<string> data_array;
 
-    QVector<double> x_vector = m_xResults[m_currentPlot];
-    QVector<double> y_vector = m_yResults[m_currentPlot];
-
-    buffer << "\"data\":[";
-    for (int j = 0; j < x_vector.size(); j++){
-        buffer << "{"
-                   "\"x\":" << x_vector[j] << ","
-                   "\"y\":" << y_vector[j] <<
-                   "}";
-        if (j != x_vector.size()-1){
-            buffer << ",";
-            buffer << "\n";
-        }
+    // create point objects
+    for (int i = 0; i < x.size(); i++){
+        vector<string> point;
+        point.push_back( BlueJSON::jsonKeyValue("x", x[i]) );
+        point.push_back( BlueJSON::jsonKeyValue("y", y[i]) );
+        data_array.push_back( BlueJSON::jsonObject(point, Flat));
     }
-    // close plot data
-    buffer << "]\n";
-    return QString::fromStdString(buffer.str());
+
+    // create & return data array
+    string json = BlueJSON::jsonArray(data_array);
+    json = BlueJSON::jsonKeyValue("data", json);
+    return QString::fromStdString(json);
 }
 
 inline void InequalityLoader::checkOK(QString message)
@@ -516,7 +530,7 @@ void InequalityLoader::setComboBoxPlot()
 
 void InequalityLoader::createDetailDialog()
 {
-    QDialog *dialog = new QDialog(0);
+    QDialog *dialog = new QDialog(this->parentWidget());
     QTreeWidget *tree = new QTreeWidget(dialog);
     QList<QTreeWidgetItem*> *parents = new QList<QTreeWidgetItem*>();
     int prev_lvl = 0;
@@ -561,6 +575,8 @@ void InequalityLoader::createDetailDialog()
     layout->addWidget(tree);
     dialog->setLayout(layout);
     dialog->show();
+
+    tree->expandAll();
 }
 
 

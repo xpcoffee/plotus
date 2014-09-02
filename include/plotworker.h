@@ -108,6 +108,8 @@ private:
     void combinationSubtraction(input_type *inequality);
 
     PlottingVector createPlottingVector(QVector<double> x_values, QVector<double> y_values);
+    QVector<double> splitPlottingVectorX(PlottingVector points);
+    QVector<double> splitPlottingVectorY(PlottingVector points);
 
     //	notification
     void printError();

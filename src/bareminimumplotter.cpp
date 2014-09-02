@@ -26,7 +26,6 @@
 
 using namespace std;
 
-
 ///	Static Functions
 ///	======================
 
@@ -73,9 +72,6 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     setupDynamicUi();
 
     flag_saved = true;
-
-    string array[] = {"one", "two", "three"};
-    BlueJSON::jsonArray()
 }
 
 
@@ -808,17 +804,20 @@ void BareMinimumPlotter::openCase(QString filename)
     int closest_key;
 
     while (parser.getNextKeyValue(keys,token, closest_key)){
+        //	case found
         if (closest_key == 1){
             BlueJSON subparser = BlueJSON(token);
             string file;
 
-            // PROBLEM: finding : in a filename like "E:somehing\somehting" and treating it as delimiter
             subparser.getNextKeyValue("file", file);
             subparser.getStringToken(file);
             addInequalityLoader(QString::fromStdString(file));
 
             gui_number++;
-        } else {				//	inequality found
+         }
+
+         //	inequality found
+         else {
             if ((gui_number + 1) > ui->layout_Inequality->count())
                 addInequalityInput();
 
@@ -1224,11 +1223,14 @@ void BareMinimumPlotter::menu_saveAs()
         printError();
         return;
     }
+
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", m_defaultDir, "JSON (*.json)");
+
     if (filename.indexOf(".json") > 0)
         saveCase_JSON(filename);
+
     flag_saved = true;
 }
 

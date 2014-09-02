@@ -146,24 +146,24 @@ QString VariableInput::getUnits(){ return ui->lineEdit_Units->text(); }
 
 QString VariableInput::toJSON()
 {
-    stringstream buffer;
     createVariable();	// ensure that variable is not a constant
 
-    buffer <<	"{\"name\":\""	<< m_variable.name()		<< "\"," <<
-                "\"min\":"		<< m_variable.min()			<< "," <<
-                "\"max\":"		<< m_variable.max()			<< "," <<
-                "\"elements\":"	<< m_variable.elements()	<< "," <<
-                "\"units\":\""	<< getUnits().toStdString()	<< "\"";
-
+    // object properties
+    vector<string> properties;
+    properties.push_back( BlueJSON::jsonKeyValue( "name", m_variable.name()) );
+    properties.push_back( BlueJSON::jsonKeyValue( "min", m_variable.min()) );
+    properties.push_back( BlueJSON::jsonKeyValue( "max", m_variable.max()) );
+    properties.push_back( BlueJSON::jsonKeyValue( "elements", m_variable.elements()) );
+    properties.push_back( BlueJSON::jsonKeyValue( "units", getUnits().toStdString()) );
     if (ui->comboBox_Axes->currentIndex() == PlotConstant)
-        buffer << ",\"slider constant\":" << ui->horizontalSlider_Point->value();
+        properties.push_back( BlueJSON::jsonKeyValue( "slider constant", ui->horizontalSlider_Point->value()) );
     if (ui->comboBox_Axes->currentIndex() == PlotHorizontal)
-        buffer << ",\"axis\":\"x\"";
+        properties.push_back( BlueJSON::jsonKeyValue( "axis", string("horizontal")) );
     if (ui->comboBox_Axes->currentIndex() == PlotVertical)
-        buffer << ",\"axis\":\"y\"";
+        properties.push_back( BlueJSON::jsonKeyValue( "axis", string("vertical")) );
 
-    buffer << "}";
-    return QString::fromStdString( buffer.str() );
+    // create & return json object
+    return QString::fromStdString( BlueJSON::jsonObject(properties, Flat) );
 }
 
 Variable VariableInput::getVariable()
@@ -224,9 +224,9 @@ void VariableInput::fromJSON(string json)
 
     parser.getNextKeyValue("axis", token);
     parser.getStringToken(token);
-    if (token == "x")
+    if (token == "horizontal")
         ui->comboBox_Axes->setCurrentIndex(PlotHorizontal);
-    if (token == "y")
+    if (token == "vertical")
         ui->comboBox_Axes->setCurrentIndex(PlotVertical);
 }
 

@@ -102,14 +102,19 @@ public:
     QString getErrors();
 
     //	parsers
+    void parseFile(QString json);
     void parsePlotData(QString json);
     void parseProblem(QString problem);
+
+    void formatPlot();
     void formatVariables(QString json);
     void formatInequality(QString json);
     void formatCase(QString json);
     void formatExpressions(QString json);
+
     QString expressionToJSON();
     QString dataToJSON();
+
     inline void checkOK(QString message);
 
     //	evaluation
@@ -146,7 +151,7 @@ private:
     QList< QVector<double> > m_xResults, m_yResults;
     QList< QVector<double> > m_xResults_Problem, m_yResults_Problem;
     QVector<double> m_xResults_combination, m_yResults_combination;
-    QStringList m_detailsJSON;
+    QStringList m_expressions;
     QList<DetailItem> m_details;
 
     //	meta

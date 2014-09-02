@@ -117,6 +117,9 @@ void PlotWorker::plotNew(int gui_number)
     if (flag_cancel)
         return;
 
+    input->setX(splitPlottingVectorX(m_results));
+    input->setY(splitPlottingVectorY(m_results));
+
     emit progressUpdate(80, "Plotting results, inequality " + gui_number_str + "..." );
     emit newGraph(m_results, input->getShape(), input->getColor(), input->getName());
 
@@ -138,7 +141,6 @@ void PlotWorker::plotOld(int gui_number)
 
     emit progressUpdate(40, "Combining results, inequality " + gui_number_str + "...");
     combineResults(loader);
-//    createQwtSamples();
 
     // log combination mode
     m_prevCombination = loader->getCombination();
@@ -149,6 +151,9 @@ void PlotWorker::plotOld(int gui_number)
         return;
     }
 
+    loader->setX(splitPlottingVectorX(m_results));
+    loader->setY(splitPlottingVectorY(m_results));
+
     emit progressUpdate(80, "Plotting results, inequality " + gui_number_str + "..." );
     emit newGraph(m_results, loader->getShape(), loader->getColor(), loader->getName());
 
@@ -157,7 +162,6 @@ void PlotWorker::plotOld(int gui_number)
 
     printError();
     emit progressUpdate(100, "Done.");
-//    flag_empty = false;
 }
 
 template<typename T>
@@ -241,13 +245,33 @@ void PlotWorker::combinationSubtraction(T *inequality)
 
 PlottingVector PlotWorker::createPlottingVector(QVector<double> x_values, QVector<double> y_values)
 {
-   QVector<QPointF> points;
+   PlottingVector points;
 
    for (int i = 0; i < x_values.count(); i++){
        points << QPointF(x_values[i], y_values[i]);
    }
 
    return points;
+}
+
+QVector<double> PlotWorker::splitPlottingVectorX(PlottingVector points){
+    QVector<double> x_values;
+
+    for (int i = 0; i < points.count(); i++){
+        x_values << points[i].x();
+    }
+
+    return x_values;
+}
+
+QVector<double> PlotWorker::splitPlottingVectorY(PlottingVector points){
+    QVector<double> y_values;
+
+    for (int i = 0; i < points.count(); i++){
+        y_values << points[i].y();
+    }
+
+    return y_values;
 }
 
 void PlotWorker::printError()

@@ -25,11 +25,21 @@
 #include <vector>
 #include <cassert>
 #include <limits>
+#include <iostream>
 
 ///	Typedef
 ///	========
 
 typedef std::numeric_limits<double> precDouble;
+
+
+/// Enumerated Types
+/// =================
+
+enum JSONFormat{
+    MultiLine = 0,
+    Flat
+};
 
 
 ///	Namespace
@@ -80,21 +90,63 @@ public:
 
     //	utility
 
-    string jsonObject(string json);
-    string jsonObject(string properties[]);
+    static string jsonObject(string json);
+    static string jsonObject(vector<string> properties, JSONFormat format = MultiLine);
 
     template <typename T>
-    string jsonArray(T values[]);
+    static string jsonArray(vector<T> values, JSONFormat format = MultiLine);
+    static string jsonArray(string json, JSONFormat format = MultiLine);
 
     template <typename T>
-    string jsonKeyValue(string key, T value);
+    static string jsonKeyValue(string key, T value);
 
     template <typename T>
-    string jsonValue(T value);
-    string jsonValue(string value);
-    string jsonValue(char value);
+    static string jsonValue(T value);
+    static string jsonValue(string value);
+    static string jsonValue(char value);
 
 
 };
+
+///	Templates
+/// ==========
+
+template <typename T>
+string BlueJSON::jsonValue(T value)
+{
+    stringstream buffer;
+    buffer.precision(precDouble::digits10);
+    buffer << value;
+    return buffer.str();
+}
+
+template <typename T>
+string BlueJSON::jsonArray(vector<T> values, JSONFormat format)
+{
+    stringstream buffer;
+    unsigned int i = 0;
+
+    buffer << "[";
+    if (format == MultiLine) buffer << "\n";
+
+    for (; i < values.size() - 1; i++){
+        buffer << jsonValue(values[i]);
+        buffer << ",";
+
+        if (format == MultiLine) buffer << "\n";
+    }
+
+    buffer << jsonValue(values[i]);
+    if (format == MultiLine) buffer << "\n";
+    buffer << "]";
+
+    return buffer.str();
+}
+
+template <typename T>
+string BlueJSON::jsonKeyValue(string key, T value)
+{
+    return "\"" + key + "\":" + jsonValue(value);
+}
 
 #endif // BLUEJSON_H

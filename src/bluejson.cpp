@@ -72,7 +72,7 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
     stringstream buffer;
     buffer.precision(precDouble::digits10);
 
-    for (; m_it != m_text.end(); m_it++){
+    for (; m_it <= m_text.end(); m_it++){
         char c = *m_it;
 
         // find key
@@ -91,6 +91,7 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
 
         // find value
         else {
+
             // check for strings
             // - value start/end should not be triggered if found in a string
             isStringDelimiter(c);
@@ -103,14 +104,14 @@ bool BlueJSON::getNextKeyValue(string key, string &value, int pos)
                if (c != ':') { m_nestLevel++; }
             }
 
-            if (isValueEnd(c)){
+            if (isValueEnd(c) || (m_it == m_text.end()) ){
+               // end of value
                if (c != ',' && m_nestLevel != 0) { m_nestLevel--; }
-               if (m_nestLevel == 0){	// end of value
+               if (m_nestLevel == 0){
                     unsigned int value_end = m_it - m_text.begin();
 
                     value = m_text.substr(m_valueStart, value_end - m_valueStart);	// return value
                     m_token = value;
-
                     return true;
                }
             }
@@ -242,55 +243,40 @@ string BlueJSON::jsonObject(string json)
     return "{" + json + "\n}";
 }
 
-string BlueJSON::jsonObject(string properties[])
+string BlueJSON::jsonObject(vector<string> properties, JSONFormat format)
 {
     stringstream buffer;
-    int i = 0;
+    unsigned int i = 0;
 
     buffer << "{";
-    for (i; i < properties->size() - 1; i++){
+    for (; i < properties.size() - 1; i++){
         buffer << properties[i];
-        buffer << ",\n";
+        buffer << ",";
+
+        if (format == MultiLine) buffer << "\n";
     }
+
     buffer << properties[i];
-    buffer << "\n}";
+
+    if (format == MultiLine) buffer << "\n";
+
+    buffer << "}";
 
     return buffer.str();
 }
 
-template <typename T>
-string BlueJSON::jsonArray(T values[])
+string BlueJSON::jsonArray(string json, JSONFormat format)
 {
-    stringstream buffer;
-    int i = 0;
-
-    buffer << "[";
-    for (i; i < values.size() - 1; i++){
-        buffer << jsonValue(values[i]);
-        buffer << ",\n";
-    }
-    buffer << jsonValue(values[i]);
-    buffer << "\n]";
-
-    return buffer.str();
-}
-
-template <typename T>
-string BlueJSON::jsonKeyValue(string key, T value)
-{
-    return "\"" + key + "\":" + jsonValue(value);
-}
-
-template <typename T>
-string BlueJSON::jsonValue(T value)
-{
-    stringstream buffer;
-    buffer << value;
-    return buffer.str();
+    if (format == Flat) return "[" + json + "]";
+    return "[\n" + json + "\n]";
 }
 
 string BlueJSON::jsonValue(string value)
 {
+    if ( ((*value.begin() == '"') && ( *(value.end()-1) == '"')) ||
+         ((*value.begin() == '{') && ( *(value.end()-1) == '}')) ||
+         ((*value.begin() == '[') && ( *(value.end()-1) == ']')) )
+        return value;
     return "\"" + value + "\"";
 }
 
@@ -330,3 +316,4 @@ bool BlueJSON::isStringDelimiter(char c)
 
     return false;
 }
+

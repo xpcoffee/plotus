@@ -127,107 +127,115 @@ void InequalityInput::resetCombinations(){ ui->comboBox_Interact->setCurrentInde
 //	-------
 
 string InequalityInput::expressionToJSON() {
-    stringstream buffer;
-    buffer <<	"\"inequality\":{" <<
-                "\"description\":\"" << getName().toStdString() << "\"," <<
-                "\"left expression\":" << "\""<< getLeftExpression().toStdString() << "\"," <<
-                "\"symbol\":" << "\"" << ui->comboBox_Inequality->currentText().toStdString() << "\",";
-    if (ui->comboBox_Inequality->currentIndex() == ApproxEqual){
-        buffer << "\"precision\":"	<< ui->lineEdit_Precision->text().toStdString() << ",";
-    }
-    buffer <<  	"\"right expression\":" << "\"" << getRightExpression().toStdString() << "\"," <<
-                "\"combination\":" << "\"" << getCombination() <<
-                "\"}";
 
-    return buffer.str();
+    // object properties
+    vector<string> properties;
+    properties.push_back( BlueJSON::jsonKeyValue("description", getName().toStdString()) );
+    properties.push_back( BlueJSON::jsonKeyValue("left expression", getLeftExpression().toStdString()) );
+    properties.push_back( BlueJSON::jsonKeyValue("symbol", ui->comboBox_Inequality->currentText().toStdString()) );
+    if (ui->comboBox_Inequality->currentIndex() == ApproxEqual)
+        properties.push_back( BlueJSON::jsonKeyValue("precision", ui->lineEdit_Precision->text().toStdString()) );
+    properties.push_back( BlueJSON::jsonKeyValue("right expression", getRightExpression().toStdString()) );
+    properties.push_back( BlueJSON::jsonKeyValue("combination", s_combinations[getCombination()]) );
+
+    // create & return object
+    string json = BlueJSON::jsonObject(properties, Flat);
+    json = BlueJSON::jsonKeyValue("inequality", json);
+
+    return json;
 }
 
 string InequalityInput::dataToJSON(){
-    stringstream buffer;
-    buffer.precision(precDouble::digits10);
+    vector<string> data_array;
 
-    buffer << "\"data\":[";
+    // create point objects
     for (int j = 0; j < m_x.size(); j++){
-        buffer << "{"
-                   "\"x\":"<< m_x[j] << ","
-                   "\"y\":" << m_y[j] <<
-                   "}";
-        if (j != m_x.size()-1){
-            buffer << ",";
-            buffer << "\n";
-        }
+        vector<string> point;
+        point.push_back( BlueJSON::jsonKeyValue("x", m_x[j]) );
+        point.push_back( BlueJSON::jsonKeyValue("y", m_y[j]) );
+        data_array.push_back( BlueJSON::jsonObject(point, Flat));
     }
-    buffer << "]\n";
-    return buffer.str();
+
+    // create & return data array
+    string json = BlueJSON::jsonArray(data_array);
+    json = BlueJSON::jsonKeyValue("data", json);
+    return json;
 }
 
-string InequalityInput::problemDataToJSON(){
-    stringstream buffer;
-    buffer << "\"problem data\":[";
+string InequalityInput::problemDataToJSON()
+{
+    vector<string> data_array;
 
-    for (int j = 0; j < m_x_problem.size(); j++){
-        buffer << "{"
-                   "\"x\":"<< m_x_problem[j] << ","
-                   "\"y\":" << m_y_problem[j] <<
-                   "}";
-
-        if (j != m_x_problem.size()-1){
-            buffer << ",";
-            buffer << "\n";
-        }
+    // create point objects
+    for (int j = 0; j < m_x.size(); j++){
+        vector<string> point;
+        point.push_back( BlueJSON::jsonKeyValue("x", m_x_problem[j]) );
+        point.push_back( BlueJSON::jsonKeyValue("y", m_y_problem[j]) );
+        data_array.push_back( BlueJSON::jsonObject(point, Flat));
     }
 
-    buffer << "]\n";
-    return buffer.str();
+    // create & return data array
+    string json = BlueJSON::jsonArray(data_array);
+    json = BlueJSON::jsonKeyValue("problem data", json);
+    return json;
 }
 
-void InequalityInput::fromJSON(string sInput){
-    string token;
-    stringstream ss;
-    ss << sInput;
-    while (getline (ss, token, '"')){
-        if (token == "description")	{
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"'))
-                    ui->lineEdit_Name->setText(QString::fromStdString(token));
-        } else if (token == "left expression")	{
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"'))
-                    ui->lineEdit_Left->setText(QString::fromStdString(token));
-        } else if (token == "symbol") {
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"')){
-                    InequalitySymbol symbol;
-                    if (token == "<")
-                        symbol = SmallerThan;
-                    if (token == ">")
-                        symbol = GreaterThan;
-                    if (token == "<=")
-                        symbol = SmallerThanEqual;
-                    if (token == ">=")
-                        symbol = GreaterThanEqual;
-                    if (token == "≈")
-                        symbol = ApproxEqual;
-                    ui->comboBox_Inequality->setCurrentIndex(symbol);
-                }
-        } else if (token == "right expression") {
-            if (getline (ss, token, '"'))
-                if (getline (ss, token, '"'))
-                    ui->lineEdit_Right->setText(QString::fromStdString(token));
+void InequalityInput::fromJSON(string json)
+{
+    qDebug() << QString::fromStdString(json);
+    BlueJSON parser = BlueJSON(json);
 
-        } else if (token == "combination") {
-            if (getline (ss, token, '"')){
-                if (getline (ss, token, '"')){
-                    stringstream ss;
-                    int index;
-                    ss << token;
-                    if(!(ss >> index))
-                        index = 0;
-                    ui->comboBox_Interact->setCurrentIndex(index);
-                }
-            }
-        }
+    string desc, leftexp, symbol, rightexp, comb;
+    parser.getNextKeyValue("description", desc);
+    parser.getNextKeyValue("left expression", leftexp);
+    parser.getNextKeyValue("symbol", symbol);
+    parser.getNextKeyValue("right expression", rightexp);
+    parser.getNextKeyValue("combination", comb);
+    qDebug() << "pretoken:" << QString::fromStdString(rightexp);
+    qDebug() << "token:" << QString::fromStdString(comb);
+
+    parser.getStringToken(desc);
+    parser.getStringToken(leftexp);
+    parser.getStringToken(symbol);
+    parser.getStringToken(rightexp);
+    parser.getStringToken(comb);
+
+    ui->lineEdit_Name->setText(QString::fromStdString(desc));
+    ui->lineEdit_Left->setText(QString::fromStdString(leftexp));
+    ui->lineEdit_Right->setText(QString::fromStdString(rightexp));
+
+    ui->comboBox_Inequality->setCurrentIndex(symbolFromString(symbol));
+
+    int match = 0;
+    int options = sizeof(s_combinations)/sizeof(s_combinations[0]);
+    qDebug() << "options:" << options;
+    qDebug() << "token:" << QString::fromStdString(comb);
+
+    for (int i = 0; i < options; i++){
+        if (comb == s_combinations[i]) match = i;
     }
+
+    ui->comboBox_Interact->setCurrentIndex(match);
+
+    return;
+}
+
+
+InequalitySymbol InequalityInput::symbolFromString(string value)
+{
+    if (value == "<")
+        return SmallerThan;
+    if (value == ">")
+        return GreaterThan;
+    if (value == "<=")
+        return SmallerThanEqual;
+    if (value == ">=")
+        return GreaterThanEqual;
+    if (value == "≈")
+        return ApproxEqual;
+
+    // default
+    return SmallerThan;
 }
 
 
