@@ -1,0 +1,414 @@
+/*Background*/
+QWidget#centralWidget {
+	background: rgb(80,80,80);
+}
+
+
+/*Tab Widget*/
+QWidget#tab_input, QWidget#tab_plot, QWidget#tab_settings {
+	background: qlineargradient(x1: 0, y1:0, x2:0.1, y2:0,
+				stop: 0 rgb(170,170,170),
+				stop: 1 rgb(180,180,180));
+}
+
+QTabWidget::tab-bar {
+	alignment: center;
+}
+
+QTabWidget::pane {
+	position: absolute;
+	top: -8px;
+}
+
+QTabBar::tab {
+	color: rgb(80,80,80);
+	font: bold 13px calibri;
+	background: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	height: 20px;
+	width:	80px;
+
+}
+
+QTabBar::tab:selected {
+	background: black;
+	color: white;
+	font: bold 13px calibri;
+}
+
+/*Containers*/
+QWidget#container_VariableSub, QWidget#container_InequalitySub{
+	background: rgb(230,230,230);
+	border: 1px solid rgb(150,150,150);
+}
+
+QWidget#container_Graph{
+	background:white;
+}
+
+/*Labels*/
+QLabel {
+	color: white;
+	font: bold 13px calibri;
+}
+
+QLabel#label_Index {
+	color: rgb(60,60,60);
+	font: bold 13px calibri;
+}
+
+/*Buttons*/
+QToolButton{
+	color: white;
+	font: bold 13px calibri;
+	background-color: qlineargradient(x1: 0, y1: 0.55, x2: 0, y2: 0.45,
+						stop: 0 rgb(100,100,100),
+						stop: 1 rgb(120,120,120));
+	border: 1px solid rgb(60,60,60);
+	border-radius:2px;
+	alignment:center;
+}
+
+QToolButton:pressed{
+	background-color: qlineargradient(x1: 0, y1: 0.45, x2: 0, y2: 0.55,
+						stop: 0 rgb(220,145,0),
+						stop: 1 rgb(225,183,45));
+	border: 1px solid rgb(225,225,225);
+	border-radius:2px;
+}
+
+QPushButton {
+	color: rgb(60,60,60);
+	font: bold 13px calibri;
+	background-color: qlineargradient(x1: 0, y1: 0.55, x2: 0, y2: 0.45,
+						stop: 0 rgb(210,210,220),
+						stop: 1 rgb(230,230,230));
+	border: 1px solid rgb(60,60,60);
+	border-radius:2px;
+	alignment:center;
+}
+
+QPushButton:pressed{
+	background-color: qlineargradient(x1: 0, y1: 0.45, x2: 0, y2: 0.55,
+						stop: 0 rgb(129,148,255),
+						stop: 1 rgb(140,162,255));
+	border: 1px solid rgb(70,110,255);
+	border-radius:2px;
+}
+
+QPushButton:disabled{
+	background: rgb(210, 210, 210);
+	border: transparent;
+}
+
+QPushButton#pushButton_Down{
+	color: transparent;
+	image: url(:/images_ui/down-arrow-black-small.png);
+}
+
+QPushButton#pushButton_Up{
+	color: transparent;
+	image: url(:/images_ui/up-arrow-black-small.png);
+}
+
+QPushButton#pushButton_Delete{
+	color: transparent;
+	image: url(:/images_ui/cross-black.png);
+}
+
+QPushButton#pushButton_Down:disabled{
+	color: transparent;
+	image: url(:/images_ui/down-arrow-white-small.png);
+}
+
+QPushButton#pushButton_Up:disabled{
+	color: transparent;
+	image: url(:/images_ui/up-arrow-white-small.png);
+}
+
+QPushButton#pushButton_Delete:disabled{
+	color: transparent;
+	image: url(:/images_ui/cross-white.png);
+}
+
+
+
+/*LineEdits*/
+QLineEdit {
+	background: white;
+	border: 1px solid rgb(210,210,210);
+	border-radius: 1px;
+}
+
+QLineEdit:focus {
+	border: 1px solid rgb(63, 98, 255); /*blue*/
+}
+
+QLineEdit#lineEdit_PlotTitle{
+	color: white;
+	font: bold 18px calibri;
+	background: transparent;
+}
+
+QLineEdit#lineEdit_PlotTitle:focus{
+	color: back;
+	background: white;
+}
+
+/*VariableInputs*/
+VariableInput > QWidget{
+	border-left: 1px solid rgb(150,150,150);
+}
+
+/*Text Edit*/
+QTextEdit{
+	color: black;
+	background: rgb(241, 241, 241)
+}
+
+/*Splitters*/
+QSplitterHandle {
+	background: transparent;
+	width: 1px;
+}
+
+QSplitter#splitter_InequalityHeader, QSplitter#splitter_VariableHeader {
+	background-color: qlineargradient(x1: 0, y1: 0.45, x2: 0, y2: 0.2,
+						stop: 0 rgb(80,80,80),
+						stop: 1 rgb(100,100,100));
+	border: 1px solid rgb(150,150,150);
+}
+
+QSplitter#splitter_InequalityHeader::handle, QSplitter#splitter_VariableHeader::handle{
+	background-color: qlineargradient(x1: 0, y1: 0.45, x2: 0, y2: 0.2,
+						stop: 0 rgb(80,80,80),
+						stop: 1 rgb(100,100,100));
+}
+
+QSpacer#spacer_VariableHeaderLeft{
+	background-color: qlineargradient(x1: 0, y1: 0.45, x2: 0, y2: 0.2,
+						stop: 0 rgb(80,80,80),
+						stop: 1 rgb(100,100,100));
+}
+
+/*Comboboxes*/
+QComboBox {
+	background-color: qlineargradient(x1: 0, y1: 0.65, x2: 0, y2: 0.55,
+						stop: 0 rgb(210,210,220),
+						stop: 1 rgb(230,230,230));
+	border: 1px solid rgb(60,60,60);
+	border-radius: 3px;
+	color: black;
+	font: 13px calibri;
+}
+
+QComboBox:on {
+	background-color: qlineargradient(x1: 0, y1: 0.55, x2: 0, y2: 0.45,
+						stop: 0 rgb(210,210,230),
+						stop: 1 rgb(230,230,245));
+	border: 1px solid rgb(70,110,255);
+	color: white;
+	font: 13px calibri;
+}
+
+QComboBox:focus {
+	border: 1px outset white;
+}
+
+QComboBox::drop-down {
+	border-left: 1px dotted black;
+	width: 20px;
+}
+
+QComboBox::down-arrow {
+	border-image: url(:/images_ui/down-arrow-black-small.png);
+	width: 7px;
+	height: 7px;
+}
+
+QComboBox::down-arrow:disabled {
+	border-image: url(:/images_ui/down-arrow-white-small.png);
+	width: 7px;
+	height: 7px;
+}
+
+QComboBox::QListView {
+	background: white;
+}
+
+QComboBox:disabled{
+	background: rgb(210,210,210);
+	color: transparent;
+	border: transparent;
+}
+
+
+/*Progress Bar*/
+QProgressBar {
+	background: transparent;
+	color: white;
+	font: bold 13px calibri;
+}
+
+QProgressBar::chunk {
+	background: rgb(37, 158, 0);
+	width: 10px;
+}
+
+/*Slider*/
+QSlider::handle:disabled{
+	background: transparent;
+}
+
+/*Scroll Area*/
+QScrollArea{
+	border: none;
+	border-radius: 0px;
+}
+
+QScrollArea, QScrollArea > QWidget > QWidget{
+	background:transparent;
+}
+
+/*Scrollbar*/
+ QScrollBar:vertical {
+     background: transparent;
+     width: 15px;
+     margin: 15px 0px 15px 0px;
+ }
+
+ QScrollBar::handle:vertical:enabled {
+     background: rgb(63, 98, 255);
+	 border-top: 2px solid black;
+	 border-bottom: 2px solid black;
+     min-height: 7px;
+ }
+
+ QScrollBar::add-line:vertical:enabled { /*down arrow box*/
+     background: rgb(100,100,100);
+     height: 15px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:vertical:enabled { /*top arrow box*/
+     background: rgb(100,100,100);
+     height: 15px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+ }
+
+
+ QScrollBar::up-arrow:vertical:enabled {
+     width: 7px;
+     height: 7px;
+	 image: url(:/images_ui/up-arrow-black-small.png);
+
+ }
+
+ QScrollBar::down-arrow:vertical:enabled {
+     width: 7px;
+     height: 7px;
+	 image: url(:/images_ui/down-arrow-black-small.png);
+ }
+
+  QScrollBar:horizontal {
+     background: transparent;
+     height: 15px;
+     margin: 0px 15px 0px 15px;
+ }
+
+   QScrollBar::handle:horizontal:enabled {
+     background: rgb(63, 98, 255);
+	 border-left: 2px solid black;
+	 border-right: 2px solid black;
+     min-width: 7px;
+ }
+
+ QScrollBar::add-line:horizontal:enabled { /*right arrow box*/
+     background: rgb(100,100,100);
+     width: 15px;
+     subcontrol-position: right;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:horizontal:enabled { /*left arrow box*/
+     background: rgb(100,100,100);
+     width: 15px;
+     subcontrol-position: left;
+     subcontrol-origin: margin;
+ }
+
+  QScrollBar:left-arrow:enabled {
+     width: 7px;
+     height: 7px;
+	 image: url(:/images_ui/left-arrow-black-small.png);
+ }
+
+  QScrollBar:right-arrow:enabled {
+     width: 7px;
+     height: 7px;
+	 image: url(:/images_ui/right-arrow-black-small.png);
+ }
+
+ QScrollBar::add-page, QScrollBar::sub-page {
+     background: transparent;
+ }
+
+/*Scrollbar: Disabled*/
+QScrollBar:disabled{
+	background: transparent;
+}
+
+ QScrollBar::handle:disabled {
+     background: transparent;
+     min-height: 7px;
+ }
+
+  QScrollBar::handle:disabled {
+     background: transparent;
+     min-height: 7px;
+ }
+
+ QScrollBar::add-line:disabled { /*down arrow box*/
+     background: transparent;
+     height: 15px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:disabled { /*top arrow box*/
+     background: transparent;
+     height: 15px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar:up-arrow:disabled {
+     width: 3px;
+     height: 3px;
+     background: transparent;
+ }
+
+ QScrollBar:down-arrow:disabled {
+     width: 3px;
+     height: 3px;
+     background: transparent;
+ }
+
+/*Checkbox*/
+QCheckBox {
+	background: transparent;
+	border-radius: 0px;
+}
+
+QCheckBox::indicator:unchecked {
+	image: url(:/images_ui/unchecked-white.png);
+	padding-right: 12px;
+}
+
+QCheckBox::indicator:checked {
+	image: url(:/images_ui/checked-white.png);
+	padding-right: 12px;
+}

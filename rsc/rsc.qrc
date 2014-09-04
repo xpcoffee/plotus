@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/images_icons">
+        <file>GitHub-Mark-32px.png</file>
+        <file>Icon64.png</file>
+    </qresource>
+    <qresource prefix="/images_ui">
+        <file>add-cross-white.png</file>
+        <file>checked-white.png</file>
+        <file>cross-white.png</file>
+        <file>down-arrow-white.png</file>
+        <file>down-arrow-white-small.png</file>
+        <file>left-arrow-white-small.png</file>
+        <file>load-white.png</file>
+        <file>right-arrow-white-small.png</file>
+        <file>unchecked-white.png</file>
+        <file>up-arrow-white.png</file>
+        <file>up-arrow-white-small.png</file>
+        <file>add-cross-black.png</file>
+        <file>cross-black.png</file>
+        <file>down-arrow-black.png</file>
+        <file>down-arrow-black-small.png</file>
+        <file>left-arrow-black-small.png</file>
+        <file>load-black.png</file>
+        <file>right-arrow-black-small.png</file>
+        <file>up-arrow-black.png</file>
+        <file>up-arrow-black-small.png</file>
+    </qresource>
+    <qresource prefix="/style" lang="CSS">
+        <file>theme_default.css</file>
+    </qresource>
+</RCC>
