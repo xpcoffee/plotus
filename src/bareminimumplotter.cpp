@@ -594,6 +594,7 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
     if (filename == ""){
         filename = QFileDialog::getOpenFileName(this, "Open plot", ".", "JSON (*.json)");
     }
+
     new_inequality->loadCase(filename);
 
     determineButtonStates();

@@ -74,6 +74,11 @@ void InequalityLoader::setCaseName(QString value)
 
 void InequalityLoader::loadCase(QString filename)
 {
+    if (filename.isEmpty()){
+        emit killThis(m_guiNumber);
+        return;
+    }
+
     //	read in file
     m_file.setFileName(filename);
 
