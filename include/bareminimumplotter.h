@@ -107,6 +107,13 @@ public:
     explicit BareMinimumPlotter(QWidget *parent = 0);
     ~BareMinimumPlotter();
 
+    //	static & 3rd party
+    static void elideLable(QLabel *label, QString text);
+    static void fitLineEditToContents(QLineEdit* edit);
+
+        //	-- David Walthall
+    static void putLinesInSplitterHandles(QSplitter *splitter, QFrame::Shape line_type, int size = 0);
+
     //	overrides
     void showEvent(QShowEvent *event);
 
@@ -127,6 +134,7 @@ public:
     void setupInputValidation();
     void setupQwtPlot();
     void setupScrollAreas();
+    void setupSplitterHandles();
     void setupButtons();
     void setupDynamicUi();
     void loadCSS();

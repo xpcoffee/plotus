@@ -531,18 +531,23 @@ void InequalityLoader::setComboBoxPlot()
 void InequalityLoader::createDetailDialog()
 {
     QDialog *dialog = new QDialog(this->parentWidget());
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+
     QTreeWidget *tree = new QTreeWidget(dialog);
+    QTreeWidgetItem *header = tree->headerItem();
+    QTreeWidgetItem *child = new QTreeWidgetItem(tree);
     QList<QTreeWidgetItem*> *parents = new QList<QTreeWidgetItem*>();
+
     int prev_lvl = 0;
     int cur_lvl;
 
-    QTreeWidgetItem *header = tree->headerItem();
+    dialog->setWindowTitle("BareMinimumPlotter :: Details :: Inequality " + QString::number(getNumber() + 1));
+
     header->setText(0, "Type");
     header->setText(1, "Description");
     header->setText(2, "Data 1");
     header->setText(3, "Data 2");
 
-    QTreeWidgetItem *child = new QTreeWidgetItem(tree);
     child->setText(0, m_details[0].type);
     child->setText(1, m_details[0].description);
     child->setText(2, m_details[0].data1);
@@ -571,7 +576,7 @@ void InequalityLoader::createDetailDialog()
         prev_lvl = cur_lvl;
     }
 
-    QVBoxLayout *layout = new QVBoxLayout(dialog);
+
     layout->addWidget(tree);
     dialog->setLayout(layout);
     dialog->show();

@@ -8,7 +8,7 @@
 ///	Third Party Functions
 ///	======================
 
-static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
+void InequalityInput::setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
 {
     if(!lineEdit)
         return;
@@ -29,7 +29,7 @@ static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::
     // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
 }
 
-static void clearLineEditTextFormat(QLineEdit* lineEdit)
+void InequalityInput::clearLineEditTextFormat(QLineEdit* lineEdit)
 {
     setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
 
@@ -182,7 +182,6 @@ string InequalityInput::problemDataToJSON()
 
 void InequalityInput::fromJSON(string json)
 {
-    qDebug() << QString::fromStdString(json);
     BlueJSON parser = BlueJSON(json);
 
     string desc, leftexp, symbol, rightexp, comb;
@@ -191,8 +190,6 @@ void InequalityInput::fromJSON(string json)
     parser.getNextKeyValue("symbol", symbol);
     parser.getNextKeyValue("right expression", rightexp);
     parser.getNextKeyValue("combination", comb);
-    qDebug() << "pretoken:" << QString::fromStdString(rightexp);
-    qDebug() << "token:" << QString::fromStdString(comb);
 
     parser.getStringToken(desc);
     parser.getStringToken(leftexp);
@@ -208,8 +205,6 @@ void InequalityInput::fromJSON(string json)
 
     int match = 0;
     int options = sizeof(s_combinations)/sizeof(s_combinations[0]);
-    qDebug() << "options:" << options;
-    qDebug() << "token:" << QString::fromStdString(comb);
 
     for (int i = 0; i < options; i++){
         if (comb == s_combinations[i]) match = i;

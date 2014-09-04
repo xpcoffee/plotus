@@ -99,6 +99,13 @@ public:
     explicit InequalityInput(QWidget *parent = 0);
     ~InequalityInput();
 
+    //	3rd party
+    //	-- Vasaka
+    static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats);
+
+    //	-- Vasaka
+    static void clearLineEditTextFormat(QLineEdit* lineEdit);
+
     //	setters
     void setNumber(int);
     void setXYVariables(Variable, Variable);

@@ -26,21 +26,67 @@
 
 using namespace std;
 
-///	Static Functions
+///	Third Party & Static Functions
 ///	======================
 
-void elideLable(QLabel *label, QString text){
+void BareMinimumPlotter::elideLable(QLabel *label, QString text){
     QFontMetrics metrics(label->font());
     QString elidedText = metrics.elidedText(text, Qt::ElideRight, label->width());
     label->setText(elidedText);
 }
 
-void fitLineEditToContents(QLineEdit* edit){
+void BareMinimumPlotter::fitLineEditToContents(QLineEdit* edit){
     QString text = edit->text();
     QFontMetrics fm = edit->fontMetrics();
     int width = fm.boundingRect(text).width();
     edit->setMinimumWidth(width + 10);
     edit->setMaximumWidth(width + 10);
+}
+
+void BareMinimumPlotter::putLinesInSplitterHandles(QSplitter *splitter, QFrame::Shape line_type, int size){
+    for (int i = 0; i < splitter->count(); i++){
+        QSplitterHandle *handle = splitter->handle(i);
+
+        QFrame *line = new QFrame(handle);
+        line->setFrameShape(line_type);
+        line->setFrameShadow(QFrame::Sunken);
+        if (line_type == QFrame::VLine) line->setLineWidth(1);
+        if (line_type == QFrame::HLine) line->setLineWidth(2);
+
+        if (size == 0){
+            QHBoxLayout *layout = new QHBoxLayout(handle);
+            layout->setSpacing(0);
+            layout->setMargin(0);
+            layout->addWidget(line);
+            continue;
+        }
+
+        if (line_type == QFrame::VLine){
+            line->setMinimumHeight(size);
+            line->setMaximumHeight(size);
+
+            QVBoxLayout *layout = new QVBoxLayout(handle);
+            layout->setSpacing(0);
+            layout->setMargin(0);
+            layout->addStretch();
+            layout->addWidget(line);
+            layout->addStretch();
+            continue;
+        }
+        if (line_type == QFrame::HLine){
+            line->setMinimumWidth(size);
+            line->setMaximumWidth(size);
+
+            QHBoxLayout *layout = new QHBoxLayout(handle);
+            layout->setSpacing(0);
+            layout->setMargin(0);
+            layout->addStretch();
+            layout->addWidget(line);
+            layout->addStretch();
+        }
+    }
+//	-- Reference:	David Walthall
+//	-- Link: 		http://stackoverflow.com/questions/2545577/qsplitter-becoming-undistinguishable-between-qwidget-and-qtabwidget
 }
 
 
@@ -293,9 +339,11 @@ void BareMinimumPlotter::setupUiCont()
 
     setupScrollAreas();
 
+    setupSplitterHandles();
+
     setupButtons();
 
-//    loadCSS();
+    loadCSS();
 }
 
 void BareMinimumPlotter::setupInputValidation()
@@ -335,12 +383,13 @@ void BareMinimumPlotter::setupScrollAreas()
     scroll_bar_spacer->changeSize(new_size, old_size.height());
     ui->spacer_InequalityHeaderScroll->changeSize(new_size, old_size.height());
 
-    QWidget::connect(ui->scrollArea_InequalityInputs->horizontalScrollBar(), SIGNAL(sliderMoved(int)),
-                     this, SLOT(scrollInequalityHeader(int)));
-    QWidget::connect(ui->scrollArea_VariableInputs->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-                     this, SLOT(scrollVariableHeader(int)));
 
     //	header scroll areas
+//    QWidget::connect(ui->scrollArea_InequalityInputs->horizontalScrollBar(), SIGNAL(sliderMoved(int)),
+//                     this, SLOT(scrollInequalityHeader(int)));
+//    QWidget::connect(ui->scrollArea_VariableInputs->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+//                     this, SLOT(scrollVariableHeader(int)));
+
 //    QWidget *header = ui->layout_InequalityHeaders->takeAt(1)->widget();
 //    QWidget *header_widget = ui->scrollArea_InequalityInputs->getHeaderWidget();
 //    QVBoxLayout *header_layout = new QVBoxLayout();
@@ -348,22 +397,32 @@ void BareMinimumPlotter::setupScrollAreas()
 //    header_widget->setLayout(header_layout);
 }
 
+void BareMinimumPlotter::setupSplitterHandles()
+{
+    putLinesInSplitterHandles(ui->splitter_InequalityHeader, QFrame::VLine);
+    putLinesInSplitterHandles(ui->splitter_VariableHeader, QFrame::VLine);
+    putLinesInSplitterHandles(ui->splitter, QFrame::HLine, 300);
+    putLinesInSplitterHandles(ui->splitter_VerticalPlot, QFrame::HLine, 50);
+    putLinesInSplitterHandles(ui->splitter_HorizontalPlot, QFrame::VLine, 50);
+}
+
 void BareMinimumPlotter::setupButtons()
 {
+    //	layouts
     ui->layout_VariableButtons->setAlignment(Qt::AlignVCenter);
     ui->layout_InequalityButtons->setAlignment(Qt::AlignVCenter);
 
     //	tool buttons
     ui->toolButton_AddInequality->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->toolButton_AddInequality->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
+    ui->toolButton_AddInequality->setIcon(QPixmap(":/images_ui/add-cross-white.png"));
     ui->toolButton_AddInequality->setIconSize(QSize(22,22));
 
     ui->toolButton_AddInequalityLoader->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->toolButton_AddInequalityLoader->setIcon(QPixmap("../bare_minimum_plotter/rsc/load-white.png"));
+    ui->toolButton_AddInequalityLoader->setIcon(QPixmap(":/images_ui/load-white.png"));
     ui->toolButton_AddInequalityLoader->setIconSize(QSize(30,22));
 
     ui->toolButton_AddVariable->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->toolButton_AddVariable->setIcon(QPixmap("../bare_minimum_plotter/rsc/add-cross-white.png"));
+    ui->toolButton_AddVariable->setIcon(QPixmap(":/images_ui/add-cross-white.png"));
     ui->toolButton_AddVariable->setIconSize(QSize(22,22));
 
     ui->layout_VariableButtons->setAlignment(Qt::AlignTop);
@@ -391,7 +450,7 @@ void BareMinimumPlotter::setupDynamicUi()
 
 void BareMinimumPlotter::loadCSS()
 {
-    QFile file (":/style/theme_dark.css");
+    QFile file (":/style/theme_default.css");
 
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>938</width>
-    <height>384</height>
+    <width>913</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,6 +128,9 @@
             <property name="text">
              <string>Cancel</string>
             </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -136,6 +139,9 @@
          <widget class="QSplitter" name="splitter">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+          <property name="handleWidth">
+           <number>5</number>
           </property>
           <property name="childrenCollapsible">
            <bool>false</bool>
@@ -155,11 +161,14 @@
            </property>
            <layout class="QHBoxLayout" name="layout_InequalityMain">
             <property name="bottomMargin">
-             <number>1</number>
+             <number>9</number>
             </property>
             <item>
              <layout class="QVBoxLayout" name="layout_InequalityButtons">
               <property name="topMargin">
+               <number>9</number>
+              </property>
+              <property name="bottomMargin">
                <number>9</number>
               </property>
               <item>
@@ -235,6 +244,18 @@
                </size>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout">
                  <property name="spacing">
@@ -534,6 +555,9 @@
                  <property name="frameShadow">
                   <enum>QFrame::Plain</enum>
                  </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
                  <property name="verticalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOn</enum>
                  </property>
@@ -551,8 +575,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>773</width>
-                    <height>59</height>
+                    <width>766</width>
+                    <height>104</height>
                    </rect>
                   </property>
                   <property name="focusPolicy">
@@ -617,7 +641,7 @@
            </property>
            <layout class="QHBoxLayout" name="layout_VariableMain">
             <property name="bottomMargin">
-             <number>1</number>
+             <number>9</number>
             </property>
             <item>
              <layout class="QVBoxLayout" name="layout_VariableButtons">
@@ -656,6 +680,9 @@
                 <property name="text">
                  <string>Add</string>
                 </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
                </widget>
               </item>
              </layout>
@@ -675,6 +702,21 @@
                </size>
               </property>
               <layout class="QVBoxLayout" name="layout_VariableSub">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
                <item>
                 <layout class="QHBoxLayout" name="layout_VariableHeader">
                  <property name="spacing">
@@ -718,6 +760,12 @@
                    </property>
                    <property name="styleSheet">
                     <string notr="true"/>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="midLineWidth">
+                    <number>0</number>
                    </property>
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -1065,8 +1113,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>773</width>
-                    <height>54</height>
+                    <width>766</width>
+                    <height>111</height>
                    </rect>
                   </property>
                   <property name="autoFillBackground">
@@ -1093,6 +1141,9 @@
                    </property>
                    <item>
                     <layout class="QVBoxLayout" name="layout_Variable">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
                      <property name="sizeConstraint">
                       <enum>QLayout::SetDefaultConstraint</enum>
                      </property>
@@ -1447,7 +1498,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>938</width>
+     <width>913</width>
      <height>21</height>
     </rect>
    </property>
