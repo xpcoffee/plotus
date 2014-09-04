@@ -830,7 +830,6 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
         }
     }
 
-
     // encapsulate case, write to file
     ofstream outFile(filename.toStdString().c_str());
     if (outFile.is_open()){
@@ -1287,6 +1286,9 @@ void BareMinimumPlotter::menu_saveAs()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
     QString filename = dialog.getSaveFileName(this, "Save configuration", m_defaultDir, "JSON (*.json)");
+
+    if(!filename.contains(".json"))
+        filename.append(".json");
 
     if (filename.indexOf(".json") > 0)
         saveCase_JSON(filename);
