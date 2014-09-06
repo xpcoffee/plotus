@@ -25,7 +25,7 @@ QTabBar::tab {
 	font: bold 13px calibri;
 	background: white;
 	border: 2px solid black;
-	border-radius: 10px;
+        border-radius: 5px;
 	height: 20px;
 	width:	80px;
 
@@ -36,6 +36,7 @@ QTabBar::tab:selected {
 	color: white;
 	font: bold 13px calibri;
 }
+
 
 /*Containers*/
 QWidget#container_VariableSub, QWidget#container_InequalitySub{
@@ -146,9 +147,10 @@ QLineEdit:focus {
 }
 
 QLineEdit#lineEdit_PlotTitle{
-	color: white;
+        color: black;
 	font: bold 18px calibri;
 	background: transparent;
+        border: transparent;
 }
 
 QLineEdit#lineEdit_PlotTitle:focus{
@@ -171,6 +173,7 @@ QTextEdit{
 QSplitterHandle {
 	background: transparent;
 	width: 1px;
+        image: none;
 }
 
 QSplitter#splitter_InequalityHeader, QSplitter#splitter_VariableHeader {
@@ -279,21 +282,33 @@ QScrollArea, QScrollArea > QWidget > QWidget{
  }
 
  QScrollBar::handle:vertical:enabled {
-     background: rgb(63, 98, 255);
-	 border-top: 2px solid black;
-	 border-bottom: 2px solid black;
+     background-color: qlineargradient(x1: 0, y1: 0.55, x2: 0, y2: 0.45,
+                                        stop: 0 rgb(100,100,100),
+                                        stop: 1 rgb(120,120,120));
+     border: 1px solid rgb(60,60,60);
+     border-radius: 1px;
+     margin-top: 2px;
+     margin-bottom:2px;
      min-height: 7px;
  }
 
  QScrollBar::add-line:vertical:enabled { /*down arrow box*/
-     background: rgb(100,100,100);
+     background-color: qlineargradient(x1: 0, y1: 0.65, x2: 0, y2: 0.55,
+                                        stop: 0 rgb(210,210,220),
+                                        stop: 1 rgb(230,230,230));
+     border: 1px solid rgb(60,60,60);
+     border-radius: 1px;
      height: 15px;
      subcontrol-position: bottom;
      subcontrol-origin: margin;
  }
 
  QScrollBar::sub-line:vertical:enabled { /*top arrow box*/
-     background: rgb(100,100,100);
+     background-color: qlineargradient(x1: 0, y1: 0.65, x2: 0, y2: 0.55,
+                                        stop: 0 rgb(210,210,220),
+                                        stop: 1 rgb(230,230,230));
+     border: 1px solid rgb(60,60,60);
+     border-radius: 1px;
      height: 15px;
      subcontrol-position: top;
      subcontrol-origin: margin;

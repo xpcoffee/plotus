@@ -157,6 +157,10 @@ public:
     bool addVariable(Variable variable);
     bool evaluate();
 
+    //	variables
+    bool *cancelFlagRight;
+    bool *cancelFlagLeft;
+
 signals:
     void moveUp(int gui_number);
     void moveDown (int gui_number);

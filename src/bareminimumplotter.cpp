@@ -26,70 +26,6 @@
 
 using namespace std;
 
-///	Third Party & Static Functions
-///	======================
-
-void BareMinimumPlotter::elideLable(QLabel *label, QString text){
-    QFontMetrics metrics(label->font());
-    QString elidedText = metrics.elidedText(text, Qt::ElideRight, label->width());
-    label->setText(elidedText);
-}
-
-void BareMinimumPlotter::fitLineEditToContents(QLineEdit* edit){
-    QString text = edit->text();
-    QFontMetrics fm = edit->fontMetrics();
-    int width = fm.boundingRect(text).width();
-    edit->setMinimumWidth(width + 10);
-    edit->setMaximumWidth(width + 10);
-}
-
-void BareMinimumPlotter::putLinesInSplitterHandles(QSplitter *splitter, QFrame::Shape line_type, int size){
-    for (int i = 0; i < splitter->count(); i++){
-        QSplitterHandle *handle = splitter->handle(i);
-
-        QFrame *line = new QFrame(handle);
-        line->setFrameShape(line_type);
-        line->setFrameShadow(QFrame::Sunken);
-        if (line_type == QFrame::VLine) line->setLineWidth(1);
-        if (line_type == QFrame::HLine) line->setLineWidth(2);
-
-        if (size == 0){
-            QHBoxLayout *layout = new QHBoxLayout(handle);
-            layout->setSpacing(0);
-            layout->setMargin(0);
-            layout->addWidget(line);
-            continue;
-        }
-
-        if (line_type == QFrame::VLine){
-            line->setMinimumHeight(size);
-            line->setMaximumHeight(size);
-
-            QVBoxLayout *layout = new QVBoxLayout(handle);
-            layout->setSpacing(0);
-            layout->setMargin(0);
-            layout->addStretch();
-            layout->addWidget(line);
-            layout->addStretch();
-            continue;
-        }
-        if (line_type == QFrame::HLine){
-            line->setMinimumWidth(size);
-            line->setMaximumWidth(size);
-
-            QHBoxLayout *layout = new QHBoxLayout(handle);
-            layout->setSpacing(0);
-            layout->setMargin(0);
-            layout->addStretch();
-            layout->addWidget(line);
-            layout->addStretch();
-        }
-    }
-//	-- Reference:	David Walthall
-//	-- Link: 		http://stackoverflow.com/questions/2545577/qsplitter-becoming-undistinguishable-between-qwidget-and-qtabwidget
-}
-
-
 ///	Public Functions
 /// =================
 
@@ -344,6 +280,9 @@ void BareMinimumPlotter::setupUiCont()
     setupButtons();
 
     loadCSS();
+
+    //! experimental
+    ui->tabWidget->removeTab(2);
 }
 
 void BareMinimumPlotter::setupInputValidation()
@@ -450,6 +389,10 @@ void BareMinimumPlotter::setupDynamicUi()
 
 void BareMinimumPlotter::loadCSS()
 {
+    // remove focus rectangles of linux style
+    removeFocusRect(ui->tabWidget);
+
+    // load CSS
     QFile file (":/style/theme_default.css");
 
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
@@ -1423,6 +1366,99 @@ void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
 
 void BareMinimumPlotter::on_pushButton_Cancel_clicked()
 {
+    //	[BREAK] 6th September 2014 | WORKING ON CANCELLING
     worker->flag_cancel = true;
+    *(worker->cancelFlagA) = true;
+    *(worker->cancelFlagB) = true;
     setProgress(100, "Cancelling...");
 }
+
+
+
+///	Third Party & Static Functions
+///	===============================
+
+void BareMinimumPlotter::elideLable(QLabel *label, QString text){
+    QFontMetrics metrics(label->font());
+    QString elidedText = metrics.elidedText(text, Qt::ElideRight, label->width());
+    label->setText(elidedText);
+}
+
+void BareMinimumPlotter::fitLineEditToContents(QLineEdit* edit){
+    QString text = edit->text();
+    QFontMetrics fm = edit->fontMetrics();
+    int width = fm.boundingRect(text).width();
+    edit->setMinimumWidth(width + 10);
+    edit->setMaximumWidth(width + 10);
+}
+
+void BareMinimumPlotter::removeFocusRect(QWidget *widget)
+{
+    class Style_tweaks : public QProxyStyle
+    {
+        public:
+
+            void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
+                               QPainter *painter, const QWidget *widget) const
+            {
+                /* do not draw focus rectangles - this permits modern styling */
+                if (element == QStyle::PE_FrameFocusRect)
+                    return;
+
+                QProxyStyle::drawPrimitive(element, option, painter, widget);
+            }
+    };
+
+    widget->setStyle(new Style_tweaks);
+
+//	-- Reference:	chelmuth
+//	-- Link: 		http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
+}
+
+void BareMinimumPlotter::putLinesInSplitterHandles(QSplitter *splitter, QFrame::Shape line_type, int size)
+{
+    for (int i = 0; i < splitter->count(); i++){
+        QSplitterHandle *handle = splitter->handle(i);
+
+        QFrame *line = new QFrame(handle);
+        line->setFrameShape(line_type);
+        line->setFrameShadow(QFrame::Sunken);
+        if (line_type == QFrame::VLine) line->setLineWidth(1);
+        if (line_type == QFrame::HLine) line->setLineWidth(2);
+
+        if (size == 0){
+            QHBoxLayout *layout = new QHBoxLayout(handle);
+            layout->setSpacing(0);
+            layout->setMargin(0);
+            layout->addWidget(line);
+            continue;
+        }
+
+        if (line_type == QFrame::VLine){
+            line->setMinimumHeight(size);
+            line->setMaximumHeight(size);
+
+            QVBoxLayout *layout = new QVBoxLayout(handle);
+            layout->setSpacing(0);
+            layout->setMargin(0);
+            layout->addStretch();
+            layout->addWidget(line);
+            layout->addStretch();
+            continue;
+        }
+        if (line_type == QFrame::HLine){
+            line->setMinimumWidth(size);
+            line->setMaximumWidth(size);
+
+            QHBoxLayout *layout = new QHBoxLayout(handle);
+            layout->setSpacing(0);
+            layout->setMargin(0);
+            layout->addStretch();
+            layout->addWidget(line);
+            layout->addStretch();
+        }
+    }
+//	-- Reference:	David Walthall
+//	-- Link: 		http://stackoverflow.com/questions/2545577/qsplitter-becoming-undistinguishable-between-qwidget-and-qtabwidget
+}
+

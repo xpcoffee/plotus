@@ -8,6 +8,7 @@
 ///	=================
 
 Expression::Expression(string expression):
+    flag_Cancel(false),
     m_ErrorMessage("")
 {
     setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
@@ -21,7 +22,8 @@ Expression::Expression(string expression):
 //	Setters
 //	--------
 
-void Expression::setExpression(string expression){
+void Expression::setExpression(string expression)
+{
     // parse
     m_OriginalExpression = parseExpressionArray(expression);
 
@@ -32,7 +34,8 @@ void Expression::setExpression(string expression){
     resetExpression();
 }
 
-void Expression::addVariable(Variable variable){
+void Expression::addVariable(Variable variable)
+{
     assert(variableNameIsValid(variable));
     m_Variables.push_back(variable);
 }
@@ -78,7 +81,8 @@ bool Expression::isXBeforeY(Variable x_variable, Variable y_variable)
 //	Evaluation
 //	-----------
 
-void Expression::subVariableValues(){
+void Expression::subVariableValues()
+{
     m_TermCount = m_WorkingExpression.size();
 
     for (int j = 0; j < m_TermCount; j++){	// for all terms
@@ -115,7 +119,8 @@ void Expression::subVariableValues(){
     }
 }
 
-vector<double> Expression::evaluateAll(){
+vector<double> Expression::evaluateAll()
+{
     if (!flag_Valid)
         throw InputErrorInvalidExpression; // [DOCUMENTATION] invalid expression
 
@@ -138,18 +143,21 @@ bool Expression::charIsAlpha(char c){ return (('A' <= c) && (c <= 'Z')) || (('a'
 
 bool Expression::charIsParenthesis(char c){ return (c == '(') || (c == ')'); }
 
-bool Expression::charIsOperator(char c){
+bool Expression::charIsOperator(char c)
+{
     return 	(c == '+') || (c == '-') ||
             (c == '*') || (c == '/') ||
             (c == '^');
 }
 
-bool Expression::charIsWhitespace(char c){
+bool Expression::charIsWhitespace(char c)
+{
     return 	(c == ' ')  || (c == '\t') || (c == '\n')  || (c == '\r') ||
             (c == '\v') || (c == '\b') || (c == '\f');
 }
 
-vector<string> Expression::parseExpressionArray (string expression){
+vector<string> Expression::parseExpressionArray (string expression)
+{
     string current_term = "";
     vector<string> terms;
     string::iterator it = expression.begin();
@@ -226,7 +234,8 @@ vector<string> Expression::parseExpressionArray (string expression){
 //	Checking and Error Handling
 //	---------------------------
 
-bool Expression::check_DecimalPointOK(string term){
+bool Expression::check_DecimalPointOK(string term)
+{
    int decimal_points = 0;
    bool flag_isVariable = false;
 
@@ -242,7 +251,8 @@ bool Expression::check_DecimalPointOK(string term){
    return true;
 }
 
-bool Expression::check_NumbersOK(string term){
+bool Expression::check_NumbersOK(string term)
+{
     if (termIsNumeric(term)){
         for (string::iterator it = term.begin(); it != term.end(); it++){
             if (!charIsDigit(*it)){
@@ -254,7 +264,8 @@ bool Expression::check_NumbersOK(string term){
     return true;
 }
 
-bool Expression::check_CharsOK(string term){
+bool Expression::check_CharsOK(string term)
+{
     for (string::iterator it = term.begin(); it != term.end(); it++){
         if (!charIsValid(*it))
         {
@@ -363,14 +374,16 @@ vector<int> Expression::checkExpressionArray(vector<string> &expression)
     return error_terms;
 }
 
-bool Expression::variableNameIsUnique(Variable &variable){
+bool Expression::variableNameIsUnique(Variable &variable)
+{
     for (vector<Variable>::iterator it = m_Variables.begin(); it != m_Variables.end(); it++){
             if ((*it).name() == variable.name()){ return false; }
     }
     return true;
 }
 
-bool Expression::variableNameIsValid(Variable & myVar){
+bool Expression::variableNameIsValid(Variable & myVar)
+{
     string name = myVar.name();
     if (!Variable::nameIsLegal(name))
         m_ErrorMessage += "Error | Variable name is illegal." + name + "\n";
@@ -379,7 +392,8 @@ bool Expression::variableNameIsValid(Variable & myVar){
     return Variable::nameIsLegal(name) && variableNameIsUnique(myVar);
 }
 
-bool Expression::charIsValid(char c){
+bool Expression::charIsValid(char c)
+{
     return charIsAlpha(c) || charIsDigit(c) || charIsOperator(c) || charIsParenthesis(c) || charIsWhitespace(c);
 }
 
@@ -957,6 +971,7 @@ void Expression::recEval()
     // for all values of the current variable (current variable is global)
     for (int i = 0; i < m_Variables[m_CurrentVariable].elements(); i++){
             int j = m_CurrentVariable;
+            if (flag_Cancel) return;
 
             // if this is the final nested variable;
             // substitute current values and evaluate... (see else)
@@ -1000,6 +1015,8 @@ void Expression::recEval()
 double Expression::evaluateExpression()
 {
     /*!	Evaluates an expression. Variables must already added.*/
+
+    if (flag_Cancel) { cout << "Cancelling!" << endl; return 0;}
 
     if (!flag_Valid)
         throw InputErrorInvalidExpression; // [DOCUMENTATION] invalid expression
@@ -1071,7 +1088,8 @@ void Expression::handleMathException(MathErrorCode e)
     }
 }
 
-void Expression::resetEvaluation(){
+void Expression::resetEvaluation()
+{
     m_CurrentVariable = 0;
     m_Results.clear();
     flag_Nan = false;

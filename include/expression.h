@@ -36,6 +36,7 @@
 #include<cassert>
 #include<locale.h>
 #include<math.h>
+#include<iostream>
 #include"variable.h"
 
 ///	Preprocessor Definitions
@@ -120,6 +121,9 @@ public:
     static bool approxEqual(double dNum1, double dNum2, double dPrec){
         return sqrt((dNum1-dNum2)*(dNum1-dNum2)) <= dPrec;
     }
+
+    //!	variables
+    bool flag_Cancel;
 
 private:
     //! member variables

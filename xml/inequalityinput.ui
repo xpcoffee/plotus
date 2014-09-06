@@ -222,7 +222,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Precision of Approximation</string>
+        <string>Tolerance of the approx-equal-to comparison.</string>
        </property>
        <property name="text">
         <string>Tol.</string>

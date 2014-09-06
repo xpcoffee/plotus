@@ -55,29 +55,31 @@ class Inequality
 {
 private:
 
-    //	Member Variables
-    //	-----------------
-
     Expression m_LeftExpression, m_RightExpression;
-    int m_Symbol;
     InequalitySymbol m_Sym;
-    double m_Precision;
+    int m_Symbol;
     bool flag_Initialized;
+    double m_Precision;
     string m_ErrorMessage;
     vector<double> m_LeftResults, m_RightResults;
 
 public:
+    //	variables
+    bool *cancelFlagLeft;
+    bool *cancelFlagRight;
+
+    //	functions
     Inequality(string expression1 = "", InequalitySymbol symbol = NoSymbol, string expression2 = "") :
-     m_Precision(0),
      flag_Initialized(true),
+     m_Precision(0),
      m_ErrorMessage("")
     {
-        if (symbol == NoSymbol){
-            flag_Initialized = false;
-        }
-        else{
-            setInequality(expression1, symbol, expression2);
-        }
+        if (symbol == NoSymbol) { flag_Initialized = false; }
+        else { setInequality(expression1, symbol, expression2); }
+
+        cancelFlagLeft = new bool(false);
+        cancelFlagRight = new bool(false);
+
     }
 
     //	Setters
@@ -108,6 +110,7 @@ public:
     {
             m_LeftExpression.setExpression(left_expression);
             m_RightExpression.setExpression(right_expression);
+
             m_Sym = symbol;
             flag_Initialized = true;
     }
@@ -153,6 +156,9 @@ public:
 
     vector<bool> evaluate(){
         vector<bool> plot_points;
+
+        cancelFlagLeft = &m_LeftExpression.flag_Cancel;
+        cancelFlagRight = &m_RightExpression.flag_Cancel;
 
         m_LeftResults = m_LeftExpression.evaluateAll();
         m_RightResults = m_RightExpression.evaluateAll();

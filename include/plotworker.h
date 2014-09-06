@@ -31,6 +31,8 @@ class PlotWorker : public QObject
 public:
     //! variables
     bool flag_cancel;
+    bool *cancelFlagA;
+    bool *cancelFlagB;
 
     //! functions
     explicit PlotWorker(QObject *parent = 0);

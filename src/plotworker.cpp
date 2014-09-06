@@ -10,37 +10,49 @@ PlotWorker::PlotWorker(QObject *parent) :
     m_prevCombination(CombinationNone),
     m_lastMatch(0)
 {
+    cancelFlagA = new bool(false);
+    cancelFlagB = new bool(false);
 }
 
 void PlotWorker::doWork()
 {
     for (int i = 0; i < m_inequalityCount + 1; i++){
         bool flag_skip;
-        for (int j = 0; j < static_cast<int>(m_inequalityInputs.size()); j++){
-        if (flag_cancel)
-            break;
 
-        if ( m_inequalityInputs[j]->getNumber() == i ){
-            if ( m_inequalityInputs[j]->getSkip() ) {
-                flag_skip = true;
+        for (unsigned int j = 0; j < m_inequalityInputs.size(); j++){
+            if (flag_cancel)
                 break;
+
+            InequalityInput *input = m_inequalityInputs[j];
+
+            if ( input->getNumber() == i ){
+                if ( input->getSkip() ) {
+                    flag_skip = true;
+                    break;
+                }
+
+                cancelFlagA = input->cancelFlagLeft;
+                cancelFlagB = input->cancelFlagRight;
+
+                plotNew(j);
             }
-            plotNew(j);
         }
-    }
 
-    for (int j = 0; j < static_cast<int>(m_inequalityLoaders.size()); j++){
-        if (flag_cancel)
-            break;
-
-        if ( m_inequalityLoaders[j]->getNumber() == i ){
-            if ( m_inequalityLoaders[j]->getSkip() ) {
-                flag_skip = true;
+        for (int j = 0; j < static_cast<int>(m_inequalityLoaders.size()); j++){
+            if (flag_cancel)
                 break;
+
+            InequalityLoader *loader = m_inequalityLoaders[j];
+
+            if ( loader->getNumber() == i ){
+                if ( loader->getSkip() ) {
+                    flag_skip = true;
+                    break;
+                }
+                plotOld(j);
             }
-            plotOld(j);
         }
-    }
+
         if (flag_cancel)
             break;
         if (flag_skip)

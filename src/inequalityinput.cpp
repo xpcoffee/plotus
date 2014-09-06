@@ -64,6 +64,9 @@ InequalityInput::InequalityInput(QWidget *parent) :
     for(int i = 0; i < ui->splitter_InequalityInput->count(); i++){
         ui->splitter_InequalityInput->handle(i)->setEnabled(false);
     }
+
+    cancelFlagLeft = new bool(false);
+    cancelFlagRight = new bool(false);
 }
 
 InequalityInput::~InequalityInput()
@@ -99,6 +102,9 @@ bool InequalityInput::createInequality(){
                              getSymbol(),
                              ui->lineEdit_Right->text().toStdString());
     m_inequality.setPrecision(atof(ui->lineEdit_Precision->text().toStdString().c_str()));
+
+    cancelFlagLeft = m_inequality.cancelFlagLeft;
+    cancelFlagRight = m_inequality.cancelFlagRight;
 
     // remove whitespace
     ui->lineEdit_Left->setText(QString::fromStdString(m_inequality.getExpressionLHS()));
