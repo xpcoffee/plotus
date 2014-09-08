@@ -5,39 +5,6 @@
 #include "ui_inequalityinput.h"
 
 
-///	Third Party Functions
-///	======================
-
-void InequalityInput::setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
-{
-    if(!lineEdit)
-        return;
-
-    QList<QInputMethodEvent::Attribute> attributes;
-    foreach(const QTextLayout::FormatRange& fr, formats)
-    {
-        QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
-        int start = fr.start - lineEdit->cursorPosition();
-        int length = fr.length;
-        QVariant value = fr.format;
-        attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
-    }
-    QInputMethodEvent event(QString(), attributes);
-    QCoreApplication::sendEvent(lineEdit, &event);
-
-    // -- Reference:	Vasaka
-    // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
-}
-
-void InequalityInput::clearLineEditTextFormat(QLineEdit* lineEdit)
-{
-    setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
-
-    // -- Reference:	Vasaka
-    // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
-}
-
-
 ///	Public Functions
 /// =================
 
@@ -65,8 +32,7 @@ InequalityInput::InequalityInput(QWidget *parent) :
         ui->splitter_InequalityInput->handle(i)->setEnabled(false);
     }
 
-    cancelFlagLeft = new bool(false);
-    cancelFlagRight = new bool(false);
+    flag_Cancel = new bool(false);
 }
 
 InequalityInput::~InequalityInput()
@@ -75,15 +41,18 @@ InequalityInput::~InequalityInput()
 }
 
 
+
 //	Setters
 //	-------
 
-void InequalityInput::setNumber(int nNumber){
+void InequalityInput::setNumber(int nNumber)
+{
     m_guiNumber = nNumber;
     ui->label_Index->setNum(nNumber+1);
 }
 
-void InequalityInput::setXYVariables(Variable mX, Variable mY){
+void InequalityInput::setXYVariables(Variable mX, Variable mY)
+{
     m_xVariable = mX;
     m_yVariable = mY;
 }
@@ -92,7 +61,8 @@ void InequalityInput::setX(QVector<double> vX){ m_x = vX; }
 
 void InequalityInput::setY(QVector<double> vY){ m_y = vY; }
 
-bool InequalityInput::createInequality(){
+bool InequalityInput::createInequality()
+{
     m_errorMessage = "";
 
     m_name = ui->lineEdit_Name->text();
@@ -103,8 +73,7 @@ bool InequalityInput::createInequality(){
                              ui->lineEdit_Right->text().toStdString());
     m_inequality.setPrecision(atof(ui->lineEdit_Precision->text().toStdString().c_str()));
 
-    cancelFlagLeft = m_inequality.cancelFlagLeft;
-    cancelFlagRight = m_inequality.cancelFlagRight;
+    m_inequality.setCancelPointer(flag_Cancel);
 
     // remove whitespace
     ui->lineEdit_Left->setText(QString::fromStdString(m_inequality.getExpressionLHS()));
@@ -116,7 +85,8 @@ bool InequalityInput::createInequality(){
     return true;
 }
 
-void InequalityInput::enablePositionButtons(bool flag_enable){
+void InequalityInput::enablePositionButtons(bool flag_enable)
+{
     ui->pushButton_Down->setEnabled(flag_enable);
     ui->pushButton_Up->setEnabled(flag_enable);
     ui->comboBox_Interact->setEnabled(flag_enable);
@@ -127,13 +97,15 @@ void InequalityInput::enableCombinations(bool flag_enable){ ui->comboBox_Interac
 
 void InequalityInput::resetCombinations(){ ui->comboBox_Interact->setCurrentIndex(CombinationNone); }
 
+void InequalityInput::setCancelPointer(bool *ptr){ flag_Cancel = ptr; }
+
 
 
 //	Parsers
 //	-------
 
-string InequalityInput::expressionToJSON() {
-
+string InequalityInput::expressionToJSON()
+{
     // object properties
     vector<string> properties;
     properties.push_back( BlueJSON::jsonKeyValue("description", getName().toStdString()) );
@@ -151,7 +123,8 @@ string InequalityInput::expressionToJSON() {
     return json;
 }
 
-string InequalityInput::dataToJSON(){
+string InequalityInput::dataToJSON()
+{
     vector<string> data_array;
 
     // create point objects
@@ -221,7 +194,6 @@ void InequalityInput::fromJSON(string json)
     return;
 }
 
-
 InequalitySymbol InequalityInput::symbolFromString(string value)
 {
     if (value == "<")
@@ -240,6 +212,7 @@ InequalitySymbol InequalityInput::symbolFromString(string value)
 }
 
 
+
 //	Getters: UI
 //	------------
 
@@ -253,7 +226,8 @@ int InequalityInput::getCombination(){ return ui->comboBox_Interact->currentInde
 
 double InequalityInput::getPrecision() { return atof(ui->lineEdit_Precision->text().toStdString().c_str()); }
 
-bool InequalityInput::getSkip(){
+bool InequalityInput::getSkip()
+{
     bool flag_empty = 	ui->lineEdit_Left->text().isEmpty() ||
                         ui->lineEdit_Right->text().isEmpty();
     if (flag_empty)
@@ -288,7 +262,6 @@ QWidget* InequalityInput::getFocusOutWidget()
         return ui->lineEdit_Right;
     }
 }
-
 
 QColor InequalityInput::getColor()
 {
@@ -376,10 +349,39 @@ QwtSymbol::Style InequalityInput::getShape()
     return QwtSymbol::NoSymbol;
 }
 
+void InequalityInput::setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
+{
+    if(!lineEdit)
+        return;
+
+    QList<QInputMethodEvent::Attribute> attributes;
+    foreach(const QTextLayout::FormatRange& fr, formats)
+    {
+        QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
+        int start = fr.start - lineEdit->cursorPosition();
+        int length = fr.length;
+        QVariant value = fr.format;
+        attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
+    }
+    QInputMethodEvent event(QString(), attributes);
+    QCoreApplication::sendEvent(lineEdit, &event);
+
+    // -- Reference:	Vasaka
+    // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
+}
+
+void InequalityInput::clearLineEditTextFormat(QLineEdit* lineEdit)
+{
+    setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
+
+    // -- Reference:	Vasaka
+    // -- link:			http://stackoverflow.com/questions/14417333/how-can-i-change-color-of-part-of-the-text-in-qlineedit
+}
+
+
 
 //	Getters: Data
 //	--------------
-
 
 QVector<double> InequalityInput::getX(){ return m_x; }
 
@@ -388,6 +390,7 @@ QVector<double> InequalityInput::getY(){ return m_y; }
 QVector<double> InequalityInput::getXProblem(){ return m_x_problem; }
 
 QVector<double> InequalityInput::getYProblem(){ return m_y_problem; }
+
 
 
 //	Validation
@@ -461,15 +464,18 @@ bool InequalityInput::highlightInvalidExpressionTerms()
 bool InequalityInput::checkVariablesInit() { return m_inequality.variablesInit(); }
 
 
+
 //	Formatting
 //	----------
 
-void InequalityInput::clearFormatting(){
+void InequalityInput::clearFormatting()
+{
     clearLineEditTextFormat(ui->lineEdit_Left);
     clearLineEditTextFormat(ui->lineEdit_Right);
 }
 
-void InequalityInput::clearFields(){
+void InequalityInput::clearFields()
+{
     ui->lineEdit_Left->clear();
     ui->lineEdit_Right->clear();
     ui->comboBox_Inequality->setCurrentIndex(0);
@@ -479,10 +485,12 @@ void InequalityInput::clearFields(){
 }
 
 
+
 //	Core
 //	----
 
-bool InequalityInput::addVariable(Variable variable){
+bool InequalityInput::addVariable(Variable variable)
+{
     //	check variable unique
     if (!m_inequality.variableIsValid(variable))  {
         return false;
@@ -492,7 +500,8 @@ bool InequalityInput::addVariable(Variable variable){
     return true;
 }
 
-bool InequalityInput::evaluate(){
+bool InequalityInput::evaluate()
+{
     // do maths
     try{
         m_points = m_inequality.evaluate();
@@ -557,10 +566,12 @@ bool InequalityInput::evaluate(){
 }
 
 
+
 ///	Public Slots
 ///	=============
 
 void InequalityInput::splitterResize(QList<int> sizes){ ui->splitter_InequalityInput->setSizes(sizes); }
+
 
 
 ///	Private Slots

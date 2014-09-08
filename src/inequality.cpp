@@ -9,9 +9,7 @@ Inequality::Inequality(string expression1, InequalitySymbol symbol, string expre
     if (symbol == NoSymbol) { flag_Initialized = false; }
     else { setInequality(expression1, symbol, expression2); }
 
-    cancelFlagLeft = new bool(false);
-    cancelFlagRight = new bool(false);
-
+    flag_Cancel = new bool(false);
 }
 
 //	Setters
@@ -61,6 +59,8 @@ void Inequality::changeSymbol(InequalitySymbol symbol)
 
 void Inequality::setPrecision(double value){ m_Precision = value; }
 
+void Inequality::setCancelPointer(bool *ptr) { flag_Cancel = ptr; }
+
 //	Getters
 //	--------
 
@@ -90,8 +90,8 @@ vector<bool> Inequality::evaluate()
 {
     vector<bool> plot_points;
 
-    cancelFlagLeft = &m_LeftExpression.flag_Cancel;
-    cancelFlagRight = &m_RightExpression.flag_Cancel;
+    m_LeftExpression.setCancelPointer(flag_Cancel);
+    m_RightExpression.setCancelPointer(flag_Cancel);
 
     m_LeftResults = m_LeftExpression.evaluateAll();
     m_RightResults = m_RightExpression.evaluateAll();

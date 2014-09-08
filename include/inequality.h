@@ -54,20 +54,21 @@ using namespace std;
 class Inequality
 {
 private:
+    // meta
+    bool flag_Initialized;
+    bool *flag_Cancel;
+
+    // inequality
     Expression m_LeftExpression, m_RightExpression;
     InequalitySymbol m_Sym;
     int m_Symbol;
-    bool flag_Initialized;
+
+    // evaluation
+    vector<double> m_LeftResults, m_RightResults;
     double m_Precision;
     string m_ErrorMessage;
-    vector<double> m_LeftResults, m_RightResults;
 
 public:
-    //! variables
-    bool *cancelFlagLeft;
-    bool *cancelFlagRight;
-
-    //! functions
     Inequality(string expression1 = "", InequalitySymbol symbol = NoSymbol, string expression2 = "");
 
     //	setters
@@ -78,6 +79,7 @@ public:
     void changeSymbol(int symbol);
     void changeSymbol(InequalitySymbol symbol);
     void setPrecision(double value);
+    void setCancelPointer(bool *ptr);
 
     //	getters
     vector<int> getProblemElements_ExpressionLHS();

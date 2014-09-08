@@ -94,6 +94,7 @@ public:
     void setExpression(string expression);
     void addVariable(Variable variable);
     void clearVariables();
+    void setCancelPointer(bool *ptr);
 
     //	getters
     int getNumTerms();
@@ -122,9 +123,6 @@ public:
         return sqrt((dNum1-dNum2)*(dNum1-dNum2)) <= dPrec;
     }
 
-    //!	variables
-    bool flag_Cancel;
-
 private:
     //! member variables
     // - meta
@@ -151,6 +149,7 @@ private:
     bool flag_Pole;
     bool flag_DivByZero;
     bool flag_Complex;
+    bool *flag_Cancel;
 
     //! functions
     // - parsing

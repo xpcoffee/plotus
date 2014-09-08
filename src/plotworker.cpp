@@ -6,66 +6,61 @@
 
 PlotWorker::PlotWorker(QObject *parent) :
     QObject(parent),
-    flag_cancel(false),
     m_prevCombination(CombinationNone),
     m_lastMatch(0)
 {
-    cancelFlagA = new bool(false);
-    cancelFlagB = new bool(false);
+    flag_Cancel = new bool(false);
 }
 
 void PlotWorker::doWork()
 {
     for (int i = 0; i < m_inequalityCount + 1; i++){
-        bool flag_skip;
+        bool skip;
 
         for (unsigned int j = 0; j < m_inequalityInputs.size(); j++){
-            if (flag_cancel)
+            if (*flag_Cancel)
                 break;
 
             InequalityInput *input = m_inequalityInputs[j];
 
             if ( input->getNumber() == i ){
                 if ( input->getSkip() ) {
-                    flag_skip = true;
+                    skip = true;
                     break;
                 }
 
-                cancelFlagA = input->cancelFlagLeft;
-                cancelFlagB = input->cancelFlagRight;
+                input->setCancelPointer(flag_Cancel);
 
                 plotNew(j);
             }
         }
 
         for (int j = 0; j < static_cast<int>(m_inequalityLoaders.size()); j++){
-            if (flag_cancel)
+            if (*flag_Cancel)
                 break;
 
             InequalityLoader *loader = m_inequalityLoaders[j];
 
             if ( loader->getNumber() == i ){
                 if ( loader->getSkip() ) {
-                    flag_skip = true;
+                    skip = true;
                     break;
                 }
                 plotOld(j);
             }
         }
 
-        if (flag_cancel)
-            break;
-        if (flag_skip)
-        continue;
+        if (*flag_Cancel) break;
+        if (skip) continue;
     }
 
-    if (flag_cancel)
-        emit progressUpdate(100, "Cancelled.");
-    flag_cancel = true;
+    if (*flag_Cancel) emit progressUpdate(100, "Cancelled.");
 
     emit PlotWorker::memberChanges(m_variableInputs, m_inequalityInputs, m_inequalityLoaders);
     emit PlotWorker::workFinished();
 }
+
+void PlotWorker::setCancelPointer(bool *ptr){ flag_Cancel = ptr; }
 
 
 
@@ -111,13 +106,13 @@ void PlotWorker::plotNew(int gui_number)
         return;
     }
 
-    if (flag_cancel)
+    if (*flag_Cancel)
         return;
 
     emit progressUpdate(40, "Combining results, inequality " + gui_number_str + "...");
     combineResults(input);
 
-    if (flag_cancel)
+    if (*flag_Cancel)
         return;
 
     m_prevCombination = input->getCombination();
@@ -126,7 +121,7 @@ void PlotWorker::plotNew(int gui_number)
         return;
     }
 
-    if (flag_cancel)
+    if (*flag_Cancel)
         return;
 
     input->setX(splitPlottingVectorX(m_results));

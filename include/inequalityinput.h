@@ -99,13 +99,6 @@ public:
     explicit InequalityInput(QWidget *parent = 0);
     ~InequalityInput();
 
-    //	3rd party
-    //	-- Vasaka
-    static void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats);
-
-    //	-- Vasaka
-    static void clearLineEditTextFormat(QLineEdit* lineEdit);
-
     //	setters
     void setNumber(int);
     void setXYVariables(Variable, Variable);
@@ -114,6 +107,7 @@ public:
     void enablePositionButtons(bool);
     void enableCombinations(bool);
     void resetCombinations();
+    void setCancelPointer(bool *ptr);
 
     // 	parsers
     string expressionToJSON();
@@ -137,6 +131,8 @@ public:
     QColor getColor();
     InequalitySymbol getSymbol();
     QwtSymbol::Style getShape();
+    void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats); /*! Vasaka*/
+    void clearLineEditTextFormat(QLineEdit* lineEdit); /*! Vasaka*/
 
     //	getters: data
     QVector<double> getX();
@@ -156,10 +152,6 @@ public:
     bool createInequality();
     bool addVariable(Variable variable);
     bool evaluate();
-
-    //	variables
-    bool *cancelFlagRight;
-    bool *cancelFlagLeft;
 
 signals:
     void moveUp(int gui_number);
@@ -185,6 +177,7 @@ private:
     // data
     Inequality m_inequality;
     Variable m_xVariable, m_yVariable;
+    bool *flag_Cancel;
 
     // meta
     QString m_name;

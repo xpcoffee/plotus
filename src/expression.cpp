@@ -8,7 +8,6 @@
 ///	=================
 
 Expression::Expression(string expression):
-    flag_Cancel(false),
     m_ErrorMessage("")
 {
     setlocale(LC_NUMERIC,"C"); // make '.' the decimal separator
@@ -16,6 +15,7 @@ Expression::Expression(string expression):
     // initialize
     setExpression(expression);
     resetEvaluation();
+    flag_Cancel = new bool(false);
 }
 
 
@@ -41,6 +41,8 @@ void Expression::addVariable(Variable variable)
 }
 
 void Expression::clearVariables(){ m_Variables.clear(); }
+
+void Expression::setCancelPointer(bool *ptr) { flag_Cancel = ptr; }
 
 
 //	Getters
@@ -122,7 +124,7 @@ void Expression::subVariableValues()
 vector<double> Expression::evaluateAll()
 {
     if (!flag_Valid)
-        throw InputErrorInvalidExpression; // [DOCUMENTATION] invalid expression
+        throw InputErrorInvalidExpression;
 
     resetEvaluation();
     recEval();
@@ -971,7 +973,7 @@ void Expression::recEval()
     // for all values of the current variable (current variable is global)
     for (int i = 0; i < m_Variables[m_CurrentVariable].elements(); i++){
             int j = m_CurrentVariable;
-            if (flag_Cancel) return;
+            if (*flag_Cancel) return;
 
             // if this is the final nested variable;
             // substitute current values and evaluate... (see else)
@@ -1016,10 +1018,10 @@ double Expression::evaluateExpression()
 {
     /*!	Evaluates an expression. Variables must already added.*/
 
-    if (flag_Cancel) { cout << "Cancelling!" << endl; return 0;}
+    if (*flag_Cancel) return 0;
 
     if (!flag_Valid)
-        throw InputErrorInvalidExpression; // [DOCUMENTATION] invalid expression
+        throw InputErrorInvalidExpression;
 
     // do parentheses; reduce the expression
     while (doParenthesis(m_WorkingExpression)) {}

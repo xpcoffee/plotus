@@ -226,11 +226,12 @@ private:
     //	gui management
     int m_variableCount;
     int m_inequalityCount;
-    bool flag_saved;
+    bool flag_Saved;
+    bool flag_Cancel;
 
     //	error handling
-    bool flag_problem;
-    bool flag_empty;
+    bool flag_Problem;
+    bool flag_Empty;
     QString m_errorMessage;
 
     // 	settings

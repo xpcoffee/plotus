@@ -39,8 +39,8 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     m_prevCombination (0),
     m_variableCount(0),
     m_inequalityCount(0),
-    flag_saved(true),
-    flag_empty (true)
+    flag_Saved(true),
+    flag_Empty (true)
 {
     ui->setupUi(this);
 
@@ -53,7 +53,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
     // 	set up initial dynamic elements
     setupDynamicUi();
 
-    flag_saved = true;
+    flag_Saved = true;
 }
 
 
@@ -128,6 +128,8 @@ void BareMinimumPlotter::plot()
     QWidget::connect(worker, SIGNAL(workFinished()), worker, SLOT(deleteLater()));
     QWidget::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 
+    flag_Cancel = false;
+    worker->setCancelPointer(&flag_Cancel);
     thread->start();
 
 }
@@ -153,7 +155,7 @@ void BareMinimumPlotter::configurePlot()
     plotter->detachItems();
     plotter->replot();
 
-    flag_empty = true;
+    flag_Empty = true;
 }
 
 void BareMinimumPlotter::configureAxes()
@@ -230,7 +232,7 @@ void BareMinimumPlotter::printError()
 
     // progress bar
     setProgress(100, "Error.");
-    flag_empty = true;
+    flag_Empty = true;
 }
 
 
@@ -486,7 +488,7 @@ void BareMinimumPlotter::addVariableInput()
     //	resize according to splitter
     variableSplitterMoved(ui->splitter_VariableHeader->sizes());
 
-    flag_saved = false;
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::addInequalityInput()
@@ -513,7 +515,7 @@ void BareMinimumPlotter::addInequalityInput()
     //	resize according to splitter
     inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 
-    flag_saved = false;
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::addInequalityLoader(QString filename)
@@ -547,7 +549,7 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
     //	resize according to splitter
     inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 
-    flag_saved = false;
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::determineInequalityOrder()
@@ -829,7 +831,7 @@ void BareMinimumPlotter::openCase(QString filename)
         }
     }
 
-    flag_saved = false;
+    flag_Saved = false;
 
 }
 
@@ -916,7 +918,7 @@ void BareMinimumPlotter::removeVariableInput(int gui_number)
                 m_variableInputs.front()->enableRemoveButton(false);
                 m_variableInputs.back()->enableRemoveButton(false);
             }
-            flag_saved = false;
+            flag_Saved = false;
             return;
         }
     }
@@ -942,7 +944,7 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number)
             // enable/disable position buttons
             determineInequalityOrder();
             determineButtonStates();
-            flag_saved = false;
+            flag_Saved = false;
             return;
         }
     }
@@ -963,7 +965,7 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number)
             // enable/disable position buttons
             determineInequalityOrder();
             determineButtonStates();
-            flag_saved = false;
+            flag_Saved = false;
             return;
         }
     }
@@ -982,7 +984,7 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number)
                 determineInequalityOrder();
                 determineButtonStates();
                 determineTabOrder();
-                flag_saved = false;
+                flag_Saved = false;
                 return;
             }
         }
@@ -996,7 +998,7 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number)
                 determineInequalityOrder();
                 determineButtonStates();
                 determineTabOrder();
-                flag_saved = false;
+                flag_Saved = false;
                 return;
             }
         }
@@ -1015,7 +1017,7 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
                 determineInequalityOrder();
                 determineButtonStates();
                 determineTabOrder();
-                flag_saved = false;
+                flag_Saved = false;
                 return;
             }
         }
@@ -1029,7 +1031,7 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
                 determineInequalityOrder();
                 determineButtonStates();
                 determineTabOrder();
-                flag_saved = false;
+                flag_Saved = false;
                 return;
             }
         }
@@ -1101,7 +1103,7 @@ void BareMinimumPlotter::addGraph(PlottingVector qwt_samples, PlotStyle shape, Q
         plotter->replot();
 
         m_graphCount++;
-        flag_empty = false;
+        flag_Empty = false;
 }
 
 void BareMinimumPlotter::addErrorGraph(PlottingVector qwt_problem_samples)
@@ -1220,7 +1222,7 @@ void BareMinimumPlotter::menu_open()
 
 void BareMinimumPlotter::menu_saveAs()
 {
-    if (flag_empty){
+    if (flag_Empty){
         m_errorMessage = "Empty/incomplete graph. Nothing to save.";
         printError();
         return;
@@ -1236,12 +1238,12 @@ void BareMinimumPlotter::menu_saveAs()
     if (filename.indexOf(".json") > 0)
         saveCase_JSON(filename);
 
-    flag_saved = true;
+    flag_Saved = true;
 }
 
 void BareMinimumPlotter::menu_export()
 {
-    if (flag_empty){
+    if (flag_Empty){
         m_errorMessage = "Error | Input | Plot not complete. Cannot save.";
         printError();
         return;
@@ -1255,7 +1257,7 @@ void BareMinimumPlotter::menu_export()
 
 void BareMinimumPlotter::menu_new()
 {
-    if (flag_saved){
+    if (flag_Saved){
         clearGUI();
         return;
     }
@@ -1270,7 +1272,7 @@ void BareMinimumPlotter::menu_new()
 
 void BareMinimumPlotter::menu_quit()
 {
-    if (flag_saved){
+    if (flag_Saved){
         this->close();
         return;
     }
@@ -1302,7 +1304,7 @@ void BareMinimumPlotter::on_toolButton_Plot_clicked()
 
     plot();
 
-    flag_saved = false;
+    flag_Saved = false;
 }
 
 void BareMinimumPlotter::exportQwt(int width, int height, int dpi)
@@ -1360,16 +1362,13 @@ void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
     if (ui->lineEdit_PlotTitle->text() == "New Plot") { m_title = "untitled case"; }
     else {
         m_title = ui->lineEdit_PlotTitle->text();
-        flag_saved = false;
+        flag_Saved = false;
     }
 }
 
 void BareMinimumPlotter::on_pushButton_Cancel_clicked()
 {
-    //	[BREAK] 6th September 2014 | WORKING ON CANCELLING
-    worker->flag_cancel = true;
-    *(worker->cancelFlagA) = true;
-    *(worker->cancelFlagB) = true;
+    flag_Cancel = true;
     setProgress(100, "Cancelling...");
 }
 

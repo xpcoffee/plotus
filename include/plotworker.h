@@ -29,15 +29,9 @@ class PlotWorker : public QObject
 {
     Q_OBJECT
 public:
-    //! variables
-    bool flag_cancel;
-    bool *cancelFlagA;
-    bool *cancelFlagB;
-
-    //! functions
     explicit PlotWorker(QObject *parent = 0);
-
     void doWork();
+    void setCancelPointer(bool *ptr);
 
 signals:
     void dataRequest();
@@ -69,21 +63,17 @@ private:
     //	plotting
     int m_prevCombination;
     int m_lastMatch;
-
     Variable m_xVariable, m_yVariable;
     PlottingVector m_results;
     PlottingVector m_resultsProblem;
     PlottingVector m_resultsCombined;
     PlottingVector *m_findRange;
-
-
-//    PlottingVector m_samples, m_samples_problem;
+    bool *flag_Cancel;
 
     //	gui management
     int m_inequalityCount;
 
     //	error handling
-//    bool flag_empty;
     QString m_errorMessage;
 
     // 	settings
