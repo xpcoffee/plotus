@@ -23,7 +23,8 @@ SOURCES += src/main.cpp \
     src/variableinput.cpp \
     src/headerscrollarea.cpp \
     src/plotworker.cpp \
-    src/exportdialog.cpp
+    src/exportdialog.cpp \
+    src/inequality.cpp
 
 HEADERS  += include/variableinput.h \
     include/bareminimumplotter.h \
