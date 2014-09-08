@@ -105,6 +105,7 @@ private:
 
     //	notification
     void printError();
+    void printWarning();
 
 };
 

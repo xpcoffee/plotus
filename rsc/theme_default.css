@@ -59,6 +59,16 @@ QLabel#label_Index {
 	font: bold 13px calibri;
 }
 
+QLabel#label_Constant {
+        color: rgb(60,60,60);
+        font: bold 13px calibri;
+}
+
+QLabel#label_Constant:disabled {
+        color: transparent;
+        font: bold 13px calibri;
+}
+
 /*Buttons*/
 QToolButton{
 	color: white;
@@ -252,6 +262,7 @@ QProgressBar {
 	background: transparent;
 	color: white;
 	font: bold 13px calibri;
+        border-radius: 0;
 }
 
 QProgressBar::chunk {

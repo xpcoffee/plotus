@@ -302,7 +302,9 @@ void VariableInput::formatLineEditError(QLineEdit* edit){
 void VariableInput::sliderCheck()
 {
     resetSlider();
-    if (ui->lineEdit_Min->text().isEmpty() || ui->lineEdit_Max->text().isEmpty() || ui->lineEdit_Elements->text().isEmpty())
+    if (ui->lineEdit_Min->text().isEmpty() ||
+        ui->lineEdit_Max->text().isEmpty() ||
+        ui->lineEdit_Elements->text().isEmpty())
         return;
     if (!checkInput())
         return;
@@ -310,6 +312,7 @@ void VariableInput::sliderCheck()
     if (ui->comboBox_Axes->currentIndex() == PlotConstant){
        ui->horizontalSlider_Point->setEnabled(true);
        ui->horizontalSlider_Point->setTickInterval(1);
+       ui->label_Constant->setEnabled(true);
        ui->label_Constant->setNum(m_variable.min());
        ui->horizontalSlider_Point->setMaximum(m_variable.elements());
     }
@@ -338,6 +341,7 @@ void VariableInput::resetSlider()
        ui->horizontalSlider_Point->setValue(0);
        ui->label_Constant->setText("-");
        ui->horizontalSlider_Point->setEnabled(false);
+       ui->label_Constant->setEnabled(false);
 }
 
 

@@ -133,7 +133,7 @@ void PlotWorker::plotNew(int gui_number)
     if (!m_resultsProblem.isEmpty())
         emit newErrorGraph(m_resultsProblem);
 
-    printError();
+    printWarning();
     emit progressUpdate(100, "Done.");
 //    flag_empty = false;
 }
@@ -167,7 +167,7 @@ void PlotWorker::plotOld(int gui_number)
     if (!m_resultsProblem.isEmpty())
         emit newErrorGraph(m_resultsProblem);
 
-    printError();
+    printWarning();
     emit progressUpdate(100, "Done.");
 }
 
@@ -296,5 +296,21 @@ void PlotWorker::printError()
 
     // progress bar
     emit progressUpdate(100, "Error.");
-//    flag_empty = true;
+}
+
+void PlotWorker::printWarning()
+{
+    // get all error messages
+    // display messages
+    for (int i = 0; i < static_cast<int>(m_inequalityInputs.size()); i++){
+        m_errorMessage += m_inequalityInputs[i]->getErrors();
+    }
+    for (int i = 0; i < static_cast<int>(m_inequalityLoaders.size()); i++){
+        m_errorMessage += m_inequalityLoaders[i]->getErrors();
+    }
+
+    emit logMessage(m_errorMessage);
+
+    // progress bar
+    emit progressUpdate(100, "Printing Warnings.");
 }
