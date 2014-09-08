@@ -32,6 +32,7 @@ ExportDialog::ExportDialog(QWidget *parent) :
     m_layout->addWidget(m_buttonOK);
     m_layout->addWidget(m_buttonCancel);
 
+    this->setWindowTitle("Plotus :: Export Plot");
     this->setLayout(m_layout);
 
 }

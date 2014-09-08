@@ -10,12 +10,11 @@ CONFIG   += qwt
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET = BareMinimumPlotter
+TARGET = Plotus
 TEMPLATE = app
 
 
 SOURCES += src/main.cpp \
-    src/bareminimumplotter.cpp \
     src/bluejson.cpp \
     src/expression.cpp \
     src/inequalityinput.cpp \
@@ -24,10 +23,10 @@ SOURCES += src/main.cpp \
     src/headerscrollarea.cpp \
     src/plotworker.cpp \
     src/exportdialog.cpp \
-    src/inequality.cpp
+    src/inequality.cpp \
+    src/plotus.cpp
 
 HEADERS  += include/variableinput.h \
-    include/bareminimumplotter.h \
     include/bluejson.h \
     include/expression.h \
     include/inequality.h \
@@ -36,12 +35,14 @@ HEADERS  += include/variableinput.h \
     include/variable.h \
     include/headerscrollarea.h \
     include/plotworker.h \
-    include/exportdialog.h
+    include/exportdialog.h \
+    include/plotus.h
 
-FORMS    +=  xml/bareminimumplotter.ui \
+FORMS    +=  \
     xml/inequalityinput.ui \
     xml/inequalityloader.ui \
-    xml/variableinput.ui
+    xml/variableinput.ui \
+    xml/plotus.ui
 
 OTHER_FILES +=
 

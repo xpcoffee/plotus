@@ -14,8 +14,8 @@
 ///	Includes
 ///	========
 
-#include "include/bareminimumplotter.h"
-#include "ui_bareminimumplotter.h"
+#include "include/plotus.h"
+#include "ui_plotus.h"
 
 #ifndef DEBUG_POINT
 #define DEBUG_POINT qDebug() << "Debug marker. | In file " << __FILE__ << " at line " << __LINE__;
@@ -32,9 +32,9 @@ using namespace std;
 //	Constructor
 //	-----------
 
-BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
+Plotus::Plotus(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::BareMinimumPlotter),
+    ui(new Ui::Plotus),
     m_title("untitled_case"),
     m_prevCombination (0),
     m_variableCount(0),
@@ -60,7 +60,7 @@ BareMinimumPlotter::BareMinimumPlotter(QWidget *parent) :
 //	Destructor
 //	----------
 
-BareMinimumPlotter::~BareMinimumPlotter()
+Plotus::~Plotus()
 {
     delete ui;
 }
@@ -69,7 +69,7 @@ BareMinimumPlotter::~BareMinimumPlotter()
 //	Overrides
 //	-----------
 
-void BareMinimumPlotter::showEvent(QShowEvent *event)
+void Plotus::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
     //	gui things that can only be done once gui is shown
@@ -83,7 +83,7 @@ void BareMinimumPlotter::showEvent(QShowEvent *event)
 //	Plotting and Evaluation
 //	------------------------
 
-void BareMinimumPlotter::plot()
+void Plotus::plot()
 {
     clearFormatting();
     configurePlot();
@@ -134,7 +134,7 @@ void BareMinimumPlotter::plot()
 
 }
 
-void BareMinimumPlotter::configurePlot()
+void Plotus::configurePlot()
 {
     // reload loaders data
     // (in case previous plotting changed its data through combinations)
@@ -158,7 +158,7 @@ void BareMinimumPlotter::configurePlot()
     flag_Empty = true;
 }
 
-void BareMinimumPlotter::configureAxes()
+void Plotus::configureAxes()
 {
     QString x_units, y_units;
 
@@ -187,7 +187,7 @@ void BareMinimumPlotter::configureAxes()
     plotter->setAxisScale(QwtPlot::xBottom, m_xVariable.min(), m_xVariable.max());
 }
 
-bool BareMinimumPlotter::addVariables(InequalityInput* input)
+bool Plotus::addVariables(InequalityInput* input)
 {
     bool flag_ok = true;
 
@@ -211,13 +211,13 @@ bool BareMinimumPlotter::addVariables(InequalityInput* input)
 //	Validation
 //	----------
 
-void BareMinimumPlotter::printclr()
+void Plotus::printclr()
 {
     m_errorMessage = "";
     ui->textEdit_Error->setText(m_errorMessage);
 }
 
-void BareMinimumPlotter::printError()
+void Plotus::printError()
 {
     // get all error messages
     // display messages
@@ -236,7 +236,7 @@ void BareMinimumPlotter::printError()
 }
 
 
-bool BareMinimumPlotter::checkVariables()
+bool Plotus::checkVariables()
 {
     bool flag_ok = true;
 
@@ -253,7 +253,7 @@ bool BareMinimumPlotter::checkVariables()
     return flag_ok;
 }
 
-bool BareMinimumPlotter::checkExpressions()
+bool Plotus::checkExpressions()
 {
     bool flag_ok = true;
 
@@ -269,7 +269,7 @@ bool BareMinimumPlotter::checkExpressions()
 //	GUI
 //	---
 
-void BareMinimumPlotter::setupUiCont()
+void Plotus::setupUiCont()
 {
     setupInputValidation();
 
@@ -287,7 +287,7 @@ void BareMinimumPlotter::setupUiCont()
     ui->tabWidget->removeTab(2);
 }
 
-void BareMinimumPlotter::setupInputValidation()
+void Plotus::setupInputValidation()
 {
     //	settings fields
     QDoubleValidator *dValidator = new QDoubleValidator;
@@ -295,7 +295,7 @@ void BareMinimumPlotter::setupInputValidation()
     ui->lineEdit_SettingsTolerance->setValidator(dValidator);
 }
 
-void BareMinimumPlotter::setupQwtPlot()
+void Plotus::setupQwtPlot()
 {
     QVBoxLayout *layout_Plot = new QVBoxLayout();
     plotter = new QwtPlot(ui->centralWidget);
@@ -315,7 +315,7 @@ void BareMinimumPlotter::setupQwtPlot()
     resetQwtPlotWindow();
 }
 
-void BareMinimumPlotter::setupScrollAreas()
+void Plotus::setupScrollAreas()
 {
     //	account for scrollbar sizes in ui
     int new_size = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
@@ -338,7 +338,7 @@ void BareMinimumPlotter::setupScrollAreas()
 //    header_widget->setLayout(header_layout);
 }
 
-void BareMinimumPlotter::setupSplitterHandles()
+void Plotus::setupSplitterHandles()
 {
     putLinesInSplitterHandles(ui->splitter_InequalityHeader, QFrame::VLine);
     putLinesInSplitterHandles(ui->splitter_VariableHeader, QFrame::VLine);
@@ -347,7 +347,7 @@ void BareMinimumPlotter::setupSplitterHandles()
     putLinesInSplitterHandles(ui->splitter_HorizontalPlot, QFrame::VLine, 50);
 }
 
-void BareMinimumPlotter::setupButtons()
+void Plotus::setupButtons()
 {
     //	layouts
     ui->layout_VariableButtons->setAlignment(Qt::AlignVCenter);
@@ -370,7 +370,7 @@ void BareMinimumPlotter::setupButtons()
     ui->layout_InequalityButtons->setAlignment(Qt::AlignTop);
 }
 
-void BareMinimumPlotter::setupDynamicUi()
+void Plotus::setupDynamicUi()
 {
     // 	add original x & y variable inputs
     ui->layout_Variable->setAlignment(Qt::AlignTop);
@@ -389,7 +389,7 @@ void BareMinimumPlotter::setupDynamicUi()
     m_inequalityInputs.front()->enablePositionButtons(false);
 }
 
-void BareMinimumPlotter::loadCSS()
+void Plotus::loadCSS()
 {
     // remove focus rectangles of linux style
     removeFocusRect(ui->tabWidget);
@@ -404,7 +404,7 @@ void BareMinimumPlotter::loadCSS()
     file.close();
 }
 
-void BareMinimumPlotter::loadSettings()
+void Plotus::loadSettings()
 {
     //	precision of inequality comparison
     stringstream buffer;
@@ -416,7 +416,7 @@ void BareMinimumPlotter::loadSettings()
     m_defaultDir = QDir::currentPath();
 }
 
-void BareMinimumPlotter::clearGUI()
+void Plotus::clearGUI()
 {
     addInequalityInput();
     while (ui->layout_Inequality->count() > 1){
@@ -431,7 +431,7 @@ void BareMinimumPlotter::clearGUI()
     resetQwtPlotWindow();
 }
 
-void BareMinimumPlotter::clearFormatting()
+void Plotus::clearFormatting()
 {
     m_errorMessage = "";
     for (int i = 0; i < static_cast<int>(m_inequalityInputs.size()); i++){
@@ -443,7 +443,7 @@ void BareMinimumPlotter::clearFormatting()
     setProgress(0, "");
 }
 
-void BareMinimumPlotter::resetQwtPlotWindow()
+void Plotus::resetQwtPlotWindow()
 {
     //	clear graphs
     plotter->detachItems();
@@ -461,7 +461,7 @@ void BareMinimumPlotter::resetQwtPlotWindow()
     ui->splitter_VerticalPlot->setSizes(versizes);
 }
 
-void BareMinimumPlotter::addVariableInput()
+void Plotus::addVariableInput()
 {
     m_variableInputs.push_back(new VariableInput());
     VariableInput *new_variable = m_variableInputs.back();
@@ -491,7 +491,7 @@ void BareMinimumPlotter::addVariableInput()
     flag_Saved = false;
 }
 
-void BareMinimumPlotter::addInequalityInput()
+void Plotus::addInequalityInput()
 {
     m_inequalityInputs.push_back(new InequalityInput());
     InequalityInput *new_inequality = m_inequalityInputs.back();
@@ -518,7 +518,7 @@ void BareMinimumPlotter::addInequalityInput()
     flag_Saved = false;
 }
 
-void BareMinimumPlotter::addInequalityLoader(QString filename)
+void Plotus::addInequalityLoader(QString filename)
 {
     m_inequalityLoaders.push_back(new InequalityLoader);
     InequalityLoader *new_inequality = m_inequalityLoaders.back();
@@ -552,7 +552,7 @@ void BareMinimumPlotter::addInequalityLoader(QString filename)
     flag_Saved = false;
 }
 
-void BareMinimumPlotter::determineInequalityOrder()
+void Plotus::determineInequalityOrder()
 {
     vector<InequalityInput*> tmpVecInput;
     vector<InequalityLoader*> tmpVecLoader;
@@ -571,7 +571,7 @@ void BareMinimumPlotter::determineInequalityOrder()
     m_inequalityLoaders = tmpVecLoader;
 }
 
-void BareMinimumPlotter::determineButtonStates()
+void Plotus::determineButtonStates()
 {
     int nSize = ui->layout_Inequality->count()-1;
     QWidget *front_item = ui->layout_Inequality->itemAt(0)->widget();
@@ -615,7 +615,7 @@ void BareMinimumPlotter::determineButtonStates()
     }
 }
 
-void BareMinimumPlotter::determineTabOrder()
+void Plotus::determineTabOrder()
 {
     QWidget *widget;
     QWidget *current;
@@ -645,7 +645,7 @@ void BareMinimumPlotter::determineTabOrder()
     QWidget::setTabOrder(ui->pushButton_Cancel, ui->lineEdit_SettingsTolerance);
 }
 
-void BareMinimumPlotter::setUIMode(UIMode mode)
+void Plotus::setUIMode(UIMode mode)
 {
     if (mode == Busy){
         ui->pushButton_Cancel->setEnabled(true);
@@ -666,7 +666,7 @@ void BareMinimumPlotter::setUIMode(UIMode mode)
     }
 }
 
-QWidget* BareMinimumPlotter::getFocusInWidget(QWidget* widget)
+QWidget* Plotus::getFocusInWidget(QWidget* widget)
 {
     if (widget->accessibleDescription() == "input"){
         return qobject_cast<InequalityInput*>(widget)->getFocusInWidget();
@@ -678,7 +678,7 @@ QWidget* BareMinimumPlotter::getFocusInWidget(QWidget* widget)
     return widget;
 }
 
-QWidget* BareMinimumPlotter::getFocusOutWidget(QWidget* widget)
+QWidget* Plotus::getFocusOutWidget(QWidget* widget)
 {
     if (widget->accessibleDescription() == "input"){
         return qobject_cast<InequalityInput*>(widget)->getFocusOutWidget();
@@ -694,7 +694,7 @@ QWidget* BareMinimumPlotter::getFocusOutWidget(QWidget* widget)
 //	Parsing and File IO
 //	--------------------
 
-void BareMinimumPlotter::saveCase_JSON(QString filename)
+void Plotus::saveCase_JSON(QString filename)
 {
     stringstream case_buffer, case_element_buffer, case_subelement_buffer;
 
@@ -784,7 +784,7 @@ void BareMinimumPlotter::saveCase_JSON(QString filename)
 }
 
 
-void BareMinimumPlotter::openCase(QString filename)
+void Plotus::openCase(QString filename)
 {
     BlueJSON parser;
     parser.readInFile(filename.toStdString());
@@ -835,7 +835,7 @@ void BareMinimumPlotter::openCase(QString filename)
 
 }
 
-void BareMinimumPlotter::openVariables(string json)
+void Plotus::openVariables(string json)
 {
     string token;
     stringstream ss;
@@ -855,7 +855,7 @@ void BareMinimumPlotter::openVariables(string json)
 ///	Public Slots
 /// =============
 
-void BareMinimumPlotter::checkAxisMode(int gui_number)
+void Plotus::checkAxisMode(int gui_number)
 {
     int xcount = 0, ycount = 0, xpos, ypos;
     for (int i = 0; i < static_cast<int>(m_variableInputs.size()); i++){ 	// find x-axis and y-axis labels
@@ -879,7 +879,7 @@ void BareMinimumPlotter::checkAxisMode(int gui_number)
     else if (xcount == 0 && ycount == 1) { m_variableInputs[gui_number]->setAxisMode(PlotHorizontal); }
 }
 
-void BareMinimumPlotter::removeVariableInput(int gui_number)
+void Plotus::removeVariableInput(int gui_number)
 {
     if (m_variableInputs.size() < 3) // at least 2 variable inputs needed
         return;
@@ -924,7 +924,7 @@ void BareMinimumPlotter::removeVariableInput(int gui_number)
     }
 }
 
-void BareMinimumPlotter::removeInequalityInput(int gui_number)
+void Plotus::removeInequalityInput(int gui_number)
 {
     if (ui->layout_Inequality->count() < 2) // at least 1 inequality input needed
         return;
@@ -971,7 +971,7 @@ void BareMinimumPlotter::removeInequalityInput(int gui_number)
     }
 }
 
-void BareMinimumPlotter::moveInequalityInputUp (int gui_number)
+void Plotus::moveInequalityInputUp (int gui_number)
 {
     int pos = gui_number;
     if (ui->layout_Inequality->itemAt(pos)->widget()->accessibleDescription() == "input")
@@ -1004,7 +1004,7 @@ void BareMinimumPlotter::moveInequalityInputUp (int gui_number)
         }
 }
 
-void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
+void Plotus::moveInequalityInputDown (int gui_number)
 {
     int pos = gui_number;
     if (ui->layout_Inequality->itemAt(pos)->widget()->accessibleDescription() == "input")
@@ -1037,16 +1037,16 @@ void BareMinimumPlotter::moveInequalityInputDown (int gui_number)
         }
 }
 
-void BareMinimumPlotter::scrollInequalityHeader(int value)
+void Plotus::scrollInequalityHeader(int value)
 {
     int scroll_amt = ui->scrollAreaWidget_InequalityInputs->geometry().x() + value/2;
     ui->splitter_InequalityHeader->scroll(scroll_amt, 0);
     ui->splitter_InequalityHeader->scroll(0, 0);
 }
 
-void BareMinimumPlotter::scrollVariableHeader(int value) { ui->splitter_InequalityHeader->scroll(-value/2, 0); }
+void Plotus::scrollVariableHeader(int value) { ui->splitter_InequalityHeader->scroll(-value/2, 0); }
 
-void BareMinimumPlotter::sendWorkerData()
+void Plotus::sendWorkerData()
 {
     emit feedPlotWorker(m_variableInputs,
                         m_inequalityInputs,
@@ -1056,7 +1056,7 @@ void BareMinimumPlotter::sendWorkerData()
                         m_compPrec);
 }
 
-void BareMinimumPlotter::setProgress(int value, QString message)
+void Plotus::setProgress(int value, QString message)
 {
     int progress = floor( ( value/100.0 + m_graphCount )/ui->layout_Inequality->count() * 100);
     ui->progressBar->setValue(progress);
@@ -1076,7 +1076,7 @@ void BareMinimumPlotter::setProgress(int value, QString message)
     }
 }
 
-void BareMinimumPlotter::addGraph(PlottingVector qwt_samples, PlotStyle shape, QColor marker_color, QString tag)
+void Plotus::addGraph(PlottingVector qwt_samples, PlotStyle shape, QColor marker_color, QString tag)
 {
         QwtPlotCurve *plot = new QwtPlotCurve(tag);
 
@@ -1106,7 +1106,7 @@ void BareMinimumPlotter::addGraph(PlottingVector qwt_samples, PlotStyle shape, Q
         flag_Empty = false;
 }
 
-void BareMinimumPlotter::addErrorGraph(PlottingVector qwt_problem_samples)
+void Plotus::addErrorGraph(PlottingVector qwt_problem_samples)
 {
         QwtPlotCurve *plot = new QwtPlotCurve();
         QwtSymbol *marker = new QwtSymbol(QwtSymbol::Star1,
@@ -1123,7 +1123,7 @@ void BareMinimumPlotter::addErrorGraph(PlottingVector qwt_problem_samples)
         plotter->replot();
 }
 
-void BareMinimumPlotter::registerMemberChanges(VarInputArray var_inputs,
+void Plotus::registerMemberChanges(VarInputArray var_inputs,
                                        IneqInputArray ineq_inputs,
                                        IneqLoaderArray ineq_loaders)
 {
@@ -1132,9 +1132,9 @@ void BareMinimumPlotter::registerMemberChanges(VarInputArray var_inputs,
     m_inequalityLoaders = ineq_loaders;
 }
 
-void BareMinimumPlotter::log(QString message) { ui->textEdit_Error->setText(message); }
+void Plotus::log(QString message) { ui->textEdit_Error->setText(message); }
 
-void BareMinimumPlotter::plottingFinished()
+void Plotus::plottingFinished()
 {
     setUIMode(Available);
     if (ui->progressBar->text() != "Cancelled.")
@@ -1145,7 +1145,7 @@ void BareMinimumPlotter::plottingFinished()
 /// ==============
 
 //	TODO: add github link instead of email. new dialog subclass?
-void BareMinimumPlotter::menu_about()
+void Plotus::menu_about()
 {
     QDialog *dialog = new QDialog(this);
     QLabel *title = new QLabel(dialog);
@@ -1162,7 +1162,7 @@ void BareMinimumPlotter::menu_about()
 
     icon->setPixmap(QPixmap(":/images_icons/Icon64.png"));
 
-    title->setText("BareMinimumPlotter");
+    title->setText("Plotus");
 
     QString msg;
     msg = "build 0.5 (Alpha)\n\n"
@@ -1204,12 +1204,12 @@ void BareMinimumPlotter::menu_about()
     layout->addLayout(sublayout_right);
     dialog->setLayout(layout);
 
-    dialog->setWindowTitle("BareMinimumPlotter :: About");
+    dialog->setWindowTitle("Plotus :: About");
     dialog->setWindowFlags(dialog->windowFlags() |= Qt::MSWindowsFixedSizeDialogHint);
     dialog->show();
 }
 
-void BareMinimumPlotter::menu_open()
+void Plotus::menu_open()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Open plot", m_defaultDir, "JSON (*.json)");
     if (filename.isEmpty())
@@ -1220,7 +1220,7 @@ void BareMinimumPlotter::menu_open()
     openCase(filename);
 }
 
-void BareMinimumPlotter::menu_saveAs()
+void Plotus::menu_saveAs()
 {
     if (flag_Empty){
         m_errorMessage = "Empty/incomplete graph. Nothing to save.";
@@ -1241,7 +1241,7 @@ void BareMinimumPlotter::menu_saveAs()
     flag_Saved = true;
 }
 
-void BareMinimumPlotter::menu_export()
+void Plotus::menu_export()
 {
     if (flag_Empty){
         m_errorMessage = "Error | Input | Plot not complete. Cannot save.";
@@ -1255,7 +1255,7 @@ void BareMinimumPlotter::menu_export()
     QWidget::connect(dialog, SIGNAL(exportOptions(int,int,int)), this, SLOT(exportQwt(int,int,int)));
 }
 
-void BareMinimumPlotter::menu_new()
+void Plotus::menu_new()
 {
     if (flag_Saved){
         clearGUI();
@@ -1270,7 +1270,7 @@ void BareMinimumPlotter::menu_new()
     if (response == 1) clearGUI();
 }
 
-void BareMinimumPlotter::menu_quit()
+void Plotus::menu_quit()
 {
     if (flag_Saved){
         this->close();
@@ -1280,13 +1280,13 @@ void BareMinimumPlotter::menu_quit()
     QString warning = "<b>The current work has not been saved.</b><br>Are you sure you want to exit?";
     QMessageBox *warnbox;
 
-    int response  = warnbox->warning(0, "Exiting BareMinimumPlotter", warning, "&Cancel", "E&xit");
+    int response  = warnbox->warning(0, "Exiting Plotus", warning, "&Cancel", "E&xit");
     if (response == 1){
         this->close();
     }
 }
 
-void BareMinimumPlotter::menu_qwt_context(const QPoint &)
+void Plotus::menu_qwt_context(const QPoint &)
 {
     QAction *copy_qwt = new QAction(this);
     copy_qwt->setText("Copy");
@@ -1298,7 +1298,7 @@ void BareMinimumPlotter::menu_qwt_context(const QPoint &)
     context_menu->popup(QCursor::pos());
 }
 
-void BareMinimumPlotter::on_toolButton_Plot_clicked()
+void Plotus::on_toolButton_Plot_clicked()
 {
     setUIMode(Busy);
 
@@ -1307,43 +1307,43 @@ void BareMinimumPlotter::on_toolButton_Plot_clicked()
     flag_Saved = false;
 }
 
-void BareMinimumPlotter::exportQwt(int width, int height, int dpi)
+void Plotus::exportQwt(int width, int height, int dpi)
 {
     QwtPlotRenderer *renderer = new QwtPlotRenderer();
     renderer->exportTo(plotter, m_title, QSizeF(width, height), dpi);
 }
 
-void BareMinimumPlotter::copyQwtToClipboard()
+void Plotus::copyQwtToClipboard()
 {
     //	BUG: getting "QImage::pixel: coordinate (...,...) out of range" when application quits
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setPixmap(plotter->grab(plotter->geometry()));
 }
 
-void BareMinimumPlotter::openLink_github()
+void Plotus::openLink_github()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/xpcoffee"));
 }
 
-void BareMinimumPlotter::on_toolButton_AddVariable_clicked() { addVariableInput(); }
+void Plotus::on_toolButton_AddVariable_clicked() { addVariableInput(); }
 
-void BareMinimumPlotter::on_toolButton_AddInequality_clicked() { addInequalityInput(); }
+void Plotus::on_toolButton_AddInequality_clicked() { addInequalityInput(); }
 
-void BareMinimumPlotter::on_toolButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
+void Plotus::on_toolButton_AddInequalityLoader_clicked() { addInequalityLoader(); }
 
-void BareMinimumPlotter::on_splitter_VariableHeader_splitterMoved(int /*pos*/, int /*index*/)
+void Plotus::on_splitter_VariableHeader_splitterMoved(int /*pos*/, int /*index*/)
 {
     elideLable(ui->label_VariableMode, "Mode");
     elideLable(ui->label_VariableConst, "Const. Chooser");
     emit variableSplitterMoved(ui->splitter_VariableHeader->sizes());
 }
 
-void BareMinimumPlotter::on_splitter_InequalityHeader_splitterMoved(int /*pos*/, int /*index*/)
+void Plotus::on_splitter_InequalityHeader_splitterMoved(int /*pos*/, int /*index*/)
 {
     emit inequalitySplitterMoved(ui->splitter_InequalityHeader->sizes());
 }
 
-void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
+void Plotus::on_lineEdit_SettingsTolerance_editingFinished()
 {
     QLineEdit *edit = ui->lineEdit_SettingsTolerance;
     stringstream buffer;
@@ -1353,11 +1353,11 @@ void BareMinimumPlotter::on_lineEdit_SettingsTolerance_editingFinished()
     edit->clearFocus();
 }
 
-void BareMinimumPlotter::on_lineEdit_PlotTitle_returnPressed() { ui->container_Graph->setFocus(); }
+void Plotus::on_lineEdit_PlotTitle_returnPressed() { ui->container_Graph->setFocus(); }
 
-void BareMinimumPlotter::on_lineEdit_PlotTitle_textChanged(const QString&) { fitLineEditToContents(ui->lineEdit_PlotTitle); }
+void Plotus::on_lineEdit_PlotTitle_textChanged(const QString&) { fitLineEditToContents(ui->lineEdit_PlotTitle); }
 
-void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
+void Plotus::on_lineEdit_PlotTitle_editingFinished()
 {
     if (ui->lineEdit_PlotTitle->text() == "New Plot") { m_title = "untitled case"; }
     else {
@@ -1366,7 +1366,7 @@ void BareMinimumPlotter::on_lineEdit_PlotTitle_editingFinished()
     }
 }
 
-void BareMinimumPlotter::on_pushButton_Cancel_clicked()
+void Plotus::on_pushButton_Cancel_clicked()
 {
     flag_Cancel = true;
     setProgress(100, "Cancelling...");
@@ -1377,13 +1377,13 @@ void BareMinimumPlotter::on_pushButton_Cancel_clicked()
 ///	Third Party & Static Functions
 ///	===============================
 
-void BareMinimumPlotter::elideLable(QLabel *label, QString text){
+void Plotus::elideLable(QLabel *label, QString text){
     QFontMetrics metrics(label->font());
     QString elidedText = metrics.elidedText(text, Qt::ElideRight, label->width());
     label->setText(elidedText);
 }
 
-void BareMinimumPlotter::fitLineEditToContents(QLineEdit* edit){
+void Plotus::fitLineEditToContents(QLineEdit* edit){
     QString text = edit->text();
     QFontMetrics fm = edit->fontMetrics();
     int width = fm.boundingRect(text).width();
@@ -1391,7 +1391,7 @@ void BareMinimumPlotter::fitLineEditToContents(QLineEdit* edit){
     edit->setMaximumWidth(width + 10);
 }
 
-void BareMinimumPlotter::removeFocusRect(QWidget *widget)
+void Plotus::removeFocusRect(QWidget *widget)
 {
     class Style_tweaks : public QProxyStyle
     {
@@ -1414,7 +1414,7 @@ void BareMinimumPlotter::removeFocusRect(QWidget *widget)
 //	-- Link: 		http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
 }
 
-void BareMinimumPlotter::putLinesInSplitterHandles(QSplitter *splitter, QFrame::Shape line_type, int size)
+void Plotus::putLinesInSplitterHandles(QSplitter *splitter, QFrame::Shape line_type, int size)
 {
     for (int i = 0; i < splitter->count(); i++){
         QSplitterHandle *handle = splitter->handle(i);

@@ -21,7 +21,7 @@
 
     First Party Code
     =================
-    A custom parser was coded for use in BareMinimumPlotter and is included:
+    A custom parser was coded for use in Plotus and is included:
     BlueJSON	-	Emerick Bosch	-	July 2014
 
     Third Party Code
@@ -32,8 +32,8 @@
 
 */
 
-#ifndef BAREMINIMUMPLOTTER_H
-#define BAREMINIMUMPLOTTER_H
+#ifndef PLOTUS_H
+#define PLOTUS_H
 
 ///	Includes
 ///	=========
@@ -92,20 +92,20 @@ typedef std::numeric_limits<double> precDouble	;
 using namespace std;
 
 namespace Ui {
-class BareMinimumPlotter;
+class Plotus;
 }
 
 
 ///	Class
 ///	======
 
-class BareMinimumPlotter : public QMainWindow
+class Plotus : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit BareMinimumPlotter(QWidget *parent = 0);
-    ~BareMinimumPlotter();
+    explicit Plotus(QWidget *parent = 0);
+    ~Plotus();
 
     //	overrides
     void showEvent(QShowEvent *event);
@@ -207,7 +207,7 @@ private slots:
     void on_pushButton_Cancel_clicked();
 
 private:
-    Ui::BareMinimumPlotter *ui;
+    Ui::Plotus *ui;
 
     //	plotter elements
     QwtPlot *plotter;
@@ -253,4 +253,4 @@ private:
 ///	Template Definitions
 ///	=====================
 
-#endif // BAREMINIMUMPLOTTER_H
+#endif // PLOTUS_H

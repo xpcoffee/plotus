@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BareMinimumPlotter</class>
- <widget class="QMainWindow" name="BareMinimumPlotter">
+ <class>Plotus</class>
+ <widget class="QMainWindow" name="Plotus">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BareMinimumPlotter</string>
+   <string>Plotus</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../rsc/rsc.qrc">
@@ -575,8 +575,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>771</width>
-                    <height>117</height>
+                    <width>772</width>
+                    <height>109</height>
                    </rect>
                   </property>
                   <property name="focusPolicy">
@@ -1113,8 +1113,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>771</width>
-                    <height>94</height>
+                    <width>772</width>
+                    <height>97</height>
                    </rect>
                   </property>
                   <property name="autoFillBackground">
@@ -1208,8 +1208,8 @@
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:10pt;&quot;&gt;Log&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Log&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="textInteractionFlags">
             <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -1502,7 +1502,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>913</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1619,7 +1619,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionExit</sender>
    <signal>triggered()</signal>
-   <receiver>BareMinimumPlotter</receiver>
+   <receiver>Plotus</receiver>
    <slot>menu_quit()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1635,7 +1635,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionAbout</sender>
    <signal>triggered()</signal>
-   <receiver>BareMinimumPlotter</receiver>
+   <receiver>Plotus</receiver>
    <slot>menu_about()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1651,7 +1651,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionOpen</sender>
    <signal>triggered()</signal>
-   <receiver>BareMinimumPlotter</receiver>
+   <receiver>Plotus</receiver>
    <slot>menu_open()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1667,7 +1667,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionSaveAs</sender>
    <signal>triggered()</signal>
-   <receiver>BareMinimumPlotter</receiver>
+   <receiver>Plotus</receiver>
    <slot>menu_saveAs()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1683,7 +1683,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionNew</sender>
    <signal>triggered()</signal>
-   <receiver>BareMinimumPlotter</receiver>
+   <receiver>Plotus</receiver>
    <slot>menu_new()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1699,7 +1699,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionExport</sender>
    <signal>triggered()</signal>
-   <receiver>BareMinimumPlotter</receiver>
+   <receiver>Plotus</receiver>
    <slot>menu_export()</slot>
    <hints>
     <hint type="sourcelabel">
