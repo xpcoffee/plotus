@@ -109,8 +109,9 @@ QPushButton:pressed{
 }
 
 QPushButton:disabled{
-	background: rgb(210, 210, 210);
-	border: transparent;
+        color: white;
+        border: transparent;
+        background: rgb(210,210,210);
 }
 
 QPushButton#pushButton_Down{

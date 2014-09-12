@@ -857,7 +857,7 @@ void Plotus::openVariables(string json)
 
 void Plotus::checkAxisMode(int gui_number)
 {
-    int xcount = 0, ycount = 0, xpos, ypos;
+    int xcount = 0, ycount = 0, xpos = 0, ypos = 0;
     for (int i = 0; i < static_cast<int>(m_variableInputs.size()); i++){ 	// find x-axis and y-axis labels
        if(m_variableInputs[i]->getAxisMode() == PlotHorizontal) {
             xcount++;
