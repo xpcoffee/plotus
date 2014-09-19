@@ -1,0 +1,4 @@
+?package(plotus):needs="X11" \
+section="Applications/Science/Mathematics" \
+title="Plotus" \
+command="plotus"

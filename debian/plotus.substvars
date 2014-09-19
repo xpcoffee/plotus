@@ -1,0 +1,2 @@
+shlibs:Depends=libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libgl1, libglib2.0-0 (>= 2.22.0), libicu52 (>= 52~m1-1~), libstdc++6 (>= 4.4.0), libx11-6, plotus
+misc:Depends=

@@ -1,0 +1,22 @@
+Source: plotus
+Section: science
+Priority: optional
+Maintainer: Emerick Bosch <xpc.dev@gmail.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.5
+Homepage: https://github.com/xpcoffee/plotus
+#Vcs-Git: git://git.debian.org/collab-maint/plotus.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/plotus.git;a=summary
+
+Package: plotus
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Linear programming calculator and plotter. 
+ Plotus is a simple program meant to provide a quick and easy way to visualize
+ the solution-spaces.
+ It does so through by evaluating, combining and plotting inequalities.
+ The resulting plots can then be saved for future use or exported as a
+ picture or vector format.
+ (Please note that this is currently the Alpha release, and the application is
+ still considered "unstable").
+ As this is my first program, feedback and suggestions are more than welcome.

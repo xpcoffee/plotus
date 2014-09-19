@@ -1,0 +1,6 @@
+plotus (0.5-1) unstable; urgency=low
+
+  * Alpha release Closes: #12345
+  * This is my first Debian package, constructive feedback welcome.
+
+ -- Emerick Bosch (XPC) <xpc.dev@gmail.com>  Tue, 16 Sep 2014 00:02:33 +0200

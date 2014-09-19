@@ -1,4 +1,39 @@
+#----------------
+#
+# PROJECT
+#
+#----------------
+
+# ignored resources
 rsc/ignored/
+
+# external libraries
+lib
+
+#----------------
+#
+# BUILDING
+#
+#----------------
+
+# exec
+plotus
+
+# building tools
+Makefile
+build
+.pc
+
+# extra .pro files
+plotus-0.5.pro.*
+
+#----------------
+#
+# SETTINGS
+#
+#----------------
+
+# IDE
 BareMinimumPlotter.pro.user
 BareMinimumPlotter.pro.user.*
 Plotus.pro.user
