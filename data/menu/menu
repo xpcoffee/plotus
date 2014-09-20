@@ -1,4 +1,6 @@
-?package(plotus):needs="X11" \
+?package(plotus): \
+needs="X11" \
 section="Applications/Science/Mathematics" \
 title="Plotus" \
 command="plotus"
+icon=/usr/share/pixmaps/plotus.xpm

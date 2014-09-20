@@ -102,7 +102,7 @@ unix:!mac{
 	pluginfiles.files += lib/plugins/*
 	pluginfiles.path = $$LIBDIR/plugins
 
-	manfiles.files += data/man/$${TARGET}.1
+	manfiles.files += data/man/plotus.1
 	manfiles.path = $$MANDIR/man1
 
 	docfiles.files += data/doc/* README.md
@@ -111,7 +111,10 @@ unix:!mac{
 	menufiles.files += data/menu/*
 	menufiles.path = $$DATADIR/applications
 
-	INSTALLS += target libfiles pluginfiles manfiles docfiles menufiles 
+	iconfiles.files += rsc/plotus32.xpm rsc/plotus64.png
+	iconfiles.path = $$DATADIR/pixmaps
+
+	INSTALLS += target libfiles pluginfiles manfiles docfiles menufiles iconfiles
 }
 
 

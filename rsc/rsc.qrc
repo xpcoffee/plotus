@@ -25,7 +25,10 @@
         <file>up-arrow-black.png</file>
         <file>up-arrow-black-small.png</file>
     </qresource>
-    <qresource prefix="/style" lang="CSS">
+    <qresource lang="CSS" prefix="/style">
         <file>theme_default.css</file>
+    </qresource>
+    <qresource prefix="/qt/etc">
+        <file>qt.conf</file>
     </qresource>
 </RCC>

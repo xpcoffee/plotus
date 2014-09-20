@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=0.5
+Name=Plotus
+Comment=Linear programming calculator and plotter.
+Exec=plotus
+Icon=plotus64
+Terminal=false
+Type=Application
+Categories=Application;Science;Mathematics;
