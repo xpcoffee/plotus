@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-CONFIG   += qwt
+CONFIG   += qwt release
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
@@ -49,10 +49,14 @@ FORMS    +=  \
     xml/variableinput.ui \
     xml/plotus.ui
 
-OTHER_FILES +=
-
 RESOURCES += \
     rsc/rsc.qrc
+
+LIBS	= -L/home/rick/Qt/5.3.2_static/lib -L/home/rick/Qt/qwt-6.1.0-static -lqwt
+QMAKE_LFLAGS += -static
+
+OTHER_FILES +=
+
 
 # ----------------
 #
@@ -74,47 +78,45 @@ RCC_DIR	= $$BUILDDIR
 # ----------------
 
 unix:!mac{
-	# VARIABLES
-	isEmpty(PREFIX) {
-		PREFIX = /usr
-	}
+        # VARIABLES
+        isEmpty(PREFIX) {
+                PREFIX = /usr
+        }
 
-	# GNU STANDARD DIRECTORY VARIABLES
-	BINDIR	= $$PREFIX/bin
-	LIBDIR	= $$PREFIX/lib/$${TARGET}
-	DATADIR	= $$PREFIX/share
-	MANDIR	= $$DATADIR/man
-	DOCDIR	= $$DATADIR/doc/$${TARGET}
+        # GNU STANDARD DIRECTORY VARIABLES
+        BINDIR	= $$PREFIX/bin
+        LIBDIR	= $$PREFIX/lib/$${TARGET}
+        DATADIR	= $$PREFIX/share
+        MANDIR	= $$DATADIR/man
+        DOCDIR	= $$DATADIR/doc/$${TARGET}
 
-	# SET RPATH
-	QMAKE_RPATH =
-	QMAKE_RPATHDIR =
-	QMAKE_RPATHLINKDIR =
-	QMAKE_LFLAGS += -Wl,-rpath,$$LIBDIR
+        # SET RPATH
+        #QMAKE_LFLAGS_RPATH=
+		#QMAKE_LFLAGS_SHLIB=
+        #QMAKE_RPATHDIR=
+        #QMAKE_RPATHLINKDIR=
+        #QMAKE_LFLAGS += -Wl,-rpath,$$LIBDIR
 
-	# MAKE INSTALL
-	target.files += $${TARGET}
-  	target.path = $$BINDIR
+        # MAKE INSTALL
+        target.files += $${TARGET}
+        target.path = $$BINDIR
 
-	libfiles.files += lib/*
-	libfiles.path = $$LIBDIR
+        pluginfiles.files += lib/plugins/*
+        pluginfiles.path = $$LIBDIR/plugins
 
-	pluginfiles.files += lib/plugins/*
-	pluginfiles.path = $$LIBDIR/plugins
+        manfiles.files += data/man/plotus.1
+        manfiles.path = $$MANDIR/man1
 
-	manfiles.files += data/man/plotus.1
-	manfiles.path = $$MANDIR/man1
+        docfiles.files += data/doc/* README.md
+        docfiles.path = $$DOCDIR
 
-	docfiles.files += data/doc/* README.md
-	docfiles.path = $$DOCDIR
+        menufiles.files += data/menu/*
+        menufiles.path = $$DATADIR/applications
 
-	menufiles.files += data/menu/*
-	menufiles.path = $$DATADIR/applications
+        iconfiles.files += rsc/plotus32.xpm rsc/plotus64.png
+        iconfiles.path = $$DATADIR/pixmaps
 
-	iconfiles.files += rsc/plotus32.xpm rsc/plotus64.png
-	iconfiles.path = $$DATADIR/pixmaps
-
-	INSTALLS += target libfiles pluginfiles manfiles docfiles menufiles iconfiles
+        INSTALLS += target libfiles pluginfiles manfiles docfiles menufiles iconfiles
 }
 
 

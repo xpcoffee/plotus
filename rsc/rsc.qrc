@@ -25,7 +25,7 @@
         <file>up-arrow-black.png</file>
         <file>up-arrow-black-small.png</file>
     </qresource>
-    <qresource lang="CSS" prefix="/style">
+    <qresource prefix="/style" lang="CSS">
         <file>theme_default.css</file>
     </qresource>
     <qresource prefix="/qt/etc">
